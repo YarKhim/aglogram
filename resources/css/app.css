@@ -1,0 +1,249 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.border_debug {
+    border: solid 1px red;
+}
+
+.result_search_tab {
+    width: 100%;
+    /* text-align: center; */
+    display: flex;
+    height: 4.8em;
+    margin-top: 0.5em;
+}
+
+.result_search_tab_info {
+    width: 90%;
+    border: solid gray 3px;
+    margin-left: 5%;
+    /* border-radius: 10px; */
+    height: 100%;
+    display: flex;
+    /* justify-content: center;
+    align-items: center; */
+}
+
+.result_search {
+    border: solid rgba(0, 0, 161, 0.694) 3px;
+    width: 50%;
+    float: right;
+    background-color: #1a3568cd;
+    border-radius: 10px;
+    height: 25em;
+    overflow-y: auto;
+}
+
+.result_search>h2 {
+    font-size: 200%;
+    text-align: center;
+}
+
+.input_data_for_search {
+    width: 50%;
+    float: left;
+}
+
+.find_friends_input_text {
+    color: #fff;
+    width: 75%;
+    border-radius: 10px;
+    background: none;
+}
+
+.find_friends_submit {
+    background-color: rgb(17 24 39);
+    width: 20%;
+    border-radius: 10px;
+    height: 2.6em;
+    margin-left: 1em;
+    float: right;
+    margin-right: 10px;
+}
+
+.find_friends {
+    margin-top: 3em;
+    width: 100%;
+    display: flex;
+}
+
+.user_image {
+    float: left;
+
+    width: 4.5em;
+    height: 100%;
+}
+.user_image>img{
+    border-radius: 50%;
+}
+.text_info_search {
+    margin-left: 3em;
+    width: 70%;
+    height: 100%;
+}
+
+
+.post {
+    width: 50%;
+    border-radius: 3%;
+    border-color: black;
+    border-width: 0.05cm;
+    height: flex;
+    background-color: #0e0e2b5b;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-bottom: 1em;
+    /* margin-top: ; */
+}
+
+.avatar {
+    width: 3.2em;
+    height: 3.2em;
+    border-radius: 100%;
+    border-color: black;
+    border-width: 0.05cm;
+
+    margin-left: 4%;
+
+    margin-bottom: 1em;
+    margin-top: 4%;
+}
+
+.username {
+
+    border-color: black;
+    border-width: 0.0cm;
+    width: 70%;
+    height: 2em;
+    margin-left: 90px;
+    margin-top: -65px;
+}
+
+.timecode {
+    border-color: black;
+    border-width: 0.0cm;
+    width: 15%;
+    height: 0.9em;
+    margin-left: 90px;
+    margin-top: -2%;
+}
+
+.foto {
+    border-color: black;
+    border-width: 0.05cm;
+    width: 90%;
+    height: flex;
+    margin-left: 5%;
+    margin-top: 5%;
+}
+
+.description {
+    border-color: black;
+    border-width: 0.05cm;
+    width: 90%;
+    height: flex;
+    margin-left: 5%;
+    margin-top: 1%;
+
+}
+
+.likes {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 40px;
+    height: 40px;
+    border-color: black;
+    border-width: 0.05cm;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 5%;
+}
+
+.comments {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 40px;
+    height: 40px;
+    border-color: black;
+    border-width: 0.05cm;
+    margin-top: -60px;
+    margin-bottom: 20px;
+    margin-left: 70px;
+}
+
+.share {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 40px;
+    height: 40px;
+    border-color: black;
+    border-width: 0.05cm;
+    margin-top: -60px;
+    margin-bottom: 20px;
+    margin-left: 115px;
+}
+
+.chats {
+    width: 30%;
+    border-color: rgb(27, 27, 43);
+    border-width: 0.1cm;
+    border-radius: 10px;
+    height: flex;
+    background-color: rgb(27, 27, 43);
+}
+
+.name {
+    width: flex;
+    margin-left: 5%;
+}
+
+.lastmessege {
+    margin-left: 5%;
+    background-color: rgb(27, 27, 43);
+    width: 90%;
+    border-radius: 10px;
+    border-top-left-radius: 5px;
+}
+
+.txt {
+    margin-left: 5px;
+    max-width: 180px;
+    height: flex;
+}
+
+.messegetime {
+    margin-left: 80%;
+    margin-top: -20px;
+}
+
+.a {
+    height: flex;
+    weight: 30%;
+    margin-top: -650px;
+}
+
+.opened_chat {
+    width: 70%;
+    height: 100%;
+    border-radius: 10px;
+    background-color: rgb(27, 27, 43);
+    margin-left: 31%;
+}
+
+.p-6 {
+    height: 700px;
+
+}
+
+.py-12 {
+    width: 100%;
+    margin-left: 0;
+}
