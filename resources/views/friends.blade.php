@@ -37,13 +37,14 @@
                                     @foreach ($users as $user)
                                         console.log('{{ $user->username }}');
                                         console.log('{{ route('profile.avatar', ['user' => $user->id]) }}');
-                                        element_result_search_tab = `<div class="result_search_tab" id="result_search_tab_link_{{ $user->username }}">
+                                        element_result_search_tab =
+                                            `<div class="result_search_tab" id="result_search_tab_link_{{ $user->username }}">
                                                                         <div class="result_search_tab_info">
                                                                             <div class="user_image">
                                                                                 <img src='{{ route('profile.avatar', ['user' => $user->id]) }}'>
                                                                             </div>
                                                                             <div class="text_info_search">
-                                                                                <p><b>{{ $user->name }} {{ $user->lastname }}</b> <br><i> {{ $user->username }} </i></p>
+                                                                                <p><b>{{ $user->name }} {{ $user->lastname }}</b> <br><i> @` + `{{ $user->username }} </i></p>
                                                                             </div>
                                                                         </div>
                                                                     </div>`;
