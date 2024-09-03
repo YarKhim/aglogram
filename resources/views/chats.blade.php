@@ -10,8 +10,17 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="opened_chat"> <!---место, где будет находиться открытый чат --->   
-                        
+                        <div class=messege>
+                            <div class="my_messege" text-align:right>
+                                <p><p>
+                            </div>
+                            
+                        </div>
+                        <div class="received_messege">
+                                
+                        </div>   
                     </div>
+                    <input type="text" class="input"></input>
                     <div class="a"> <!--- контейнер со списком чатов --->
                         <div class="chats">
                             <div class="name">
