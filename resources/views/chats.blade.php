@@ -4,21 +4,67 @@
             {{ __('Чаты') }}
         </h2>
     </x-slot>
-
+    <style>
+        .p-6 {
+            height: 100vh;
+        }
+    </style>
     <div class="py-12">
         <div class="max-w-10xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div class="opened_chat"> <!---место, где будет находиться открытый чат --->   
-                        <div class=messege>
-                            <div class="my_messege" text-align:right>
-                                <p><p>
+                    <div class="opened_chat"> <!---место, где будет находиться открытый чат --->
+                        <div class="message border_debug">
+                            <div class="my_message border_debug">
+                                <div class="message_text">
+                                    <p>GHBDTN!we</p>
+                                </div>
                             </div>
-                            
                         </div>
-                        <div class="received_messege">
-                                
-                        </div>   
+                        {{--  --}}
+                        <div class="message border_debug">
+                            <div class="my_message border_debug">
+                                <div class="message_text">
+                                    <p>GHBDTN!we</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message border_debug">
+                            <div class="received_messege border_debug">
+                                <div class="message_text">
+                                    <p>GHBDTN!we</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message border_debug">
+                            <div class="my_message border_debug">
+                                <div class="message_text">
+                                    <p>GHBDTN!we</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message border_debug">
+                            <div class="received_messege border_debug">
+                                <div class="message_text">
+                                    <p>GHBDTN!we</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message border_debug">
+                            <div class="my_message border_debug">
+                                <div class="message_text">
+                                    <p>GHBDTN!we</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="message border_debug">
+                            <div class="received_messege border_debug">
+                                <div class="message_text">
+                                    <p>GHBDTN!we</p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     <input type="text" class="input"></input>
                     <div class="a"> <!--- контейнер со списком чатов --->
@@ -34,10 +80,10 @@
                                     <sup>17:45</sup>
                                 </div>
                             </div>
-                                                      
+
                         </div>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
