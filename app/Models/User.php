@@ -24,6 +24,8 @@ class User extends Authenticatable
         'username',
         'password',
         'avatar',
+        'public_key',
+        'private_key',
     ];
 
     /**

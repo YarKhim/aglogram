@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use phpseclib3\Crypt\RSA;
 
 class RegisteredUserController extends Controller
 {
@@ -30,6 +31,9 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $key = RSA::createKey(4096);
+        $privateKey = $key->toString('PKCS8');
+        $publicKey = $key->getPublicKey()->toString('PKCS8');
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
@@ -45,7 +49,9 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-
+        $user->private_key = $privateKey;
+        $user->public_key = $publicKey;
+        $user->save();
         event(new Registered($user));
 
         Auth::login($user);
