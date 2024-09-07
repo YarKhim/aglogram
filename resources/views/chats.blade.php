@@ -61,7 +61,8 @@
                                     <div class="recived_message border_debug">
 
                                     </div>
-                                </div> <div class="message border_debug">
+                                </div>
+                                <div class="message border_debug">
                                     <div class="recived_message border_debug">
 
                                     </div>
@@ -69,7 +70,12 @@
                             </div>
 
                             <div class="border_debug input">
-                                <input type="text" class="message_input">
+                                <form>
+                                    @csrf
+                                    <input type="text" class="message_input" id='message_input'>
+                                    <button type="button" id="send_message">Отправить</button>
+                                </form>
+
                             </div>
                         </div>
                     </div>
@@ -77,83 +83,11 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="max-w-10xl mx-auto sm:px-3 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div class="opened_chat"> <!---место, где будет находиться открытый чат --->
-                        <div class="message border_debug">
-                            <div class="my_message border_debug">
-                                <div class="message_text">
-                                    <p>GHBDTN!wjklhjklhklghkljgfgkjghfgchfcjkjhcfgghfjdgge</p>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="message border_debug">
-                            <div class="my_message border_debug">
-                                <div class="message_text">
-                                    <p>GHBDTN!we</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="message border_debug">
-                            <div class="received_messege border_debug">
-                                <div class="message_text">
-                                    <p>GHBDTN!we</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="message border_debug">
-                            <div class="my_message border_debug">
-                                <div class="message_text">
-                                    <p>GHBDTN!we</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="message border_debug">
-                            <div class="received_messege border_debug">
-                                <div class="message_text">
-                                    <p>GHBDTN!we</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="message border_debug">
-                            <div class="my_message border_debug">
-                                <div class="message_text">
-                                    <p>GHBDTN!we</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="message border_debug">
-                            <div class="received_messege border_debug">
-                                <div class="message_text">
-                                    <p>GHBDTN!we</p>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-                    <input type="text" class="input">
-                    <button> Отправить</button>
-                    <div class="a"> <!--- контейнер со списком чатов --->
-                        <div class="chats">
-                            <div class="name">
-                                <p>Никола Тесла</p>
-                            </div>
-                            <div class="lastmessege">
-                                <div class="txt">
-                                    <p>сообщени hkljhjk gj jhbjhnb</p>
-                                </div>
-                                <div class="messegetime">
-                                    <sup>17:45</sup>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div> --}}
     </div>
+    <script>
+        document.getElementById('send_message').addEventListener('click', function() {
+            console.log(document.getElementById('message_input').value);
+        });
+    </script>
 </x-app-layout>

@@ -2,8 +2,8 @@
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
 
-            @if (isset($value))
-                {{ __('Страница пользователся @') . $value }}
+            @if (isset($user))
+                {{ __('Страница пользователся @') . $user->username }}
             @endif
         </h2>
     </x-slot>
