@@ -1,6 +1,5 @@
 <x-app-layout>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {{-- <script src="{{ mix('js/RSA.min.js') }}"></script> --}}
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="http://peterolson.github.com/BigInteger.js/BigInteger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>

@@ -3,7 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserSearch;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\ProfileUserShow;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+// Route::resource('users', UserController::class);
 
 Route::get('/friends', function () {
     return view('friends');
@@ -34,6 +35,9 @@ Route::get('/chats', function () {
 Route::get('/user_profile', function () {
     return view('user_profile');
 })->middleware(['auth', 'verified'])->name('user_profile');
+
+Route::get('/user_profile', [ProfileUserShow::class, 'getUserName']);
+
 
 Route::get('/feed', function () {
     return view('feed');

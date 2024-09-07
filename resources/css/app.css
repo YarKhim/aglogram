@@ -6,9 +6,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* .border_debug {
+.border_debug {
     border: solid 1px red;
-} */
+}
+
+.font-semibold {
+    height: 20px;
+}
 
 .result_search_tab {
     width: 100%;
@@ -201,7 +205,7 @@
 }
 
 .chats {
-    width: 30%;
+    width: 90%;
     border-color: rgb(27, 27, 43);
     border-width: 0.1cm;
     border-radius: 10px;
@@ -235,135 +239,141 @@
 
 .a {
     height: flex;
-    weight: 30%;
-    margin-top: -650px;
+    width: 30%;
+
+    position: absolute;
+    top: 2cqb;
+    margin: auto;
+
 }
 
 .opened_chat {
     width: 70%;
     /* height: 200vh; */
-    height: 93.5%;
+    height: 96%;
     border-radius: 10px;
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
     background-color: rgb(27, 27, 43);
     margin-left: 31%;
+    margin-top: -0.8cqb;
 }
 
 .p-6 {
-    height: auto;
 
+    position: relative;
 }
 
 .py-12 {
     width: 100%;
     margin-left: 0;
+
+    height: 85.9cqb;
 }
 
-.input {
-    margin-left: 31%;
-    background-color: rgb(27, 27, 40);
+.max-w-10xl {
+    margin-top: -3cqb;
+}
+
+.main_plane {
+    width: 100%;
+    display: flex;
+    height: 100%;
+}
+
+.all_chats_list {
+    overflow-y: auto;
+    width: 30%;
+    height: 100%;
+}
+
+.chat_tab {
+    position: relative;
+    display: flex;
+    height: 15%;
+    margin-top: 5%;
+}
+
+.chat_foto {
+    width: 20%;
+    height: 100%;
+}
+
+.right_side_chat_tab {
+    display: flex;
+    width: 80%;
+    flex-direction: column;
+}
+
+.chat_info {
+    width: 100%;
+    display: flex;
+    height: 50%;
+    float: right;
+}
+
+.chat_name {
+    width: 80%;
+    float: left;
+    /* background-color: aqua; */
+}
+
+.last_message_time {
+    width: 12.5%;
+    /* background-color: wheat; */
+    /* float: right; */
+}
+
+.read_receipts {
+    /* background-color: rebeccapurple; */
+    width: 7.5%;
+}
+
+.last_message {
+    display: flex;
+    width: 100%;
+    height: 50%;
+    /* background-color: white; */
+}
+
+.messages_plane {
     width: 70%;
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-}
-
-.message {
-    /* margin-top: 10%; */
-    width: 100%;
-    min-height: 10%;
     position: relative;
-    /* display: grid; */
-    /* display: flex; */
+}
+.messages_plane{
+
+}
+.input {
+    height: 10%;
+}
+.messages{
+    height: 90%;
+}
+.message_input{
+    width: 85%;
+    height: 100%;
+    background: none;
 }
 
-
-.my_message {
-    /* margin-top: 10%; */
-    background-color: rgb(0, 22, 76);
-    margin-right: 1em;
-    top: 5%;
-    bottom: 5%;
-    text-align: center;
-    /* height: 100p; */
-    position: absolute;
-    right: 0;
-    max-width: 40%;
+.message{
+    min-height: 12.5%;
     display: flex;
-    justify-content: center;
-    /* Центрирование по горизонтали */
-    align-items: center;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: normal;
-    border-radius: 1em;
-    border-bottom-right-radius: 0px;
-
+    position: relative;
+    margin-top: 1%;
 }
-
-.received_messege {
-    margin-left: 1em;
-    background-color: rgb(75, 75, 75);
-    top: 5%;
-    bottom: 5%;
-    text-align: center;
-    /* height: 100p; */
+.my_message{
+    /* background-color: white; */
+    max-width: 40%;
+    min-width: 20%;
     position: absolute;
+    height: 100%;
+    right: 0;
+}
+.recived_message{
+    /* background-color: white; */
+    max-width: 40%;
+    min-width: 20%;
+    position: absolute;
+    height: 100%;
     left: 0;
-    max-width: 40%;
-    display: flex;
-    justify-content: center;
-    /* Центрирование по горизонтали */
-    align-items: center;
-    border-radius: 1em;
-    border-bottom-left-radius: 0px;
-
-    /* white-space: normal; */
-
 }
-
-.message_text {
-    padding-left: 1em;
-    padding-right: 1em
-}
-
-
-/* .my_messege {
-    width: fit-content;
-    max-width: 70%;
-    min-width: 30%;
-    position: absolute;
-    right: 0;
-    background-color: aqua;
-    height: flex;
-    min-height: 20px;
-    border-radius: 5px;
-    border-bottom-right-radius: 0px;
-    margin-top: 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: normal;
-}
-
-.received_messege {
-    width: fit-content;
-    max-width: 70%;
-    min-width: 30%;
-
-    background-color: rgb(255, 0, 98);
-    height: flex;
-    min-height: 20px;
-    border-radius: 5px;
-    border-bottom-left-radius: 0px;
-    margin-top: 8px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: normal;
-}
-
-.messege {
-    width: 100%;
-    display: flex;
-    position: relative;
-    height: flex;
-} */
