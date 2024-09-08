@@ -9,7 +9,8 @@ class ProfileUserShow extends Controller
 {
     public function getUserName()
     {
-        $user = User::find(request('id'));
+        $username = request('id');
+        $user = User::where('username', $username)->first();
         return view('user_profile', ['user' => $user]);
     }
 }
