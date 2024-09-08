@@ -1,11 +1,10 @@
 <x-app-layout>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="http://peterolson.github.com/BigInteger.js/BigInteger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
+    <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
 
-    {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/node-rsa/1.0.1/node-rsa.min.js"></script> --}}
 
     {{-- <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -89,13 +88,20 @@
 
     </div>
     <script>
-        // console.log(NodeRSA); // Это должно вывести функцию, если библиотека загружена
-
+        function splitString(input) {
+            const maxLength = 450;
+            const result = [];
+            for (let i = 0; i < input.length; i += maxLength) {
+                result.push(input.slice(i, i + maxLength));
+            }
+            return result;
+        }
 
         document.getElementById('send_message').addEventListener('click', function() {
             const encrypt = new JSEncrypt();
+            // const a = new RSA();
             // const key = new NodeRSA();
-            public_key = `-----BEGIN PUBLIC KEY-----
+            publicKeyPem = `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzHLgkIBdO9sgJhB4RZaO
 eZ+3qH1gOyp1qSoBa1gP0c27a6SaYvwC0OC7mm7BjMhT3KDM/U3pld2eUoKML9lt
 QtDFV82ktpc2DaubP9NvVC/lseO6Q4FdcIRtEvSUMhoNb/Rx6a7qPeoaAC2os7m8
@@ -109,7 +115,7 @@ yFjEo74+Ssm/2U28IDRnB69qjbdJrfhrkZizwBBLRSr9BWWtMPZUaNuvVyD72IZp
 M1YKdoZRgsKGscuAstb40k6f9Pb7FVxYaO3Cd7lDOJR65jNQwgh5q1HYMo8VirpR
 LqFanCmuIQskJAIsP8UD/18CAwEAAQ==
 -----END PUBLIC KEY-----`;
-            private_key = `-----BEGIN PRIVATE KEY-----
+            privateKeyPem = `-----BEGIN PRIVATE KEY-----
 MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQDMcuCQgF072yAm
 EHhFlo55n7eofWA7KnWpKgFrWA/RzbtrpJpi/ALQ4LuabsGMyFPcoMz9TemV3Z5S
 gowv2W1C0MVXzaS2lzYNq5s/029UL+Wx47pDgV1whG0S9JQyGg1v9HHpruo96hoA
@@ -162,17 +168,43 @@ GFNYMMzM6L/uR5+MeV1qgCx5kSN5Y4DoWPDmw+DkTIRob2mJ8cVF1/ONaK6mqs4K
 SrAk18YVlepnqmvQSfoLIThfyG8hDA==
 -----END PRIVATE KEY-----`;
 
-            encrypt.setPublicKey(public_key);
-            encrypt.setPrivateKey(private_key);
-            const dataToEncrypt = "Это секретное сообщение";
-            const encryptedData = encrypt.encrypt(document.getElementById('message_input').value);
-            console.log("Зашифрованные данные:", encryptedData);
 
-            const decryptedData = encrypt.decrypt(encryptedData);
-            console.log("Расшифрованные данные:", decryptedData);
-            console.log();
+            // Функция для шифрования
+            function encryptMessage(message) {
+                const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+                const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
+                return forge.util.encode64(encrypted); // Кодируем в base64
+            }
 
+            // Функция для дешифрования
+            function decryptMessage(encryptedMessage) {
+                const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+                const decodedMessage = forge.util.decode64(encryptedMessage);
+                const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
+                return decrypted;
+            }
+            encryptedMessageArray = [];
+            try {
+                if (document.getElementById('message_input').value.length < 450) {
+                    const message = document.getElementById('message_input').value;
 
+                    encryptedMessage = encryptMessage(message);
+                    encryptedMessageArray.push(encryptedMessage);
+                } else {
+                    message_array = splitString(document.getElementById('message_input').value);
+                    message_array.forEach((element) => {
+                        encryptedMessage = encryptMessage(element);
+                        encryptedMessageArray.push(encryptedMessage);
+
+                    });
+                }
+                console.log(encryptedMessageArray);
+                // Дешифруем сообщение
+                // const decryptedMessage = decryptMessage(encryptedMessage);
+                // console.log('Decrypted Message:\n', decryptedMessage);
+            } catch (error) {
+                console.error('Error:', error);
+            }
 
         });
     </script>
