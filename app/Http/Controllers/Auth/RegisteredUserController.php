@@ -58,11 +58,16 @@ class RegisteredUserController extends Controller
         $user->public_key = $publicKey;
         $user->save();
         $users = User::all();
-        $chat  = Chat::create([
-            'creator' => $request->name,
-            'invted' => $request->lastname,
-            'symmetric_chat_key' => $request->username,
-        ]);
+        $this_user = User::where('email', $request->email)->first();
+        foreach ($users as $USER) {
+            $chat  = Chat::create([
+                'creator' => $USER->id,
+                'invted' => $this_user->id,
+                'symmetric_chat_key' => Key::createNewRandomKey(),
+            ]);
+            $chat->save();
+        }
+
         // dd($users[0]->id);
         event(new Registered($user));
 
