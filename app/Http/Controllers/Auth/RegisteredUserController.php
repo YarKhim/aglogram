@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Chat;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use phpseclib3\Crypt\RSA;
+
+use Defuse\Crypto\Crypto;
+use Defuse\Crypto\Key;
 
 class RegisteredUserController extends Controller
 {
@@ -34,13 +38,14 @@ class RegisteredUserController extends Controller
         $key = RSA::createKey(4096);
         $privateKey = $key->toString('PKCS8');
         $publicKey = $key->getPublicKey()->toString('PKCS8');
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'username' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'lastname' => ['required', 'string', 'max:255'],
-        ]);
+        $all_users =
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+                'username' => ['required', 'string', 'max:255'],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'lastname' => ['required', 'string', 'max:255'],
+            ]);
 
         $user = User::create([
             'name' => $request->name,
@@ -52,6 +57,13 @@ class RegisteredUserController extends Controller
         $user->private_key = $privateKey;
         $user->public_key = $publicKey;
         $user->save();
+        $users = User::all();
+        $chat  = Chat::create([
+            'creator' => $request->name,
+            'invted' => $request->lastname,
+            'symmetric_chat_key' => $request->username,
+        ]);
+        // dd($users[0]->id);
         event(new Registered($user));
 
         Auth::login($user);

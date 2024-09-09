@@ -4,6 +4,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
 
 
     {{-- <x-slot name="header">
@@ -88,6 +89,20 @@
 
     </div>
     <script>
+        console.log(CryptoJS);
+        // use Defuse\ Crypto\ Crypto;
+        // use Defuse\ Crypto\ Key;
+
+        // $key = Key::createNewRandomKey();
+        // $data = 'Ваши данные';
+
+        // // Шифрование
+        // $encrypted = Crypto::encrypt($data, $key);
+
+        // // Дешифрование
+        // $decrypted = Crypto::decrypt($encrypted, $key);
+
+
         function splitString(input) {
             const maxLength = 450;
             const result = [];

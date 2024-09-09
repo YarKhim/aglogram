@@ -40,6 +40,15 @@
                 0 => '*',
             ),
         ),
+        'defuse/php-encryption' => array(
+            'pretty_version' => 'v2.4.0',
+            'version' => '2.4.0.0',
+            'reference' => 'f53396c2d34225064647a05ca76c1da9d99e5828',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../defuse/php-encryption',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'dflydev/dot-access-data' => array(
             'pretty_version' => 'v3.0.3',
             'version' => '3.0.3.0',
