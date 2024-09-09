@@ -9,6 +9,7 @@ class Chat extends Model
 {
     protected $table = 'chats';
     protected $primaryKey = 'id';
+    public $timestamps = false;
     protected $fillable = [
         'creator',
         'invted',

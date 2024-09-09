@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('chats', function (Blueprint $table) {
-            $table->id();
-            $table->string('creator');
-            $table->string('invted');
-            $table->string('symmetric_chat_key');
+        Schema::table('chats', function (Blueprint $table) {
+            $table->string('symmetric_chat_key')->change();
         });
     }
 
@@ -24,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('chats');
+        Schema::table('chats', function (Blueprint $table) {
+            //
+        });
     }
 };
