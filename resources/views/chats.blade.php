@@ -39,7 +39,7 @@
 
                         </div>
                         <div class="border_debug messages_plane">
-                            <div class="border_debug messages">
+                            {{-- <div class="border_debug messages">
                                 <div class="message border_debug">
                                     <div class="my_message border_debug">
 
@@ -77,12 +77,13 @@
                                 </div>
                                 <div class="message border_debug">
                                     <div class="recived_message border_debug">
-
+                                        <p>Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="message border_debug">
                                     <div class="recived_message border_debug">
-
+                                        <p>324m89898989898989898989898989898989 </p>
                                     </div>
                                 </div>
                                 <div class="message border_debug">
@@ -115,42 +116,42 @@
                                 </form>
 
                             </div>
+                        </div> --}}
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
+
         </div>
+        <script>
+            // console.log(CryptoJS);
+            // use Defuse\ Crypto\ Crypto;
+            // use Defuse\ Crypto\ Key;
 
-    </div>
-    <script>
-        console.log(CryptoJS);
-        // use Defuse\ Crypto\ Crypto;
-        // use Defuse\ Crypto\ Key;
+            // $key = Key::createNewRandomKey();
+            // $data = 'Ваши данные';
 
-        // $key = Key::createNewRandomKey();
-        // $data = 'Ваши данные';
+            // // Шифрование
+            // $encrypted = Crypto::encrypt($data, $key);
 
-        // // Шифрование
-        // $encrypted = Crypto::encrypt($data, $key);
-
-        // // Дешифрование
-        // $decrypted = Crypto::decrypt($encrypted, $key);
+            // // Дешифрование
+            // $decrypted = Crypto::decrypt($encrypted, $key);
 
 
-        function splitString(input) {
-            const maxLength = 450;
-            const result = [];
-            for (let i = 0; i < input.length; i += maxLength) {
-                result.push(input.slice(i, i + maxLength));
+            function splitString(input) {
+                const maxLength = 450;
+                const result = [];
+                for (let i = 0; i < input.length; i += maxLength) {
+                    result.push(input.slice(i, i + maxLength));
+                }
+                return result;
             }
-            return result;
-        }
 
-        document.getElementById('send_message').addEventListener('click', function() {
-            if (document.getElementById('message_input').value.trim()) {
-                const encrypt = new JSEncrypt();
-                publicKeyPem = `-----BEGIN PUBLIC KEY-----
+            document.getElementById('send_message').addEventListener('click', function() {
+                if (document.getElementById('message_input').value.trim()) {
+                    const encrypt = new JSEncrypt();
+                    publicKeyPem = `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAzHLgkIBdO9sgJhB4RZaO
 eZ+3qH1gOyp1qSoBa1gP0c27a6SaYvwC0OC7mm7BjMhT3KDM/U3pld2eUoKML9lt
 QtDFV82ktpc2DaubP9NvVC/lseO6Q4FdcIRtEvSUMhoNb/Rx6a7qPeoaAC2os7m8
@@ -164,7 +165,7 @@ yFjEo74+Ssm/2U28IDRnB69qjbdJrfhrkZizwBBLRSr9BWWtMPZUaNuvVyD72IZp
 M1YKdoZRgsKGscuAstb40k6f9Pb7FVxYaO3Cd7lDOJR65jNQwgh5q1HYMo8VirpR
 LqFanCmuIQskJAIsP8UD/18CAwEAAQ==
 -----END PUBLIC KEY-----`;
-                privateKeyPem = `-----BEGIN PRIVATE KEY-----
+                    privateKeyPem = `-----BEGIN PRIVATE KEY-----
 MIIJQgIBADANBgkqhkiG9w0BAQEFAASCCSwwggkoAgEAAoICAQDMcuCQgF072yAm
 EHhFlo55n7eofWA7KnWpKgFrWA/RzbtrpJpi/ALQ4LuabsGMyFPcoMz9TemV3Z5S
 gowv2W1C0MVXzaS2lzYNq5s/029UL+Wx47pDgV1whG0S9JQyGg1v9HHpruo96hoA
@@ -218,46 +219,46 @@ SrAk18YVlepnqmvQSfoLIThfyG8hDA==
 -----END PRIVATE KEY-----`;
 
 
-                // Функция для шифрования
-                function encryptMessage(message) {
-                    const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
-                    const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
-                    return forge.util.encode64(encrypted); // Кодируем в base64
-                }
-
-                // Функция для дешифрования
-                function decryptMessage(encryptedMessage) {
-                    const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
-                    const decodedMessage = forge.util.decode64(encryptedMessage);
-                    const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
-                    return decrypted;
-                }
-                encryptedMessageArray = [];
-                try {
-                    if (document.getElementById('message_input').value.length < 450) {
-                        const message = document.getElementById('message_input').value;
-
-                        encryptedMessage = encryptMessage(message);
-                        encryptedMessageArray.push(encryptedMessage);
-                    } else {
-                        message_array = splitString(document.getElementById('message_input').value);
-                        message_array.forEach((element) => {
-                            encryptedMessage = encryptMessage(element);
-                            encryptedMessageArray.push(encryptedMessage);
-
-                        });
+                    // Функция для шифрования
+                    function encryptMessage(message) {
+                        const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+                        const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
+                        return forge.util.encode64(encrypted); // Кодируем в base64
                     }
-                    console.log(encryptedMessageArray);
-                    document.getElementById('message_input').value = null;
-                    // Дешифруем сообщение
-                    // const decryptedMessage = decryptMessage(encryptedMessage);
-                    // console.log('Decrypted Message:\n', decryptedMessage);
-                } catch (error) {
-                    console.error('Error:', error);
+
+                    // Функция для дешифрования
+                    function decryptMessage(encryptedMessage) {
+                        const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+                        const decodedMessage = forge.util.decode64(encryptedMessage);
+                        const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
+                        return decrypted;
+                    }
+                    encryptedMessageArray = [];
+                    try {
+                        if (document.getElementById('message_input').value.length < 450) {
+                            const message = document.getElementById('message_input').value;
+
+                            encryptedMessage = encryptMessage(message);
+                            encryptedMessageArray.push(encryptedMessage);
+                        } else {
+                            message_array = splitString(document.getElementById('message_input').value);
+                            message_array.forEach((element) => {
+                                encryptedMessage = encryptMessage(element);
+                                encryptedMessageArray.push(encryptedMessage);
+
+                            });
+                        }
+                        console.log(encryptedMessageArray);
+                        document.getElementById('message_input').value = null;
+                        // Дешифруем сообщение
+                        // const decryptedMessage = decryptMessage(encryptedMessage);
+                        // console.log('Decrypted Message:\n', decryptedMessage);
+                    } catch (error) {
+                        console.error('Error:', error);
+                    }
                 }
-            }
 
 
-        });
-    </script>
+            });
+        </script>
 </x-app-layout>
