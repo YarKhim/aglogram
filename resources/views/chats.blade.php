@@ -70,12 +70,47 @@
 
                                     </div>
                                 </div>
+                                <div class="message border_debug">
+                                    <div class="my_message border_debug">
+
+                                    </div>
+                                </div>
+                                <div class="message border_debug">
+                                    <div class="recived_message border_debug">
+
+                                    </div>
+                                </div>
+                                <div class="message border_debug">
+                                    <div class="recived_message border_debug">
+
+                                    </div>
+                                </div>
+                                <div class="message border_debug">
+                                    <div class="my_message border_debug">
+
+                                    </div>
+                                </div>
+                                <div class="message border_debug">
+                                    <div class="my_message border_debug">
+
+                                    </div>
+                                </div>
+                                <div class="message border_debug">
+                                    <div class="recived_message border_debug">
+
+                                    </div>
+                                </div>
+                                <div class="message border_debug">
+                                    <div class="recived_message border_debug">
+
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="border_debug input">
                                 <form>
                                     @csrf
-                                    <input type="text" class="message_input" id='message_input'>
+                                    <input type="text" autocomplete="off" class="message_input" id='message_input'>
                                     <button type="button" id="send_message">Отправить</button>
                                 </form>
 

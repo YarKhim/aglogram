@@ -59,7 +59,7 @@ class RegisteredUserController extends Controller
         $user->save();
         $users = User::all();
         $this_user = User::where('email', $request->email)->first();
-        $key =Key::createNewRandomKey();
+        $key = Key::createNewRandomKey();
         $key_result_string = $key->saveToAsciiSafeString();
         foreach ($users as $USER) {
             $chat  = Chat::create([
@@ -70,7 +70,6 @@ class RegisteredUserController extends Controller
             $chat->save();
         }
 
-        // dd($users[0]->id);
         event(new Registered($user));
 
         Auth::login($user);

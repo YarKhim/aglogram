@@ -341,38 +341,50 @@
     width: 70%;
     position: relative;
 }
-.messages_plane{
 
-}
+
 .input {
     height: 10%;
 }
-.messages{
+
+.messages {
     height: 90%;
+    overflow-y: auto;
 }
-.message_input{
-    width: 85%;
-    height: 100%;
+.messages::-webkit-scrollbar{
+    visibility: hidden;
+    width: 1%;
+}
+.message_input {
+    width: 90%;
+    height: 3.5em;
     background: none;
 }
 
-.message{
-    min-height: 12.5%;
+.message {
+    min-height: 11%;
     display: flex;
     position: relative;
-    margin-top: 1%;
+    margin-top: 0.75%;
 }
-.my_message{
-    /* background-color: white; */
+
+.my_message {
+    margin-right: 1%;
+    background-color: white;
+    border-radius: 15px;
+    border-bottom-right-radius: 0px;
     max-width: 40%;
     min-width: 20%;
     position: absolute;
     height: 100%;
     right: 0;
 }
-.recived_message{
-    /* background-color: white; */
-    /* background-color: white; */
+
+.recived_message {
+    margin-left: 1%;
+    background-color: blue;
+    border-radius: 15px;
+    border-bottom-left-radius: 0px;
     max-width: 40%;
     min-width: 20%;
     position: absolute;
