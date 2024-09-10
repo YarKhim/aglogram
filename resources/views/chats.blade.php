@@ -22,8 +22,8 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="border_debug main_plane">
-                        <div class="border_debug all_chats_list">
-                            <div class="border_debug chat_tab">
+                        <div class="border_debug all_chats_list" id='all_chats_list'>
+                            {{-- <div class="border_debug chat_tab">
                                 <div class="border_debug chat_foto"></div>
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
@@ -35,13 +35,13 @@
                                     <div class="border_debug last_message">message</div>
                                 </div>
 
-                            </div>
+                            </div> --}}
 
                         </div>
                         <div class="border_debug messages_plane">
                             <div class="border_debug messages">
 
-                                <div class="message border_debug">
+                                {{-- <div class="message border_debug">
                                     <div class="recived_message border_debug">
                                         <p>Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!
                                         </p>
@@ -51,7 +51,7 @@
                                     <div class="recived_message border_debug">
                                         <p>324m89898989898989898989898989898989 </p>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
 
                             <div class="border_debug input">
@@ -75,8 +75,24 @@
             url: '/get_chats', // URL вашего маршрута
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
-                console.log(response.message); // Обработка успешного ответа
-                // alert(response.message); // Показать сообщение
+                // console.log(response.сhats[0]['name']); // Обработка успешного ответа
+                for (let i = 0; i < response.сhats.length; i++) {
+                    chat_tab_div = `<div class="border_debug chat_tab">
+                                <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
+                                <div class="border_debug right_side_chat_tab">
+                                    <div class="border_debug chat_info">
+                                        <div class="border_debug chat_name">` + response.сhats[i]['name'] + `</div>
+                                        <div class="border_debug read_receipts">&#10003;</div>
+                                        <div class="border_debug last_message_time">41.23</div>
+
+                                    </div>
+                                    <div class="border_debug last_message">message</div>
+                                </div>
+
+                            </div>`;
+                    console.log(chat_tab_div);
+                    $('#all_chats_list').append(chat_tab_div);
+                }
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText); // Обработка ошибки
