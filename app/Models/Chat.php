@@ -14,6 +14,7 @@ class Chat extends Model
         'creator',
         'invted',
         'symmetric_chat_key',
+        'chat_started',
     ];
     use HasFactory;
 }

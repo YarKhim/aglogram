@@ -349,7 +349,7 @@
 
 .messages {
     /* background-color: ; */
-    height: 90%;
+    height: 80%;
     overflow-y: auto;
 }
 
@@ -397,4 +397,9 @@
     min-width: 20%;
     align-self: flex-start;
     height: 100%;
+}
+.user_info_header{
+    width: 100%;
+    height: 10%;
+    /* background-color: #fff; */
 }

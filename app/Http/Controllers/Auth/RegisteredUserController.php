@@ -63,9 +63,11 @@ class RegisteredUserController extends Controller
         $key_result_string = $key->saveToAsciiSafeString();
         foreach ($users as $USER) {
             $chat  = Chat::create([
+                'chat_started' => false,
                 'creator' => $USER->id,
                 'invted' => $this_user->id,
                 'symmetric_chat_key' => $key_result_string,
+
             ]);
             $chat->save();
         }

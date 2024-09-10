@@ -39,6 +39,9 @@
 
                         </div>
                         <div class="border_debug messages_plane">
+                            <div class=" user_info_header border_debug">
+
+                            </div>
                             <div class="border_debug messages">
 
                                 {{-- <div class="message border_debug">
@@ -75,7 +78,7 @@
             url: '/get_chats', // URL вашего маршрута
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
-                // console.log(response.сhats[0]['name']); // Обработка успешного ответа
+                console.log(response.сhats); // Обработка успешного ответа
                 for (let i = 0; i < response.сhats.length; i++) {
                     chat_tab_div = `<div class="border_debug chat_tab">
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
