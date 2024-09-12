@@ -424,13 +424,14 @@
 .user_info_header_foto {
     height: 100%;
     width: 6%;
-    background-color: white;
+    border-radius: 50%;
     float: left;
 
 }
 
 .user_info_header_foto>img {
-    height: 100%;
+    /* height: 100%;s */
+    border-radius: 50%;
 }
 
 .user_info_header_name {
