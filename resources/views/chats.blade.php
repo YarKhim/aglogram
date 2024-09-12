@@ -265,6 +265,7 @@
                 let data = {
                     message: message,
                 };
+                document.getElementById('message_input').value = null;
                 // $.ajax({
                 //     url: '/send_message', // URL вашего маршрута
                 //     method: 'GET', // Метод запроса (GET или POST)
