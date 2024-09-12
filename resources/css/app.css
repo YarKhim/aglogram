@@ -295,10 +295,13 @@
 }
 
 .chat_foto {
+    border-radius: 50%;
     width: 20%;
     height: 100%;
 }
-
+.chat_foto>img{
+    border-radius: 50%;
+}
 .right_side_chat_tab {
     display: flex;
     width: 80%;

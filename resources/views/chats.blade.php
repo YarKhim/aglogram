@@ -93,7 +93,7 @@
                                 </div>
 
                             </div>`;
-                    console.log(chat_tab_div);
+                    // console.log(chat_tab_div);
                     $('#all_chats_list').append(chat_tab_div);
                 }
             },
