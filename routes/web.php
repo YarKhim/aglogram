@@ -5,6 +5,7 @@ use App\Http\Controllers\UserSearch;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileUserShow;
 use App\Http\Controllers\GetUserChats;
+use App\Http\Controllers\get_user;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -57,4 +58,5 @@ Route::middleware('auth')->group(function () {
 Route::get('/avatar/{user}', [ProfileController::class, 'avatar'])->name('profile.avatar');
 Route::post('/friends', [UserSearch::class, 'submit'])->name('contact.submit');
 Route::get('/get_chats', [GetUserChats::class, 'getChats']);
+Route::get('/get_user', [get_user::class, 'get_user']);
 require __DIR__ . '/auth.php';

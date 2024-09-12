@@ -299,9 +299,11 @@
     width: 20%;
     height: 100%;
 }
-.chat_foto>img{
+
+.chat_foto>img {
     border-radius: 50%;
 }
+
 .right_side_chat_tab {
     display: flex;
     width: 80%;
@@ -401,8 +403,41 @@
     align-self: flex-start;
     height: 100%;
 }
-.user_info_header{
+
+.user_info_header {
     width: 100%;
     height: 10%;
+    display: flex;
+    /* flex-direction: column; */
     /* background-color: #fff; */
+}
+
+.user_info_header_without_foto {
+    margin-left: 1%;
+    height: 100%;
+    flex-direction: column;
+}
+
+/* .user_info_header_without_foto>img{
+    height: 100%;
+} */
+.user_info_header_foto {
+    height: 100%;
+    width: 6%;
+    background-color: white;
+    float: left;
+
+}
+
+.user_info_header_foto>img {
+    height: 100%;
+}
+
+.user_info_header_name {
+    height: 50%;
+
+}
+
+.user_info_header_is_online {
+    height: 50%;
 }

@@ -5,7 +5,40 @@
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script>
+        var selected_chat;
 
+        function select_chat(user_id) {
+            return function() {
+                let data = {
+                    id: user_id,
+                };
+                $.ajax({
+                    url: '/get_user', // URL вашего маршрута
+                    method: 'GET', // Метод запроса (GET или POST)
+                    data: data,
+                    success: function(response) {
+                        $('#user_info_header').empty();
+                        const all_chats_list = document.getElementById('user_info_header');
+                        const user_chats_header =
+                            `<div class="user_info_header_foto border_debug"><img src=` + response.user
+                            .avatar + `></div>
+                                <div class="border_debug user_info_header_without_foto">
+                                    <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
+                            response.user.lastname + ' @' + response.user.username + `<i>
+                                    </div>
+                                    <div class="user_info_header_is_online border_debug"></div>
+                                </div>`;
+                        $('#user_info_header').append(user_chats_header);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText); // Обработка ошибки
+                    }
+                })
+
+            }
+        }
+    </script>
 
     {{-- <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -39,7 +72,13 @@
 
                         </div>
                         <div class="border_debug messages_plane">
-                            <div class=" user_info_header border_debug">
+                            <div class=" user_info_header border_debug" id="user_info_header">
+                                {{-- <div class="user_info_header_foto border_debug"><img></div>
+                                <div class="border_debug user_info_header_without_foto">
+                                    <div class="user_info_header_name border_debug"> <i><i>
+                                    </div>
+                                    <div class="user_info_header_is_online border_debug"></div>
+                                </div> --}}
 
                             </div>
                             <div class="border_debug messages">
@@ -80,7 +119,7 @@
             success: function(response) {
                 console.log(response.сhats); // Обработка успешного ответа
                 for (let i = 0; i < response.сhats.length; i++) {
-                    chat_tab_div = `<div class="border_debug chat_tab">
+                    chat_tab_div = `<div class="border_debug chat_tab" id=` + response.сhats[i]['id'] + `>
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
@@ -95,6 +134,8 @@
                             </div>`;
                     // console.log(chat_tab_div);
                     $('#all_chats_list').append(chat_tab_div);
+                    document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
+                        response.сhats[i]['id']));
                 }
             },
             error: function(xhr, status, error) {

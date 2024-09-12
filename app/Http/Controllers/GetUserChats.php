@@ -28,6 +28,7 @@ class GetUserChats extends Controller
             $chat_data['lastname'] = $USER->lastname;
             $chat_data['username'] = $USER->username;
             $chat_data['avatar'] = $USER->avatar;
+            $chat_data['id'] = $USER->id;
             $chats_data[] = $chat_data;
             // dump($USER);
         }
