@@ -343,9 +343,14 @@
 }
 
 .messages_plane {
+
     width: 70%;
     position: relative;
 }
+#messages_plane{
+    visibility: hidden;
+}
+
 
 
 .input {

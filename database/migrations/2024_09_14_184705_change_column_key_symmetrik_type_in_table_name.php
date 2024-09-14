@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('chat_started')->default(false);
+        Schema::table('messages', function (Blueprint $table) {
+            $table->text('key_string')->change();
         });
     }
 
@@ -21,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('messages', function (Blueprint $table) {
             //
         });
     }
 };
-

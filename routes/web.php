@@ -1,4 +1,5 @@
 <?php
+
 use App\Models\User;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserSearch;
@@ -6,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileUserShow;
 use App\Http\Controllers\GetUserChats;
 use App\Http\Controllers\get_user;
+use App\Http\Controllers\SendMessage;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -59,4 +62,5 @@ Route::get('/avatar/{user}', [ProfileController::class, 'avatar'])->name('profil
 Route::post('/friends', [UserSearch::class, 'submit'])->name('contact.submit');
 Route::get('/get_chats', [GetUserChats::class, 'getChats']);
 Route::get('/get_user', [get_user::class, 'get_user']);
+Route::get('/send_message', [SendMessage::class, 'send_message']);
 require __DIR__ . '/auth.php';
