@@ -14,7 +14,7 @@ class SendMessage extends Controller
         $this_user = Auth::user();
         $userId1 = $this_user->id;
         $userId2 = intval($request->addressee);
-        // dd($request->message);
+        // dd($request->encrypted_key);
         if (is_array($request->message)) {
             $data = implode('/_<message_hr_>_/', $request->message); // Преобразуем массив в строку
         }

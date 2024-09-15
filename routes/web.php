@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileUserShow;
 use App\Http\Controllers\GetUserChats;
 use App\Http\Controllers\get_user;
+use App\Http\Controllers\GetKeys;
 use App\Http\Controllers\SendMessage;
 
 /*
@@ -63,4 +64,5 @@ Route::post('/friends', [UserSearch::class, 'submit'])->name('contact.submit');
 Route::get('/get_chats', [GetUserChats::class, 'getChats']);
 Route::get('/get_user', [get_user::class, 'get_user']);
 Route::get('/send_message', [SendMessage::class, 'send_message']);
+Route::get('/get_keys', [GetKeys::class, 'get_keys']);
 require __DIR__ . '/auth.php';
