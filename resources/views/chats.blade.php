@@ -125,6 +125,7 @@
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
                 // console.log(response.сhats); // Обработка успешного ответа
+                console.log(response.сhats)
                 for (let i = 0; i < response.сhats.length; i++) {
                     chat_tab_div = `<div class="border_debug chat_tab" id=` + response.сhats[i]['id'] + `>
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
