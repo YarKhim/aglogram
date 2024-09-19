@@ -20,7 +20,17 @@
                     method: 'GET', // Метод запроса (GET или POST)
                     data: data,
                     success: function(response) {
+
                         $('#user_info_header').empty();
+                        $.ajax({
+
+                            url: '/get_messages_from_chat', // URL вашего маршрута
+                            method: 'GET', // Метод запроса (GET или POST)
+                            data: data,
+                            success: function(response) {
+                                console.log(response.success)
+                            }
+                        });
                         const all_chats_list = document.getElementById('user_info_header');
                         const user_chats_header =
                             `<div class="user_info_header_foto border_debug" id=` + response.user.id +
@@ -37,6 +47,8 @@
                             function() {
                                 window.open('/user_profile?id= ' + response.user.username)
                             });
+
+
                     },
                     error: function(xhr, status, error) {
                         console.error(xhr.responseText); // Обработка ошибки
@@ -188,10 +200,10 @@
                             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
                             return decrypted;
                         }
-                        console.log('private_key: ', privateKeyPem);
-                        console.log('public_key: ', publicKeyPem);
-                        console.log('chat_key: ', secretKey);
-                        console.log('encrypted_chat_key: ', encryptMessage(secretKey));
+                        // console.log('private_key: ', privateKeyPem);
+                        // console.log('public_key: ', publicKeyPem);
+                        // console.log('chat_key: ', secretKey);
+                        // console.log('encrypted_chat_key: ', encryptMessage(secretKey));
 
                         message = [];
 
