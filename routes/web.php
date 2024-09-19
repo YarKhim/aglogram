@@ -44,8 +44,11 @@ Route::get('/user_profile', function () {
 })->middleware(['auth', 'verified'])->name('user_profile');
 
 Route::get('/user_profile', [ProfileUserShow::class, 'getUserName']);
+// Route::get('/test', [ProfileUserShow::class, 'getUserName']);
 
-
+Route::get('/test', function () {
+    return view('test');
+});
 Route::get('/feed', function () {
     return view('feed');
 })->middleware(['auth', 'verified'])->name('feed');

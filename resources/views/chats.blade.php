@@ -8,6 +8,23 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
         var selected_chat;
+        const socket = new WebSocket('ws://localhost:8888');
+
+        socket.onopen = function(event) {
+            console.log('Подключено к WebSocket серверу');
+        };
+        socket.onmessage = function(event) {
+            console.log('Сообщение от сервера:', event.data);
+        };
+
+        socket.onclose = function(event) {
+            console.log('Соединение закрыто');
+        };
+
+        // Отправка сообщения на сервер
+        function sendMessage(message) {
+            socket.send(message);
+        }
 
         function select_chat(user_id) {
             return function() {
