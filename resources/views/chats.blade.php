@@ -8,6 +8,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script>
         var selected_chat;
+        const token = 'YOUR_AUTH_TOKEN';
         const socket = new WebSocket('ws://localhost:8888');
 
         socket.onopen = function(event) {
@@ -154,7 +155,7 @@
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
                 // console.log(response.сhats); // Обработка успешного ответа
-                console.log(response.сhats)
+                // console.log(response.сhats)
                 for (let i = 0; i < response.сhats.length; i++) {
                     chat_tab_div = `<div class="border_debug chat_tab" id=` + response.сhats[i]['id'] + `>
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
@@ -234,7 +235,7 @@
                             message[i] = (encryptedMessage);
                             encryptedMessage = null;
                         }
-                        console.log('message', message);
+                        // console.log('message', message);
                         // console.log(encryptMessage(secretKey));
                         // console.log(toString(encryptMessage(secretKey)));
                         const addressee = document.querySelector('.user_info_header_foto').id;
