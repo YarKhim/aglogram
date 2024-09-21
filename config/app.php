@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
-
+// use Barryvdh\Debugbar\ServiceProvider::class,
 return [
 
     /*
