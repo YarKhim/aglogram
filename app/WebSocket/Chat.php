@@ -31,6 +31,7 @@ class Chat implements MessageComponentInterface
                 $client->send($msg);
             }
         }
+        var_dump($msg);
     }
 
     public function onClose(ConnectionInterface $conn)

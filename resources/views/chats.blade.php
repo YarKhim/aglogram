@@ -245,15 +245,17 @@
                         };
                         // console.log(data);
                         document.getElementById('message_input').value = null;
-                        $.ajax({
-                            url: '/send_message', // URL вашего маршрута
-                            method: 'GET', // Метод запроса (GET или POST)
-                            data: data,
-                            success: function(response) {},
-                            error: function(xhr, status, error) {
-                                console.error(xhr.responseText); // Обработка ошибки
-                            }
-                        });
+                        // console.log(data.message);
+                        sendMessage(JSON.stringify(data));
+                        // $.ajax({
+                        //     url: '/send_message', // URL вашего маршрута
+                        //     method: 'GET', // Метод запроса (GET или POST)
+                        //     data: data,
+                        //     success: function(response) {},
+                        //     error: function(xhr, status, error) {
+                        //         console.error(xhr.responseText); // Обработка ошибки
+                        //     }
+                        // });
 
                     },
                     error: function(xhr, status, error) {
