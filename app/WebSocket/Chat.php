@@ -19,7 +19,7 @@ use Ratchet\MessageComponentInterface;
 class Chat implements MessageComponentInterface
 {
     protected $clients;
-
+    // private $user_connected;
     public function __construct()
     {
         $this->clients = new \SplObjectStorage;
@@ -65,8 +65,8 @@ class Chat implements MessageComponentInterface
         //         $client->send($msg);
         //     }
         // }
-
-        dump($msg);
+        // $id_sender = ;
+        dump($from);
     }
 
     public function onClose(ConnectionInterface $conn)
