@@ -243,6 +243,7 @@
                             message: message,
                             addressee: addressee,
                             encrypted_key: encryptMessage(secretKey),
+                            chat_id: response['chat_id'],
                         };
                         // console.log(data);
                         document.getElementById('message_input').value = null;

@@ -28,7 +28,8 @@ class GetKeys extends Controller
         return response()->json([
             'public_key' => $addressee_public_key,
             'private_key' => $addressee_private_key,
-            'chat_key' => $this_chat_key
+            'chat_key' => $this_chat_key,
+            'chat_id' =>  $this_chat->id
         ]);
     }
 }
