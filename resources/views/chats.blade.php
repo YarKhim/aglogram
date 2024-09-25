@@ -11,11 +11,36 @@
         const token = 'YOUR_AUTH_TOKEN';
         const socket = new WebSocket('ws://localhost:8888');
 
+        function encryptMessage(message, public_key) {
+            const publicKey = forge.pki.publicKeyFromPem(public_key);
+            const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
+            return forge.util.encode64(encrypted); // Кодируем в base64
+        }
+
+        function decryptMessage(encryptedMessage, private_key) {
+            const privateKey = forge.pki.privateKeyFromPem(private_key);
+            const decodedMessage = forge.util.decode64(encryptedMessage);
+            const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
+            return decrypted;
+        }
+
         socket.onopen = function(event) {
             console.log('Подключено к WebSocket серверу');
         };
         socket.onmessage = function(event) {
-            console.log('Сообщение от сервера:', event.data);
+            const privateKey = forge.pki.privateKeyFromPem(JSON.parse(event.data)['privateKey']);
+            const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
+            const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
+            console.log('Расшифрованный ключ: ', decrypted);
+            decryptedMessage = CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][0], decrypted).toString(CryptoJS
+                .enc.Utf8);
+            console.log(decryptedMessage);
+            decryptedMessage = null;
+            // console.log('Сообщение от сервера:', JSON.parse(event.data));
+            // console.log('Приватный ключ: ', JSON.parse(event.data)['privateKey']);
+            // console.log('Зашифрованный симметричный ключ: ', JSON.parse(event.data)['encrypted_key']);
+            // console.log(decryptMessage(``, JSON.parse(event.data)['privateKey']))
+
         };
 
         socket.onclose = function(event) {
@@ -51,7 +76,8 @@
                         });
                         const all_chats_list = document.getElementById('user_info_header');
                         const user_chats_header =
-                            `<div class="user_info_header_foto border_debug" id=` + response.user.id +
+                            `<div class="user_info_header_foto border_debug" id=` + response.user
+                            .id +
                             `><img src=` + response.user
                             .avatar + `></div>
                                 <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
@@ -61,7 +87,8 @@
                                     <div class="user_info_header_is_online border_debug"></div>
                                 </div>`;
                         $('#user_info_header').append(user_chats_header);
-                        document.getElementById('user_info_header_without_foto').addEventListener('click',
+                        document.getElementById('user_info_header_without_foto').addEventListener(
+                            'click',
                             function() {
                                 window.open('/user_profile?id= ' + response.user.username)
                             });
@@ -205,19 +232,19 @@
                         const privateKeyPem = response['private_key'];
                         const secretKey = response['chat_key'];
 
-
-                        function encryptMessage(message) {
-                            const publicKey = forge.pki.publicKeyFromPem(publicKeyPem);
+                        function encryptMessage(message, public_key) {
+                            const publicKey = forge.pki.publicKeyFromPem(public_key);
                             const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
                             return forge.util.encode64(encrypted); // Кодируем в base64
                         }
 
-                        function decryptMessage(encryptedMessage) {
-                            const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+                        function decryptMessage(encryptedMessage, private_key) {
+                            const privateKey = forge.pki.privateKeyFromPem(private_key);
                             const decodedMessage = forge.util.decode64(encryptedMessage);
                             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
                             return decrypted;
                         }
+
                         // console.log('private_key: ', privateKeyPem);
                         // console.log('public_key: ', publicKeyPem);
                         // console.log('chat_key: ', secretKey);
@@ -236,14 +263,20 @@
                             encryptedMessage = null;
                         }
                         // console.log('message', message);
-                        // console.log(encryptMessage(secretKey));
-                        // console.log(toString(encryptMessage(secretKey)));
+                        // console.log('Незашифрованный ключ', secretKey);
+                        // console.log('Ключ которым шифруем', publicKeyPem);
+                        // console.log(encryptMessage(secretKey, publicKeyPem));
+                        // console.log(decryptMessage(encryptMessage(secretKey, publicKeyPem),
+                        //     privateKeyPem));
                         const addressee = document.querySelector('.user_info_header_foto').id;
+
+
                         let data = {
                             message: message,
                             addressee: addressee,
-                            encrypted_key: encryptMessage(secretKey),
+                            encrypted_key: encryptMessage(secretKey, publicKeyPem),
                             chat_id: response['chat_id'],
+                            privateKey: privateKeyPem,
                         };
                         // console.log(data);
                         document.getElementById('message_input').value = null;

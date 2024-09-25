@@ -43,8 +43,8 @@ class Chat implements MessageComponentInterface
         $currentTime = now();
         echo $currentTime;
         echo " Новый пользователь подключен: {$conn->resourceId}\n";
-        dump($this->all_clients[$conn->resourceId]->resourceId);
-        dump($this->all_clients);
+        // dump($this->all_clients[$conn->resourceId]->resourceId);
+        // dump($this->all_clients);
         // dump($conn->resourceId);
         $sessionId = str_replace("%3D", "", Header::parse($conn->httpRequest->getHeader("Cookie"))[0]["laravel_session"]);
         $sid = (Crypt::decryptString($sessionId));
@@ -84,7 +84,8 @@ class Chat implements MessageComponentInterface
             $MESSAGE  = $MESSAGE . $mess;
         }
         $addressee = $message->addressee;
-        $connection_addressee = intval(Connection::where('user_id', $addressee)->first()->connection);
+        $connection = Connection::where('user_id', $addressee)->first();
+
 
         $message_table = Message::create([
             'sender_id' => $user_id,
@@ -93,19 +94,29 @@ class Chat implements MessageComponentInterface
             'message' => $MESSAGE,
             'key_string' => $message->encrypted_key,
         ]);
-
-        // $targetResourceId = $from->resourceId; // Замените на нужный resourceId
-        $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-        // dump("Место отправки: " . $targetResourceId);
-        dump("Куда надо отправить: " . $targetResourceId);
-        foreach ($this->all_clients as $client) {
-            dump($client->resourceId);
-            if ($client->resourceId === $targetResourceId) {
-                $client->send("Сообщение для клиента: $msg");
+        if ($connection != null) {
+            $connection_addressee = intval($connection->connection);
+            $targetResourceId = $connection_addressee; // Замените на нужный resourceId
+            // dump($targetResourceId);
+            // dump($this->all_clients[$targetResourceId]);
+            if ($this->all_clients[$targetResourceId] != null) {
+                $this->all_clients[$targetResourceId]->send($msg);
                 dump('message sent');
-                break; // Выход из цикла после отправки
             }
         }
+        else{
+            echo "Пользователь не в сети сообщение отправленно только в бд";
+        }
+
+
+        // foreach ($this->all_clients as $client) {
+        //     // dump($client->resourceId);
+        //     if ($client->resourceId === $targetResourceId) {
+        //         $client->send("Сообщение для клиента: $msg");
+        //         dump('message sent');
+        //         break; // Выход из цикла после отправки
+        //     }
+        // }
         // dump($from->resourceId);
         // $this->sendMessageToClient($from, 123);
         // dump('Адресат: ' . $message->addressee . ', Отправитель: ' . $user_id);
