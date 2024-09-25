@@ -5,7 +5,7 @@
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
     <script>
         var selected_chat;
         const token = 'YOUR_AUTH_TOKEN';
@@ -31,15 +31,24 @@
             const privateKey = forge.pki.privateKeyFromPem(JSON.parse(event.data)['privateKey']);
             const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
-            console.log('Расшифрованный ключ: ', decrypted);
-            decryptedMessage = CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][0], decrypted).toString(CryptoJS
-                .enc.Utf8);
-            console.log(decryptedMessage);
-            decryptedMessage = null;
-            // console.log('Сообщение от сервера:', JSON.parse(event.data));
-            // console.log('Приватный ключ: ', JSON.parse(event.data)['privateKey']);
-            // console.log('Зашифрованный симметричный ключ: ', JSON.parse(event.data)['encrypted_key']);
-            // console.log(decryptMessage(``, JSON.parse(event.data)['privateKey']))
+            var message_result = '';
+            for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
+                message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
+                    CryptoJS
+                    .enc.Utf8);
+            }
+            console.log(message_result);
+            chat_tab_div = `<div class="message border_debug">
+                                    <div class="recived_message border_debug">
+                                        <p>` + message_result + `
+                                        </p>
+                                    </div>
+                                </div>
+                                `;
+            // console.log(chat_tab_div);
+            $('#messages_all').append(chat_tab_div);
+            document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
+                response.сhats[i]['id']));
 
         };
 
@@ -145,7 +154,7 @@
                                 </div> --}}
 
                             </div>
-                            <div class="border_debug messages">
+                            <div class="border_debug messages" id="messages_all">
 
                                 {{-- <div class="message border_debug">
                                     <div class="recived_message border_debug">
