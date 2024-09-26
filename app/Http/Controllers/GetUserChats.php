@@ -17,8 +17,10 @@ class GetUserChats extends Controller
         // dump($currentUser);
 
         $users_whith_chats = [];
+        $chat_id = null;
         $users_chats = Chat::where('creator', $currentUser->id)->where('chat_started', true)->orWhere('invted', $currentUser->id)->where('chat_started', true)->get();
         $users_with_chats_data = [];
+        // dump($users_chats);
         // $u = [];
         // $chat_data = [];
         foreach ($users_chats as $user) {
@@ -30,6 +32,7 @@ class GetUserChats extends Controller
                     $id_second_user = User::where('id', $user['creator'])->first();
                 }
             }
+
             $users_whith_chats_data[] = $id_second_user;
         }
 
@@ -51,6 +54,6 @@ class GetUserChats extends Controller
         }
 
         // dd($chats_data);
-        return response()->json(['сhat' => $chats_data, 'chats_count', $users_chats->count(), 'сhats' => $users_whith_chats_data]);
+        return response()->json(['сhat' => $chats_data, 'chats_count', $users_chats->count(), 'сhats' => $users_whith_chats_data, 'chat_id' => $users_chats]);
     }
 }

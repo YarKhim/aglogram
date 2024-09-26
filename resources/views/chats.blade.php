@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
     {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
     <script>
-        var selected_chat;
+        var selected_chat = null;
         const token = 'YOUR_AUTH_TOKEN';
         const socket = new WebSocket('ws://localhost:8888');
 
@@ -32,23 +32,29 @@
             const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
             var message_result = '';
-            for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
-                message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
-                    CryptoJS
-                    .enc.Utf8);
-            }
-            console.log(message_result);
-            chat_tab_div = `<div class="message border_debug">
+            got_chat_id = JSON.parse(event.data)['chat_id'];
+            console.log((got_chat_id));
+            console.log((selected_chat));
+            if (got_chat_id == selected_chat) {
+                console.log("В откртый чат пришло собщение!!!");
+                for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
+                    message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
+                        CryptoJS
+                        .enc.Utf8);
+                }
+                console.log(message_result);
+                chat_tab_div = `<div class="message border_debug">
                                     <div class="recived_message border_debug">
                                         <p>` + message_result + `
                                         </p>
                                     </div>
                                 </div>
                                 `;
-            // console.log(chat_tab_div);
-            $('#messages_all').append(chat_tab_div);
-            document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
-                response.сhats[i]['id']));
+                $('#messages_all').append(chat_tab_div);
+            } else {
+                console.log("В один из чатов пришло сообщение!!!");
+            }
+
 
         };
 
@@ -61,9 +67,12 @@
             socket.send(message);
         }
 
-        function select_chat(user_id) {
+        function select_chat(user_id, chat_id) {
             return function() {
+                selected_chat = chat_id;
+                // console.log(selected_chat)
                 document.getElementById('messages_plane').style.visibility = 'visible';
+
                 let data = {
                     id: user_id,
                 };
@@ -112,12 +121,6 @@
             }
         }
     </script>
-
-    {{-- <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Чаты') }}
-        </h2>
-    </x-slot> --}}
     <style>
         .p-6 {
             height: 85vh;
@@ -129,44 +132,11 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
                     <div class="border_debug main_plane">
                         <div class="border_debug all_chats_list" id='all_chats_list'>
-                            {{-- <div class="border_debug chat_tab">
-                                <div class="border_debug chat_foto"></div>
-                                <div class="border_debug right_side_chat_tab">
-                                    <div class="border_debug chat_info">
-                                        <div class="border_debug chat_name">chat_name</div>
-                                        <div class="border_debug read_receipts">&#10003;</div>
-                                        <div class="border_debug last_message_time">41.23</div>
-
-                                    </div>
-                                    <div class="border_debug last_message">message</div>
-                                </div>
-
-                            </div> --}}
-
                         </div>
                         <div class="border_debug messages_plane" id="messages_plane">
                             <div class=" user_info_header border_debug" id="user_info_header">
-                                {{-- <div class="user_info_header_foto border_debug"><img></div>
-                                <div class="border_debug user_info_header_without_foto">
-                                    <div class="user_info_header_name border_debug"> <i><i>
-                                    </div>
-                                    <div class="user_info_header_is_online border_debug"></div>
-                                </div> --}}
-
                             </div>
                             <div class="border_debug messages" id="messages_all">
-
-                                {{-- <div class="message border_debug">
-                                    <div class="recived_message border_debug">
-                                        <p>Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!Привет!
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="message border_debug">
-                                    <div class="recived_message border_debug">
-                                        <p>324m89898989898989898989898989898989 </p>
-                                    </div>
-                                </div> --}}
                             </div>
 
                             <div class="border_debug input">
@@ -190,8 +160,6 @@
             url: '/get_chats', // URL вашего маршрута
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
-                // console.log(response.сhats); // Обработка успешного ответа
-                // console.log(response.сhats)
                 for (let i = 0; i < response.сhats.length; i++) {
                     chat_tab_div = `<div class="border_debug chat_tab" id=` + response.сhats[i]['id'] + `>
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
@@ -208,8 +176,9 @@
                             </div>`;
                     // console.log(chat_tab_div);
                     $('#all_chats_list').append(chat_tab_div);
+                    // console.log(response['chat_id'][i]['id'])
                     document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
-                        response.сhats[i]['id']));
+                        response.сhats[i]['id'], response['chat_id'][i]['id']));
                 }
             },
             error: function(xhr, status, error) {
@@ -253,12 +222,6 @@
                             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
                             return decrypted;
                         }
-
-                        // console.log('private_key: ', privateKeyPem);
-                        // console.log('public_key: ', publicKeyPem);
-                        // console.log('chat_key: ', secretKey);
-                        // console.log('encrypted_chat_key: ', encryptMessage(secretKey));
-
                         message = [];
 
                         if (document.getElementById('message_input').value.length < 450) {
@@ -271,15 +234,7 @@
                             message[i] = (encryptedMessage);
                             encryptedMessage = null;
                         }
-                        // console.log('message', message);
-                        // console.log('Незашифрованный ключ', secretKey);
-                        // console.log('Ключ которым шифруем', publicKeyPem);
-                        // console.log(encryptMessage(secretKey, publicKeyPem));
-                        // console.log(decryptMessage(encryptMessage(secretKey, publicKeyPem),
-                        //     privateKeyPem));
                         const addressee = document.querySelector('.user_info_header_foto').id;
-
-
                         let data = {
                             message: message,
                             addressee: addressee,
@@ -291,16 +246,6 @@
                         document.getElementById('message_input').value = null;
                         // console.log(data.message);
                         sendMessage(JSON.stringify(data));
-                        // $.ajax({
-                        //     url: '/send_message', // URL вашего маршрута
-                        //     method: 'GET', // Метод запроса (GET или POST)
-                        //     data: data,
-                        //     success: function(response) {},
-                        //     error: function(xhr, status, error) {
-                        //         console.error(xhr.responseText); // Обработка ошибки
-                        //     }
-                        // });
-
                     },
                     error: function(xhr, status, error) {
                         console.error(xhr.responseText); // Обработка ошибки

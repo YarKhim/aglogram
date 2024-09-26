@@ -8,6 +8,7 @@ use App\Http\Controllers\SendMessage;
 use App\Models\Connection;
 use App\Models\Message;
 use App\Models\User;
+use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Header;
 use Illuminate\Auth\SessionGuard;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
-
+use Illuminate\Support\Facades\Log;
 
 class Chat implements MessageComponentInterface
 {
@@ -94,31 +95,19 @@ class Chat implements MessageComponentInterface
             'message' => $MESSAGE,
             'key_string' => $message->encrypted_key,
         ]);
-        if ($connection != null) {
+        // if ($connection != null) {
+
+
+        // $connection_addressee = intval($connection->connection);
+        // $targetResourceId = $connection_addressee; // Замените на нужный resourceId
+
+        if ($connection == null) {
+            echo ('Клиент не в сети <br>');
+        } else {
             $connection_addressee = intval($connection->connection);
             $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-            // dump($targetResourceId);
-            // dump($this->all_clients[$targetResourceId]);
-            if ($this->all_clients[$targetResourceId] != null) {
-                $this->all_clients[$targetResourceId]->send($msg);
-                dump('message sent');
-            }
+            $this->all_clients[$targetResourceId]->send($msg);
         }
-        else{
-            echo "Пользователь не в сети сообщение отправленно только в бд";
-        }
-
-
-        // foreach ($this->all_clients as $client) {
-        //     // dump($client->resourceId);
-        //     if ($client->resourceId === $targetResourceId) {
-        //         $client->send("Сообщение для клиента: $msg");
-        //         dump('message sent');
-        //         break; // Выход из цикла после отправки
-        //     }
-        // }
-        // dump($from->resourceId);
-        // $this->sendMessageToClient($from, 123);
         // dump('Адресат: ' . $message->addressee . ', Отправитель: ' . $user_id);
     }
 
