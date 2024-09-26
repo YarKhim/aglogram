@@ -347,7 +347,8 @@
     width: 70%;
     position: relative;
 }
-#messages_plane{
+
+#messages_plane {
     visibility: hidden;
 }
 
@@ -446,4 +447,28 @@
 
 .user_info_header_is_online {
     height: 50%;
+}
+
+@keyframes blink {
+    0% {
+        background-color: transparent;
+        /* Начальный прозрачный фон */
+    }
+
+    50% {
+        background-color: rgba(255, 255, 255, 0.3);
+        /* Моргаем белым цветом */
+    }
+
+    100% {
+        background-color: transparent;
+        /* Возвращаемся к прозрачному фону */
+    }
+}
+
+.blink-background {
+
+    color: white;
+    border-radius: 10px;
+    animation: blink 1s forwards;
 }

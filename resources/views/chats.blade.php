@@ -33,8 +33,17 @@
             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
             var message_result = '';
             got_chat_id = JSON.parse(event.data)['chat_id'];
-            console.log((got_chat_id));
-            console.log((selected_chat));
+            new_message_chat = document.querySelector('.chat_' + selected_chat);
+            // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
+            if (new_message_chat.classList.contains('blink-background')) {
+                new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
+            } else {
+                new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
+            }
+            new_message_chat.classList.add('blink-background');
+            setTimeout(() => {
+                new_message_chat.classList.remove('blink-background');
+            }, 1000);
             if (got_chat_id == selected_chat) {
                 console.log("В откртый чат пришло собщение!!!");
                 for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
@@ -42,7 +51,6 @@
                         CryptoJS
                         .enc.Utf8);
                 }
-                console.log(message_result);
                 chat_tab_div = `<div class="message border_debug">
                                     <div class="recived_message border_debug">
                                         <p>` + message_result + `
@@ -53,8 +61,9 @@
                 $('#messages_all').append(chat_tab_div);
             } else {
                 console.log("В один из чатов пришло сообщение!!!");
-            }
 
+            }
+            // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.remove('blink-background');
 
         };
 
@@ -161,7 +170,8 @@
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
                 for (let i = 0; i < response.сhats.length; i++) {
-                    chat_tab_div = `<div class="border_debug chat_tab" id=` + response.сhats[i]['id'] + `>
+                    chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i]['id'] +
+                        `" id=` + response.сhats[i]['id'] + `>
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
