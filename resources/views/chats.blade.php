@@ -5,11 +5,15 @@
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-    {{-- <meta name="csrf-token" content="{{ csrf_token() }}"> --}}
+    {{-- < meta name="csrf-token" content="{{ csrf_token() }}"> --}}
     <script>
         var selected_chat = null;
         const token = 'YOUR_AUTH_TOKEN';
         const socket = new WebSocket('ws://localhost:8888');
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+
 
         function encryptMessage(message, public_key) {
             const publicKey = forge.pki.publicKeyFromPem(public_key);
@@ -24,6 +28,75 @@
             return decrypted;
         }
 
+        function send_message() {
+
+            if (document.getElementById('message_input').value.trim()) {
+                const encrypt = new JSEncrypt();
+                let data_get_keys = {
+                    addressee: document.querySelector('.user_info_header_foto').id,
+                };
+                $.ajax({
+                    url: '/get_keys', // URL вашего маршрута
+                    method: 'GET', // Метод запроса (GET или POST)
+                    data: data_get_keys,
+                    success: function(response) {
+                        const publicKeyPem = response['public_key'];
+                        const privateKeyPem = response['private_key'];
+                        const secretKey = response['chat_key'];
+
+                        function encryptMessage(message, public_key) {
+                            const publicKey = forge.pki.publicKeyFromPem(public_key);
+                            const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
+                            return forge.util.encode64(encrypted); // Кодируем в base64
+                        }
+
+                        function decryptMessage(encryptedMessage, private_key) {
+                            const privateKey = forge.pki.privateKeyFromPem(private_key);
+                            const decodedMessage = forge.util.decode64(encryptedMessage);
+                            const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
+                            return decrypted;
+                        }
+                        message = [];
+
+                        if (document.getElementById('message_input').value.length < 450) {
+                            message[0] = document.getElementById('message_input').value;
+                        } else {
+                            message = splitString(document.getElementById('message_input').value);
+                        }
+                        for (let i = 0; i < message.length; i++) {
+                            encryptedMessage = CryptoJS.AES.encrypt(message[i], secretKey).toString();
+                            message[i] = (encryptedMessage);
+                            encryptedMessage = null;
+                        }
+                        const addressee = document.querySelector('.user_info_header_foto').id;
+                        let data = {
+                            message: message,
+                            addressee: addressee,
+                            encrypted_key: encryptMessage(secretKey, publicKeyPem),
+                            chat_id: response['chat_id'],
+                            privateKey: privateKeyPem,
+                        };
+                        // console.log(data);
+
+                        // console.log(data.message);
+                        sendMessage(JSON.stringify(data));
+                        all_message = document.getElementById('message_input').value;
+
+                        chat_tab_div = `<div class="message border_debug">
+                                            <div class="my_message border_debug">
+                                                <p>` + all_message + `
+                                                </p>
+                                            </div>
+                                        </div>`;
+                        $('#messages_all').append(chat_tab_div);
+                        document.getElementById('message_input').value = null;
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr.responseText); // Обработка ошибки
+                    }
+                });
+            }
+        }
         socket.onopen = function(event) {
             console.log('Подключено к WebSocket серверу');
         };
@@ -32,7 +105,13 @@
             const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
             var message_result = '';
+
+
+
             got_chat_id = JSON.parse(event.data)['chat_id'];
+
+
+
             new_message_chat = document.querySelector('.chat_' + selected_chat);
             // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
             if (new_message_chat.classList.contains('blink-background')) {
@@ -52,13 +131,23 @@
                         .enc.Utf8);
                 }
                 chat_tab_div = `<div class="message border_debug">
-                                    <div class="recived_message border_debug">
-                                        <p>` + message_result + `
-                                        </p>
-                                    </div>
-                                </div>
-                                `;
+            <div class="recived_message border_debug">
+                <p>` + message_result + `
+                </p>
+            </div>
+        </div>
+        `;
                 $('#messages_all').append(chat_tab_div);
+                // document.addEventListener('DOMContentLoaded', function() {
+                message_tabs = document.querySelectorAll('.message_tab');
+                console.log(message_tabs);
+                message_tabs.forEach(function(message_tab) {
+                    message_tab.addEventListener('contextmenu', function(event) {
+                        alert(1);
+                    });
+                });
+                // });
+
             } else {
                 console.log("В один из чатов пришло сообщение!!!");
 
@@ -73,6 +162,8 @@
 
         // Отправка сообщения на сервер
         function sendMessage(message) {
+            // console.log(JSON.parse(message)['message']);
+
             socket.send(message);
         }
 
@@ -107,12 +198,12 @@
                             .id +
                             `><img src=` + response.user
                             .avatar + `></div>
-                                <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
-                                    <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
+    <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
+        <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
                             response.user.lastname + ' @' + response.user.username + `<i>
-                                    </div>
-                                    <div class="user_info_header_is_online border_debug"></div>
-                                </div>`;
+            </div>
+            <div class="user_info_header_is_online border_debug"></div>
+        </div>`;
                         $('#user_info_header').append(user_chats_header);
                         document.getElementById('user_info_header_without_foto').addEventListener(
                             'click',
@@ -206,97 +297,14 @@
         }
 
         document.getElementById('send_message').addEventListener('click', function() {
-            if (document.getElementById('message_input').value.trim()) {
-                const encrypt = new JSEncrypt();
-                let data_get_keys = {
-                    addressee: document.querySelector('.user_info_header_foto').id,
-                };
-                $.ajax({
-                    url: '/get_keys', // URL вашего маршрута
-                    method: 'GET', // Метод запроса (GET или POST)
-                    data: data_get_keys,
-                    success: function(response) {
-                        const publicKeyPem = response['public_key'];
-                        const privateKeyPem = response['private_key'];
-                        const secretKey = response['chat_key'];
-
-                        function encryptMessage(message, public_key) {
-                            const publicKey = forge.pki.publicKeyFromPem(public_key);
-                            const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
-                            return forge.util.encode64(encrypted); // Кодируем в base64
-                        }
-
-                        function decryptMessage(encryptedMessage, private_key) {
-                            const privateKey = forge.pki.privateKeyFromPem(private_key);
-                            const decodedMessage = forge.util.decode64(encryptedMessage);
-                            const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
-                            return decrypted;
-                        }
-                        message = [];
-
-                        if (document.getElementById('message_input').value.length < 450) {
-                            message[0] = document.getElementById('message_input').value;
-                        } else {
-                            message = splitString(document.getElementById('message_input').value);
-                        }
-                        for (let i = 0; i < message.length; i++) {
-                            encryptedMessage = CryptoJS.AES.encrypt(message[i], secretKey).toString();
-                            message[i] = (encryptedMessage);
-                            encryptedMessage = null;
-                        }
-                        const addressee = document.querySelector('.user_info_header_foto').id;
-                        let data = {
-                            message: message,
-                            addressee: addressee,
-                            encrypted_key: encryptMessage(secretKey, publicKeyPem),
-                            chat_id: response['chat_id'],
-                            privateKey: privateKeyPem,
-                        };
-                        // console.log(data);
-                        document.getElementById('message_input').value = null;
-                        // console.log(data.message);
-                        sendMessage(JSON.stringify(data));
-                    },
-                    error: function(xhr, status, error) {
-                        console.error(xhr.responseText); // Обработка ошибки
-                    }
-                });
-                // console.log(a);
-
-                //
-                //                 // Функция для дешифрования
-                //                 function decryptMessage(encryptedMessage) {
-                //                     const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
-                //                     const decodedMessage = forge.util.decode64(encryptedMessage);
-                //                     const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
-                //                     return decrypted;
-                //                 }
-                //                 encryptedMessageArray = [];
-                //                 try {
-                //                     if (document.getElementById('message_input').value.length < 450) {
-                //                         const message = document.getElementById('message_input').value;
-
-                //                         encryptedMessage = encryptMessage(message);
-                //                         encryptedMessageArray.push(encryptedMessage);
-                //                     } else {
-                //                         message_array = splitString(document.getElementById('message_input').value);
-                //                         message_array.forEach((element) => {
-                //                             encryptedMessage = encryptMessage(element);
-                //                             encryptedMessageArray.push(encryptedMessage);
-
-                //                         });
-                //                     }
-                //                     console.log(encryptedMessageArray);
-                //                     document.getElementById('message_input').value = null;
-                //                     // Дешифруем сообщение
-                //                     // const decryptedMessage = decryptMessage(encryptedMessage);
-                //                     // console.log('Decrypted Message:\n', decryptedMessage);
-                //                 } catch (error) {
-                //                     console.error('Error:', error);
-                //                 }
-            }
-
-
+            send_message()
         });
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Блокируем стандартное поведение
+                send_message(); // Выполняем определенное действие
+            }
+        });
+        // document.getElementById('send_message').addEventListener('click', );
     </script>
 </x-app-layout>

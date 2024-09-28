@@ -39,17 +39,17 @@
                                     // import JSEncrypt from 'jsencrypt';
                                     // const forge = require('node-forge');
                                     @foreach ($users as $user)
-                                        public_key = `{{ $user->public_key }}`;
-                                        private_key = `{{ $user->private_key }}`;
-                                        encrypt.setPublicKey(public_key);
-                                        encrypt.setPrivateKey(private_key);
-                                        const dataToEncrypt = "Это секретное сообщение";
-                                        const encryptedData = encrypt.encrypt(dataToEncrypt);
-                                        console.log("Зашифрованные данные:", encryptedData);
+                                        // public_key = `{{ $user->public_key }}`;
+                                        // private_key = `{{ $user->private_key }}`;
+                                        // encrypt.setPublicKey(public_key);
+                                        // encrypt.setPrivateKey(private_key);
+                                        // const dataToEncrypt = "Это секретное сообщение";
+                                        // const encryptedData = encrypt.encrypt(dataToEncrypt);
+                                        // console.log("Зашифрованные данные:", encryptedData);
 
-                                        // Расшифровываем данные
-                                        const decryptedData = encrypt.decrypt(encryptedData);
-                                        console.log("Расшифрованные данные:", decryptedData);
+                                        // // Расшифровываем данные
+                                        // const decryptedData = encrypt.decrypt(encryptedData);
+                                        // console.log("Расшифрованные данные:", decryptedData);
                                         element_result_search_tab =
                                             `<div class="result_search_tab" id="result_search_tab_link_{{ $user->username }}">
                                                                         <div class="result_search_tab_info">
