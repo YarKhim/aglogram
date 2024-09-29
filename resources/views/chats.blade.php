@@ -5,11 +5,12 @@
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
-    {{-- < meta name="csrf-token" content="{{ csrf_token() }}"> --}}
     <script>
         var selected_chat = null;
         const token = 'YOUR_AUTH_TOKEN';
         const socket = new WebSocket('ws://localhost:8888');
+        this_user_id = null;
+        favorite_id_chat = null;
         document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
@@ -32,6 +33,7 @@
 
             if (document.getElementById('message_input').value.trim()) {
                 const encrypt = new JSEncrypt();
+                addressee_id = document.querySelector('.user_info_header_foto').id;
                 let data_get_keys = {
                     addressee: document.querySelector('.user_info_header_foto').id,
                 };
@@ -81,14 +83,16 @@
                         // console.log(data.message);
                         sendMessage(JSON.stringify(data));
                         all_message = document.getElementById('message_input').value;
-
-                        chat_tab_div = `<div class="message border_debug">
+                        if (addressee_id != this_user_id) {
+                            chat_tab_div = `<div class="message border_debug">
                                             <div class="my_message border_debug">
                                                 <p>` + all_message + `
                                                 </p>
                                             </div>
                                         </div>`;
-                        $('#messages_all').append(chat_tab_div);
+                            $('#messages_all').append(chat_tab_div);
+                        }
+
                         document.getElementById('message_input').value = null;
                     },
                     error: function(xhr, status, error) {
@@ -109,20 +113,10 @@
 
 
             got_chat_id = JSON.parse(event.data)['chat_id'];
+            console.log(JSON.parse(event.data)['chat_id'])
+            console.log(favorite_id_chat);
 
 
-
-            new_message_chat = document.querySelector('.chat_' + selected_chat);
-            // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
-            if (new_message_chat.classList.contains('blink-background')) {
-                new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
-            } else {
-                new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
-            }
-            new_message_chat.classList.add('blink-background');
-            setTimeout(() => {
-                new_message_chat.classList.remove('blink-background');
-            }, 1000);
             if (got_chat_id == selected_chat) {
                 console.log("В откртый чат пришло собщение!!!");
                 for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
@@ -130,13 +124,35 @@
                         CryptoJS
                         .enc.Utf8);
                 }
-                chat_tab_div = `<div class="message border_debug">
+                if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
+                    new_message_chat = document.querySelector('.chat_' + selected_chat);
+                    // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
+                    if (new_message_chat.classList.contains('blink-background')) {
+                        new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
+                    } else {
+                        new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
+                    }
+                    new_message_chat.classList.add('blink-background');
+                    setTimeout(() => {
+                        new_message_chat.classList.remove('blink-background');
+                    }, 1000);
+                    chat_tab_div = `<div class="message border_debug">
             <div class="recived_message border_debug">
                 <p>` + message_result + `
                 </p>
             </div>
         </div>
         `;
+                } else {
+                    chat_tab_div = `<div class="message border_debug">
+            <div class="my_message border_debug">
+                <p>` + message_result + `
+                </p>
+            </div>
+        </div>
+        `;
+                }
+
                 $('#messages_all').append(chat_tab_div);
                 // document.addEventListener('DOMContentLoaded', function() {
                 message_tabs = document.querySelectorAll('.message_tab');
@@ -181,7 +197,7 @@
                     method: 'GET', // Метод запроса (GET или POST)
                     data: data,
                     success: function(response) {
-
+                        user_id_chat = response['user']['id']
                         $('#user_info_header').empty();
                         $.ajax({
 
@@ -193,17 +209,32 @@
                             }
                         });
                         const all_chats_list = document.getElementById('user_info_header');
-                        const user_chats_header =
-                            `<div class="user_info_header_foto border_debug" id=` + response.user
-                            .id +
-                            `><img src=` + response.user
-                            .avatar + `></div>
+                        if (user_id_chat != parseInt(this_user_id)) {
+                            user_chats_header =
+                                `<div class="user_info_header_foto border_debug" id=` + response.user
+                                .id +
+                                `><img src=` + response.user
+                                .avatar + `></div>
     <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
         <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
-                            response.user.lastname + ' @' + response.user.username + `<i>
+                                response.user.lastname + ' @' + response.user.username + `<i>
             </div>
             <div class="user_info_header_is_online border_debug"></div>
         </div>`;
+                        } else {
+                            favorite_id_chat = chat_id
+                            user_chats_header =
+                                `<div class="user_info_header_foto border_debug" id=` + response.user
+                                .id +
+                                `><img src=` + response.user
+                                .avatar + `></div>
+    <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
+        <div class="user_info_header_name border_debug"> <i>` + `Избранное` + ' ' + `<i>
+            </div>
+            <div class="user_info_header_is_online border_debug"></div>
+        </div>`;
+                        }
+
                         $('#user_info_header').append(user_chats_header);
                         document.getElementById('user_info_header_without_foto').addEventListener(
                             'click',
@@ -260,9 +291,14 @@
             url: '/get_chats', // URL вашего маршрута
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
+
                 for (let i = 0; i < response.сhats.length; i++) {
-                    chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i]['id'] +
-                        `" id=` + response.сhats[i]['id'] + `>
+                    console.log(response['chat_id'][i]['creator'], ' ', response['chat_id'][i]['invted'])
+                    if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
+                        chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
+                                'id'
+                            ] +
+                            `" id=` + response.сhats[i]['id'] + `>
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
@@ -275,7 +311,25 @@
                                 </div>
 
                             </div>`;
-                    // console.log(chat_tab_div);
+                    } else {
+                        this_user_id = response['chat_id'][i]['creator'];
+                        chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
+                                'id'
+                            ] +
+                            `" id=` + response.сhats[i]['id'] + `>
+                                <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
+                                <div class="border_debug right_side_chat_tab">
+                                    <div class="border_debug chat_info">
+                                        <div class="border_debug chat_name">Избранное</div>
+                                        <div class="border_debug read_receipts">&#10003;</div>
+                                        <div class="border_debug last_message_time">41.23</div>
+
+                                    </div>
+                                    <div class="border_debug last_message">message</div>
+                                </div>
+
+                            </div>`;
+                    }
                     $('#all_chats_list').append(chat_tab_div);
                     // console.log(response['chat_id'][i]['id'])
                     document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
