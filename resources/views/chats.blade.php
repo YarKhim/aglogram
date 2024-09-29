@@ -9,13 +9,14 @@
         var selected_chat = null;
         const token = 'YOUR_AUTH_TOKEN';
         const socket = new WebSocket('ws://localhost:8888');
+        let unreadChatsData = null;
         this_user_id = null;
         favorite_id_chat = null;
         unread_chats = {};
+
         document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
-
 
         function encryptMessage(message, public_key) {
             const publicKey = forge.pki.publicKeyFromPem(public_key);
@@ -29,7 +30,33 @@
             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
             return decrypted;
         }
+        // $.ajax({
+        //     url: '/unread_chats',
+        //     method: 'GET',
+        //     success: function(data) {
+        //         // unreadChatsData = data; // Сохраняем данные в глобальную переменную
+        //         console.log(data); // Выводим данные в консоль для проверки
+        //         // Здесь вы можете обновить интерфейс пользователя с полученными данными
+        //     },
+        //     error: function(jqXHR, textStatus, errorThrown) {
+        //         console.error('Ошибка при получении чатов:', textStatus, errorThrown);
+        //     }
+        // });
 
+        // console.log(unreadChatsData)
+        // unreadChatsData_keys = (Object.keys(unreadChatsData));
+        // console.log(unreadChatsData_keys);
+        // unreadChatsData_keys.forEach(element => {
+        //     console.log(unreadChatsData[element]);
+        //     unread_chats[element] = unreadChatsData[element];
+        // });
+        // console.log('Список непрочитаных сообщений: ', unread_chats);
+        // for (i = 0; i < unreadChatsData.length; i++) {
+        //     console.log(unreadChatsData[i])
+        // }
+        // unreadChatsData.forEach(element => {
+        //     console.log(element);
+        // });
         function send_message() {
 
             if (document.getElementById('message_input').value.trim()) {
@@ -160,7 +187,7 @@
                 console.log(message_tabs);
                 message_tabs.forEach(function(message_tab) {
                     message_tab.addEventListener('contextmenu', function(event) {
-                        alert(1);
+                        // alert(1);
                     });
                 });
                 // });
@@ -385,6 +412,27 @@
                     document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
                         response.сhats[i]['id'], response['chat_id'][i]['id']));
                 }
+                $.ajax({
+                    url: '/unread_chats', // URL вашего маршрута
+                    method: 'GET', // Метод запроса (GET или POST)
+                    success: function(response) {
+                        // console.log(response)
+                        unread_chats = response['chats_id'];
+                        console.log(unread_chats);
+                        unread_chats_keys = Object.keys(unread_chats);
+                        unread_chats_keys.forEach(element => {
+                            document.getElementById('unread_messages_counter_' + element)
+                                .style
+                                .display =
+                                'flex';
+                            document.getElementById('unread_messages_counter_' + element)
+                                .innerText =
+                                unread_chats[element];
+                            // console.log(unreadChatsData[element]);
+                            // unread_chats[element] = unreadChatsData[element];
+                        });
+                    }
+                });
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText); // Обработка ошибки

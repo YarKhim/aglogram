@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatReadController;
 use App\Http\Controllers\get_chat_messages;
 use App\Models\User;
 use App\Http\Controllers\ProfileController;
@@ -70,4 +71,5 @@ Route::get('/get_user', [get_user::class, 'get_user']);
 Route::get('/send_message', [SendMessage::class, 'send_message']);
 Route::get('/get_keys', [GetKeys::class, 'get_keys']);
 Route::get('/get_messages_from_chat', [get_chat_messages::class, 'get_messages_from_chat']);
+Route::get('/unread_chats', [ChatReadController::class, 'get_unread_chats']);
 require __DIR__ . '/auth.php';
