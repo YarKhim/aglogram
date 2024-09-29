@@ -185,6 +185,9 @@
 
         function select_chat(user_id, chat_id) {
             return function() {
+                $('#messages_all').empty();
+                document.getElementById('message_input').value = '';
+                document.getElementById('message_input').focus();
                 selected_chat = chat_id;
                 // console.log(selected_chat)
                 document.getElementById('messages_plane').style.visibility = 'visible';
