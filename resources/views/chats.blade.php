@@ -11,6 +11,7 @@
         const socket = new WebSocket('ws://localhost:8888');
         this_user_id = null;
         favorite_id_chat = null;
+        unread_chats = {};
         document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
@@ -113,29 +114,28 @@
 
 
             got_chat_id = JSON.parse(event.data)['chat_id'];
-            console.log(JSON.parse(event.data)['chat_id'])
-            console.log(favorite_id_chat);
+            // console.log(document.getElementById('last_message_' + got_chat_id));
+            // console.log(JSON.parse(event.data)['chat_id'])
+            // console.log(favorite_id_chat);
 
+            // console.log(select_chat);
+            // console.log('last_message_'+got_chat_id);
+            for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
+                message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
+                    CryptoJS
+                    .enc.Utf8);
+            }
+            document.getElementById('last_message_' + got_chat_id).innerText = message_result;
+            // if (select_chat != got_chat_id) {
+
+            // }
 
             if (got_chat_id == selected_chat) {
                 console.log("В откртый чат пришло собщение!!!");
-                for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
-                    message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
-                        CryptoJS
-                        .enc.Utf8);
-                }
+
+
                 if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
-                    new_message_chat = document.querySelector('.chat_' + selected_chat);
-                    // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
-                    if (new_message_chat.classList.contains('blink-background')) {
-                        new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
-                    } else {
-                        new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
-                    }
-                    new_message_chat.classList.add('blink-background');
-                    setTimeout(() => {
-                        new_message_chat.classList.remove('blink-background');
-                    }, 1000);
+
                     chat_tab_div = `<div class="message border_debug">
             <div class="recived_message border_debug">
                 <p>` + message_result + `
@@ -152,6 +152,7 @@
         </div>
         `;
                 }
+                // document.getElementById('last_message_' + got_chat_id).innerText = message_result;
 
                 $('#messages_all').append(chat_tab_div);
                 // document.addEventListener('DOMContentLoaded', function() {
@@ -165,8 +166,44 @@
                 // });
 
             } else {
-                console.log("В один из чатов пришло сообщение!!!");
+                // alert(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
+                //     .visibility);
+                // document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
+                //     .visibility == 'visible';
+                // alert(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
+                //     .visibility);
+                //     .visibility)
+                if (JSON.parse(event.data)['chat_id'] in unread_chats) {
+                    unread_chats[JSON.parse(event.data)['chat_id']] += 1;
 
+                } else {
+                    unread_chats[JSON.parse(event.data)['chat_id']] = 1;
+
+                }
+                document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style.display =
+                    'flex';
+                console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
+                    .style.display);
+                document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText =
+                    unread_chats[JSON.parse(event.data)['chat_id']];
+                // if (document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style.display == 'none') {
+                //     document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style.display = 'block';
+                //     document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText = unread_chats[JSON.parse(event.data)['chat_id']];
+                // }
+                new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
+                // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
+                if (new_message_chat.classList.contains('blink-background')) {
+                    new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
+                } else {
+                    new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
+                }
+                new_message_chat.classList.add('blink-background');
+                setTimeout(() => {
+                    new_message_chat.classList.remove('blink-background');
+                }, 1000);
+
+                // console.log("В один из чатов пришло сообщение!!!");
+                // console.log(unread_chats);
             }
             // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.remove('blink-background');
 
@@ -214,7 +251,8 @@
                         const all_chats_list = document.getElementById('user_info_header');
                         if (user_id_chat != parseInt(this_user_id)) {
                             user_chats_header =
-                                `<div class="user_info_header_foto border_debug" id=` + response.user
+                                `<div class="user_info_header_foto border_debug" id=` + response
+                                .user
                                 .id +
                                 `><img src=` + response.user
                                 .avatar + `></div>
@@ -227,7 +265,8 @@
                         } else {
                             favorite_id_chat = chat_id
                             user_chats_header =
-                                `<div class="user_info_header_foto border_debug" id=` + response.user
+                                `<div class="user_info_header_foto border_debug" id=` + response
+                                .user
                                 .id +
                                 `><img src=` + response.user
                                 .avatar + `></div>
@@ -298,6 +337,8 @@
                 for (let i = 0; i < response.сhats.length; i++) {
                     console.log(response['chat_id'][i]['creator'], ' ', response['chat_id'][i]['invted'])
                     if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
+                        id = 'last_message_' + response['chat_id'][i]['id'];
+                        console.log(id)
                         chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
                                 'id'
                             ] +
@@ -305,12 +346,18 @@
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
-                                        <div class="border_debug chat_name">` + response.сhats[i]['name'] + `</div>
+                                        <div class="border_debug chat_name">` + response.сhats[i]['name'] +
+                            `</div>
                                         <div class="border_debug read_receipts">&#10003;</div>
                                         <div class="border_debug last_message_time">41.23</div>
 
                                     </div>
-                                    <div class="border_debug last_message">message</div>
+                                    <div class='border_debug about_messaegs' ><div class="border_debug last_message" id='` +
+                            id +
+                            `'></div> <div class='unread_messages'><div class='unread_messages_counter' id='unread_messages_counter_` +
+                            response['chat_id'][i][
+                                'id'
+                            ] + `'> 1</div></div></div>
                                 </div>
 
                             </div>`;
