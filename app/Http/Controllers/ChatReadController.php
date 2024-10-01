@@ -15,10 +15,9 @@ class ChatReadController extends Controller
         $chats_with_unread_message = [];
         $last_messages = [];
         $all_messages = Message::where('addressee', $this_user_id)->where('sender_id', '!=', $this_user_id)->where('isRead', 0)->get();
-        // dump($all_messages);
         foreach ($all_messages as $message) {
             $earliestMessage = Message::where('chat_id', $message->chat_id)
-                ->orderBy('created_at', 'asc')
+                ->orderBy('created_at', 'desc')
                 ->first();
             $last_messages[$message->chat_id] = ['message' => $earliestMessage, 'sender' => User::where('id', $earliestMessage->addressee)->first()];
             if (!array_key_exists($message->chat_id, $chats_with_unread_message)) {
@@ -29,8 +28,6 @@ class ChatReadController extends Controller
             // dump($message->isRead, $message->chat_id);W
 
         }
-        // dump($chats_with_unread_message);
-        // dump(['chats_id' =>  $chats_with_unread_message, 'last_messsages' => $last_messages]);
         return response()->json(['chats_id' =>  $chats_with_unread_message, 'last_messsages' => $last_messages]);
     }
 }

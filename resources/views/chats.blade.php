@@ -110,6 +110,8 @@
 
                         // console.log(data.message);
                         sendMessage(JSON.stringify(data));
+                        document.getElementById('last_message_' + response['chat_id']).innerText = document
+                            .getElementById('message_input').value;
                         all_message = document.getElementById('message_input').value;
                         if (addressee_id != this_user_id) {
                             chat_tab_div = `<div class="message border_debug">
@@ -350,9 +352,10 @@
             success: function(response) {
 
                 for (let i = 0; i < response.сhats.length; i++) {
-                    console.log(response['chat_id'][i]['creator'], ' ', response['chat_id'][i]['invted'])
+                    console.log(response['chat_id'][i]['creator'], ' ', response['chat_id'][i]['invted']);
+                    id = 'last_message_' + response['chat_id'][i]['id'];
                     if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
-                        id = 'last_message_' + response['chat_id'][i]['id'];
+
                         console.log(id)
                         chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
                                 'id'
@@ -390,7 +393,7 @@
                                         <div class="border_debug last_message_time">41.23</div>
 
                                     </div>
-                                    <div class="border_debug last_message">message</div>
+                                    <div class="border_debug last_message" id='` + id + `'>message</div>
                                 </div>
 
                             </div>`;
