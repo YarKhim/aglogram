@@ -141,22 +141,12 @@
 
 
             got_chat_id = JSON.parse(event.data)['chat_id'];
-            // console.log(document.getElementById('last_message_' + got_chat_id));
-            // console.log(JSON.parse(event.data)['chat_id'])
-            // console.log(favorite_id_chat);
-
-            // console.log(select_chat);
-            // console.log('last_message_'+got_chat_id);
             for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
                 message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
                     CryptoJS
                     .enc.Utf8);
             }
             document.getElementById('last_message_' + got_chat_id).innerText = message_result;
-            // if (select_chat != got_chat_id) {
-
-            // }
-
             if (got_chat_id == selected_chat) {
                 console.log("В откртый чат пришло собщение!!!");
 
@@ -179,8 +169,6 @@
         </div>
         `;
                 }
-                // document.getElementById('last_message_' + got_chat_id).innerText = message_result;
-
                 $('#messages_all').append(chat_tab_div);
                 // document.addEventListener('DOMContentLoaded', function() {
                 message_tabs = document.querySelectorAll('.message_tab');
@@ -416,10 +404,32 @@
                     url: '/unread_chats', // URL вашего маршрута
                     method: 'GET', // Метод запроса (GET или POST)
                     success: function(response) {
-                        // console.log(response)
+                        console.log(response)
                         unread_chats = response['chats_id'];
-                        console.log(unread_chats);
+                        last_messages = response['last_messsages'];
+                        last_messages_keys = Object.keys(last_messages);
                         unread_chats_keys = Object.keys(unread_chats);
+                        last_messages_keys.forEach(element => {
+                            key_string = decryptMessage(last_messages[element]['message'][
+                                'key_string'
+                            ], last_messages[element]['sender']['private_key']);
+                            message = last_messages[element]['message']['message'];
+                            // console.log(message);
+                            split = splitString(message);
+                            console.log(split);
+                            message_result = '';
+                            split.forEach(element => {
+                                message_result += CryptoJS.AES.decrypt(element,
+                                        key_string)
+                                    .toString(
+                                        CryptoJS
+                                        .enc.Utf8);
+                            });
+                            console.log(message_result);
+                            document.getElementById('last_message_' + element).innerText =
+                                message_result;
+                            var message_result = '';
+                        });
                         unread_chats_keys.forEach(element => {
                             document.getElementById('unread_messages_counter_' + element)
                                 .style
@@ -428,8 +438,6 @@
                             document.getElementById('unread_messages_counter_' + element)
                                 .innerText =
                                 unread_chats[element];
-                            // console.log(unreadChatsData[element]);
-                            // unread_chats[element] = unreadChatsData[element];
                         });
                     }
                 });
