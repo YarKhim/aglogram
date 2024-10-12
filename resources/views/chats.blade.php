@@ -88,16 +88,18 @@
                         }
                         message = [];
 
-                        if (document.getElementById('message_input').value.length < 450) {
+                        if (document.getElementById('message_input').value.length < 100) {
                             message[0] = document.getElementById('message_input').value;
                         } else {
                             message = splitString(document.getElementById('message_input').value);
                         }
+
                         for (let i = 0; i < message.length; i++) {
                             encryptedMessage = CryptoJS.AES.encrypt(message[i], secretKey).toString();
                             message[i] = (encryptedMessage);
                             encryptedMessage = null;
                         }
+                        console.log(message)
                         const addressee = document.querySelector('.user_info_header_foto').id;
                         let data = {
                             message: message,
@@ -243,12 +245,122 @@
                 document.getElementById('message_input').value = '';
                 document.getElementById('message_input').focus();
                 selected_chat = chat_id;
-                // console.log(selected_chat)
                 document.getElementById('messages_plane').style.visibility = 'visible';
-
                 let data = {
                     id: user_id,
+                    chat_id: chat_id,
                 };
+                $.ajax({
+                    url: '/get_messages_from_chat',
+                    method: 'GET',
+                    data: {
+                        chat_id: chat_id
+                    },
+                    success: function(response) {
+                        // console.log(1);
+                        function decryptMessage(encryptedMessage, private_key) {
+                            const privateKey = forge.pki.privateKeyFromPem(private_key);
+                            const decodedMessage = forge.util.decode64(encryptedMessage);
+                            const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
+                            return decrypted;
+                        }
+                        all_messages = response['all_messages'];
+                        this_user = response['this_user'];
+                        second_user = response['second_user'];
+                        console.log(all_messages);
+                        all_messages.forEach(element => {
+                            sender_id = element['sender_id'];
+                            message_result = '';
+                            // console.log(element['key_string'])
+                            // console.log(this_user['private_key'])
+                            // console.log(second_user['private_key'])
+                            // console.log(sender_id)
+                            if (sender_id == this_user_id) {
+                                key_string = decryptMessage(element['key_string'], second_user[
+                                    'private_key']);
+                                JSON.parse(message).forEach(element => {
+                                    message_result += CryptoJS.AES.decrypt(element,
+                                            key_string)
+                                        .toString(
+                                            CryptoJS
+                                            .enc.Utf8);
+                                    chat_tab_div = `<div class="message border_debug">
+                                                        <div class="my_message border_debug">
+                                                            <p>` + message_result + `
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    `;
+                                    $('#messages_all').append(chat_tab_div);
+                                    // console.log(CryptoJS.AES.decrypt(element,
+                                    //         key_string)
+                                    //     .toString(
+                                    //         CryptoJS
+                                    //         .enc.Utf8))
+                                });
+                                // console.log(JSON.parse(message))
+                                // console.log(CryptoJS.AES.decrypt(element['message'],
+                                //         key_string)
+                                //     .toString(
+                                //         CryptoJS
+                                //         .enc.Utf8))
+                            } else {
+                                key_string = decryptMessage(element['key_string'], this_user[
+                                    'private_key']);
+                                JSON.parse(message).forEach(element => {
+                                    message_result += CryptoJS.AES.decrypt(element,
+                                            key_string)
+                                        .toString(
+                                            CryptoJS
+                                            .enc.Utf8);
+                                });
+                                // console.log(JSON.parse(message))
+                                // console.log(CryptoJS.AES.decrypt(element['message'],
+                                //         key_string)
+                                //     .toString(
+                                //         CryptoJS
+                                //         .enc.Utf8))
+                            }
+                        });
+                        // all_messages.forEach(element => {
+                        //     sender_id = element['sender_id'];
+                        //     if (sender_id == this_user_id) {
+                        //         key_string = decryptMessage(element['key_string'], this_user[
+                        //             'private_key']);
+                        //         message_result = splitString(element['message']);
+                        //         mess = '';
+                        //         message_result.forEach(element => {
+                        //             mess += CryptoJS.AES.decrypt(element,
+                        //                     key_string)
+                        //                 .toString(
+                        //                     CryptoJS
+                        //                     .enc.Utf8);
+                        //         });
+                        //         console.log(mess)
+                        //         mess = '';
+                        //     } else {
+                        //         key_string = decryptMessage(element['key_string'], this_user[
+                        //             'private_key']);
+                        //         message_result = splitString(element['message']);
+                        //         mess = '';
+                        //         message_result.forEach(element => {
+                        //             mess += CryptoJS.AES.decrypt(element,
+                        //                     key_string)
+                        //                 .toString(
+                        //                     CryptoJS
+                        //                     .enc.Utf8);
+                        //         });
+                        //         console.log(mess)
+                        //         mess = '';
+                        //     }
+                        //     // console.log(this_user_id);
+                        //     // console.log(element);
+                        // });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка AJAX:', error);
+                    }
+                });
                 $.ajax({
                     url: '/get_user', // URL вашего маршрута
                     method: 'GET', // Метод запроса (GET или POST)
@@ -256,15 +368,9 @@
                     success: function(response) {
                         user_id_chat = response['user']['id']
                         $('#user_info_header').empty();
-                        $.ajax({
 
-                            url: '/get_messages_from_chat', // URL вашего маршрута
-                            method: 'GET', // Метод запроса (GET или POST)
-                            data: data,
-                            success: function(response) {
-                                console.log(response.success)
-                            }
-                        });
+
+
                         const all_chats_list = document.getElementById('user_info_header');
                         if (user_id_chat != parseInt(this_user_id)) {
                             user_chats_header =
@@ -352,11 +458,11 @@
             success: function(response) {
 
                 for (let i = 0; i < response.сhats.length; i++) {
-                    console.log(response['chat_id'][i]['creator'], ' ', response['chat_id'][i]['invted']);
+                    // console.log(response['chat_id'][i]['creator'], ' ', response['chat_id'][i]['invted']);
                     id = 'last_message_' + response['chat_id'][i]['id'];
                     if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
 
-                        console.log(id)
+                        // console.log(id)
                         chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
                                 'id'
                             ] +
@@ -419,15 +525,14 @@
                             message = last_messages[element]['message']['message'];
                             // console.log(message);
                             split = splitString(message);
-                            console.log(split);
+                            // console.log(split);
                             message_result = '';
-                            split.forEach(element => {
-                                message_result += CryptoJS.AES.decrypt(element,
-                                        key_string)
-                                    .toString(
-                                        CryptoJS
-                                        .enc.Utf8);
-                            });
+                            // split.forEach(element => {
+                            message_result += CryptoJS.AES.decrypt(split[0],
+                                key_string).toString(CryptoJS.enc.Utf8);
+                            // console.log(CryptoJS.AES.decrypt(element,
+                            //     key_string));
+                            // });
                             console.log(message_result);
                             document.getElementById('last_message_' + element).innerText =
                                 message_result;
@@ -451,7 +556,7 @@
         });
 
         function splitString(input) {
-            const maxLength = 450;
+            const maxLength = 100;
             const result = [];
             for (let i = 0; i < input.length; i += maxLength) {
                 result.push(input.slice(i, i + maxLength));

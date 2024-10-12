@@ -64,21 +64,11 @@ class Chat implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        // foreach ($this->clients as $client) {
-        // Отправьте сообщение всем клиентам, кроме отправителя
-        // if ($from !== $client) {
-        //     // $client->send($msg);
-        // }
-        // dump($client);
-        // }
         $sessionId = str_replace("%3D", "", Header::parse($from->httpRequest->getHeader("Cookie"))[0]["laravel_session"]);
         $sid = (Crypt::decryptString($sessionId));
         $parts = explode('|', $sid);
         $dd = unserialize(file_get_contents(config("session.files") . "/" . $parts[1]));
         $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
-        // dump()
-
-
         $message = json_decode($msg);
         $MESSAGE = '';
         foreach ($message->message as $mess) {
@@ -86,17 +76,15 @@ class Chat implements MessageComponentInterface
         }
         $addressee = $message->addressee;
         $connection = Connection::where('user_id', $addressee)->first();
-
-
         $message_table = Message::create([
             'sender_id' => $user_id,
             'addressee' => $addressee,
             'chat_id' => $message->chat_id,
-            'message' => $MESSAGE,
+            'message' => json_encode($message->message),
             'key_string' => $message->encrypted_key,
         ]);
         // if ($connection != null) {
-
+        // dd( $connection);
 
         // $connection_addressee = intval($connection->connection);
         // $targetResourceId = $connection_addressee; // Замените на нужный resourceId

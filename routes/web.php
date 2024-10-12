@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChatReadController;
 use App\Http\Controllers\get_chat_messages;
+use App\Http\Controllers\get_messages_from_chat;
 use App\Models\User;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserSearch;
@@ -10,6 +11,7 @@ use App\Http\Controllers\ProfileUserShow;
 use App\Http\Controllers\GetUserChats;
 use App\Http\Controllers\get_user;
 use App\Http\Controllers\GetKeys;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SendMessage;
 
 /*
@@ -72,4 +74,5 @@ Route::get('/send_message', [SendMessage::class, 'send_message']);
 Route::get('/get_keys', [GetKeys::class, 'get_keys']);
 Route::get('/get_messages_from_chat', [get_chat_messages::class, 'get_messages_from_chat']);
 Route::get('/unread_chats', [ChatReadController::class, 'get_unread_chats']);
+// Route::get('/get_all_messages_from_chat', [MessageController::class, 'get_all_messages_from_chat']);
 require __DIR__ . '/auth.php';
