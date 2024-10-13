@@ -265,97 +265,51 @@
                             return decrypted;
                         }
                         all_messages = response['all_messages'];
+                        console.log(all_messages);
                         this_user = response['this_user'];
                         second_user = response['second_user'];
                         console.log(all_messages);
                         all_messages.forEach(element => {
                             sender_id = element['sender_id'];
                             message_result = '';
-                            // console.log(element['key_string'])
-                            // console.log(this_user['private_key'])
-                            // console.log(second_user['private_key'])
-                            // console.log(sender_id)
                             if (sender_id == this_user_id) {
                                 key_string = decryptMessage(element['key_string'], second_user[
                                     'private_key']);
-                                JSON.parse(message).forEach(element => {
-                                    message_result += CryptoJS.AES.decrypt(element,
+                                JSON.parse(element['message']).forEach(element_message => {
+                                    message_result += CryptoJS.AES.decrypt(element_message,
                                             key_string)
                                         .toString(
                                             CryptoJS
                                             .enc.Utf8);
-                                    chat_tab_div = `<div class="message border_debug">
+                                });
+                                chat_tab_div = `<div class="message border_debug">
                                                         <div class="my_message border_debug">
-                                                            <p>` + message_result + `
+                                                            <p class='message_p'>` + message_result + `
                                                             </p>
                                                         </div>
                                                     </div>
                                                     `;
-                                    $('#messages_all').append(chat_tab_div);
-                                    // console.log(CryptoJS.AES.decrypt(element,
-                                    //         key_string)
-                                    //     .toString(
-                                    //         CryptoJS
-                                    //         .enc.Utf8))
-                                });
-                                // console.log(JSON.parse(message))
-                                // console.log(CryptoJS.AES.decrypt(element['message'],
-                                //         key_string)
-                                //     .toString(
-                                //         CryptoJS
-                                //         .enc.Utf8))
+                                $('#messages_all').append(chat_tab_div);
                             } else {
                                 key_string = decryptMessage(element['key_string'], this_user[
                                     'private_key']);
-                                JSON.parse(message).forEach(element => {
-                                    message_result += CryptoJS.AES.decrypt(element,
+                                JSON.parse(element['message']).forEach(element_message => {
+                                    message_result += CryptoJS.AES.decrypt(element_message,
                                             key_string)
                                         .toString(
                                             CryptoJS
                                             .enc.Utf8);
                                 });
-                                // console.log(JSON.parse(message))
-                                // console.log(CryptoJS.AES.decrypt(element['message'],
-                                //         key_string)
-                                //     .toString(
-                                //         CryptoJS
-                                //         .enc.Utf8))
+                                chat_tab_div = `<div class="message border_debug">
+                                                        <div class="recived_message border_debug">
+                                                            <p class='message_p'>` + message_result + `
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    `;
+                                $('#messages_all').append(chat_tab_div);
                             }
                         });
-                        // all_messages.forEach(element => {
-                        //     sender_id = element['sender_id'];
-                        //     if (sender_id == this_user_id) {
-                        //         key_string = decryptMessage(element['key_string'], this_user[
-                        //             'private_key']);
-                        //         message_result = splitString(element['message']);
-                        //         mess = '';
-                        //         message_result.forEach(element => {
-                        //             mess += CryptoJS.AES.decrypt(element,
-                        //                     key_string)
-                        //                 .toString(
-                        //                     CryptoJS
-                        //                     .enc.Utf8);
-                        //         });
-                        //         console.log(mess)
-                        //         mess = '';
-                        //     } else {
-                        //         key_string = decryptMessage(element['key_string'], this_user[
-                        //             'private_key']);
-                        //         message_result = splitString(element['message']);
-                        //         mess = '';
-                        //         message_result.forEach(element => {
-                        //             mess += CryptoJS.AES.decrypt(element,
-                        //                     key_string)
-                        //                 .toString(
-                        //                     CryptoJS
-                        //                     .enc.Utf8);
-                        //         });
-                        //         console.log(mess)
-                        //         mess = '';
-                        //     }
-                        //     // console.log(this_user_id);
-                        //     // console.log(element);
-                        // });
                     },
                     error: function(xhr, status, error) {
                         console.error('Ошибка AJAX:', error);
@@ -513,29 +467,24 @@
                     url: '/unread_chats', // URL вашего маршрута
                     method: 'GET', // Метод запроса (GET или POST)
                     success: function(response) {
-                        console.log(response)
                         unread_chats = response['chats_id'];
                         last_messages = response['last_messsages'];
                         last_messages_keys = Object.keys(last_messages);
                         unread_chats_keys = Object.keys(unread_chats);
                         last_messages_keys.forEach(element => {
-                            key_string = decryptMessage(last_messages[element]['message'][
-                                'key_string'
-                            ], last_messages[element]['sender']['private_key']);
-                            message = last_messages[element]['message']['message'];
-                            // console.log(message);
-                            split = splitString(message);
-                            // console.log(split);
+                            console.log(element);
+                            message_object = last_messages[element]['message'];
+                            addressee_object = last_messages[element]['sender'];
+                            key_string = decryptMessage(message_object['key_string'],
+                                addressee_object['private_key']);
                             message_result = '';
-                            // split.forEach(element => {
-                            message_result += CryptoJS.AES.decrypt(split[0],
-                                key_string).toString(CryptoJS.enc.Utf8);
-                            // console.log(CryptoJS.AES.decrypt(element,
-                            //     key_string));
-                            // });
+                            JSON.parse(message_object['message']).forEach(message_text => {
+                                message_result += CryptoJS.AES.decrypt(message_text,
+                                    key_string).toString(CryptoJS.enc.Utf8);
+                            })
                             console.log(message_result);
                             document.getElementById('last_message_' + element).innerText =
-                                message_result;
+                                message_result.slice(0, 34) + '...'
                             var message_result = '';
                         });
                         unread_chats_keys.forEach(element => {
