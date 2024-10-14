@@ -174,24 +174,13 @@
         `;
                 }
                 $('#messages_all').append(chat_tab_div);
-                // document.addEventListener('DOMContentLoaded', function() {
                 message_tabs = document.querySelectorAll('.message_tab');
                 console.log(message_tabs);
                 message_tabs.forEach(function(message_tab) {
-                    message_tab.addEventListener('contextmenu', function(event) {
-                        // alert(1);
-                    });
+                    message_tab.addEventListener('contextmenu', function(event) {});
                 });
-                // });
 
             } else {
-                // alert(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
-                //     .visibility);
-                // document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
-                //     .visibility == 'visible';
-                // alert(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
-                //     .visibility);
-                //     .visibility)
                 if (JSON.parse(event.data)['chat_id'] in unread_chats) {
                     unread_chats[JSON.parse(event.data)['chat_id']] += 1;
 
@@ -205,10 +194,6 @@
                     .style.display);
                 document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText =
                     unread_chats[JSON.parse(event.data)['chat_id']];
-                // if (document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style.display == 'none') {
-                //     document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style.display = 'block';
-                //     document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText = unread_chats[JSON.parse(event.data)['chat_id']];
-                // }
                 new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
                 // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
                 if (new_message_chat.classList.contains('blink-background')) {
@@ -220,12 +205,7 @@
                 setTimeout(() => {
                     new_message_chat.classList.remove('blink-background');
                 }, 1000);
-
-                // console.log("В один из чатов пришло сообщение!!!");
-                // console.log(unread_chats);
             }
-            // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.remove('blink-background');
-
         };
 
         socket.onclose = function(event) {
@@ -467,6 +447,7 @@
                     url: '/unread_chats', // URL вашего маршрута
                     method: 'GET', // Метод запроса (GET или POST)
                     success: function(response) {
+                        console.log(response);
                         unread_chats = response['chats_id'];
                         last_messages = response['last_messsages'];
                         last_messages_keys = Object.keys(last_messages);
@@ -522,6 +503,5 @@
                 send_message(); // Выполняем определенное действие
             }
         });
-        // document.getElementById('send_message').addEventListener('click', );
     </script>
 </x-app-layout>

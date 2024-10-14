@@ -26,8 +26,7 @@ class ChatReadController extends Controller
                 $chats_with_unread_message[$message->chat_id] += 1;
             }
             // dump($message->isRead, $message->chat_id);W
-
         }
-        return response()->json(['chats_id' =>  $chats_with_unread_message, 'last_messsages' => $last_messages]);
+        return response()->json(['chats_id' => $chats_with_unread_message, 'last_messsages' => $last_messages]);
     }
 }
