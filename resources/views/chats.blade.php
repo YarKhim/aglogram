@@ -10,6 +10,8 @@
         const token = 'YOUR_AUTH_TOKEN';
         const socket = new WebSocket('ws://localhost:8888');
         let unreadChatsData = null;
+        let offset = 0;
+        const limit = 10
         this_user_id = null;
         favorite_id_chat = null;
         unread_chats = {};
@@ -30,33 +32,7 @@
             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
             return decrypted;
         }
-        // $.ajax({
-        //     url: '/unread_chats',
-        //     method: 'GET',
-        //     success: function(data) {
-        //         // unreadChatsData = data; // Сохраняем данные в глобальную переменную
-        //         console.log(data); // Выводим данные в консоль для проверки
-        //         // Здесь вы можете обновить интерфейс пользователя с полученными данными
-        //     },
-        //     error: function(jqXHR, textStatus, errorThrown) {
-        //         console.error('Ошибка при получении чатов:', textStatus, errorThrown);
-        //     }
-        // });
 
-        // console.log(unreadChatsData)
-        // unreadChatsData_keys = (Object.keys(unreadChatsData));
-        // console.log(unreadChatsData_keys);
-        // unreadChatsData_keys.forEach(element => {
-        //     console.log(unreadChatsData[element]);
-        //     unread_chats[element] = unreadChatsData[element];
-        // });
-        // console.log('Список непрочитаных сообщений: ', unread_chats);
-        // for (i = 0; i < unreadChatsData.length; i++) {
-        //     console.log(unreadChatsData[i])
-        // }
-        // unreadChatsData.forEach(element => {
-        //     console.log(element);
-        // });
         function send_message() {
 
             if (document.getElementById('message_input').value.trim()) {
@@ -234,7 +210,8 @@
                     url: '/get_messages_from_chat',
                     method: 'GET',
                     data: {
-                        chat_id: chat_id
+                        chat_id: chat_id,
+                        // offset: offset
                     },
                     success: function(response) {
                         // console.log(1);
@@ -433,7 +410,7 @@
                                         <div class="border_debug last_message_time">41.23</div>
 
                                     </div>
-                                    <div class="border_debug last_message" id='` + id + `'>message</div>
+                                    <div class="border_debug last_message" id='` + id + `'></div>
                                 </div>
 
                             </div>`;
