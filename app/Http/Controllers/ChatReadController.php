@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Chat;
 use Illuminate\Support\Facades\Auth;
 
 class ChatReadController extends Controller
@@ -14,7 +15,22 @@ class ChatReadController extends Controller
         $this_user_id = Auth::user()->id;
         $chats_with_unread_message = [];
         $last_messages = [];
+        // function getChatId($user1Id, $user2Id)
+        // {
+        //     return Chat->where(function ($query) use ($user1Id, $user2Id) {
+        //         $query->where('creator', $user1Id)->where('invted', $user2Id);
+        //     })
+        //         ->orWhere(function ($query) use ($user1Id, $user2Id) {
+        //             $query->where('invted', $user2Id)->where('creator', $user1Id);
+        //         })
+        //         ->get(); // Получаем только ID чата
+        // }
+        // $all_chats_with_user =  getChatId($this_user_id, $this_user_id);
+        // dump($all_chats_with_user);
+
+        // $all_chats_with_user = getChatId($this_user_id, $this_user_id);
         $all_messages = Message::where('addressee', $this_user_id)->where('sender_id', '!=', $this_user_id)->where('isRead', 0)->get();
+        $full_messages = Message::where('sender_id', $this_user_id)->get();
         foreach ($all_messages as $message) {
             $earliestMessage = Message::where('chat_id', $message->chat_id)
                 ->orderBy('created_at', 'desc')

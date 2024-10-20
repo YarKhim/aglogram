@@ -305,36 +305,6 @@
                                 $('#messages_all').append(chat_tab_div);
                             } else {
                                 // element
-
-                                if (element['isRead'] == 0) {
-                                    if (flag == false) {
-                                        flag = true
-                                        $('#messages_all').append(
-                                            '<h1 style="text-align: center;" id="unread_messages_mark">непрочитанные сообщения!!</h1>'
-                                        );
-                                    }
-                                    isReadMessages_id.push(element['message_id']);
-                                }
-
-                                key_string = decryptMessage(element['key_string'], this_user[
-                                    'private_key']);
-                                JSON.parse(element['message']).forEach(element_message => {
-                                    message_result += CryptoJS.AES.decrypt(element_message,
-                                            key_string)
-                                        .toString(
-                                            CryptoJS
-                                            .enc.Utf8);
-                                });
-                                chat_tab_div = `<div class="message border_debug" id="` + element[
-                                    'message_id'] + `" >
-                                                        <div class="recived_message border_debug">
-                                                            <p class='message_p'>` + message_result + `
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    `;
-                                $('#messages_all').append(chat_tab_div);
-
                                 function handleIntersection(entries, observer) {
                                     entries.forEach(entry => {
                                         if (entry.isIntersecting) {
@@ -363,14 +333,54 @@
                                         }
                                     });
                                 }
+                                if (element['isRead'] == 0) {
+                                    if (flag == false) {
+                                        flag = true
+                                        $('#messages_all').append(
+                                            '<h1 style="text-align: center;" id="unread_messages_mark">непрочитанные сообщения!!</h1>'
+                                        );
+                                    }
+
+                                }
+
+                                key_string = decryptMessage(element['key_string'], this_user[
+                                    'private_key']);
+                                JSON.parse(element['message']).forEach(element_message => {
+                                    message_result += CryptoJS.AES.decrypt(element_message,
+                                            key_string)
+                                        .toString(
+                                            CryptoJS
+                                            .enc.Utf8);
+                                });
+                                chat_tab_div = `<div class="message border_debug" id="` + element[
+                                    'message_id'] + `" >
+                                                        <div class="recived_message border_debug">
+                                                            <p class='message_p'>` + message_result + `
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    `;
+                                $('#messages_all').append(chat_tab_div);
+                                if (element['isRead'] == 0) {
+                                    // document.addEventListener('DOMContentLoaded', () => {
+                                    const observer = new IntersectionObserver(
+                                        handleIntersection);
+
+                                    // Получение целевого элемента и начало наблюдения
+                                    const targetElement = document.getElementById(
+                                        element[
+                                            'message_id']);
+
+                                    // console.log(targetElement);
+                                    observer.observe(targetElement);
+                                    // });
+
+                                    // isReadMessages_id.push(element['message_id']);
+                                }
+
 
                                 // Создание экземпляра Intersection Observer
-                                const observer = new IntersectionObserver(handleIntersection);
 
-                                // Получение целевого элемента и начало наблюдения
-                                const targetElement = document.getElementById(element[
-                                    'message_id']);
-                                observer.observe(targetElement);
                             }
 
                         });
@@ -540,6 +550,7 @@
                         console.log(response);
                         unread_chats = response['chats_id'];
                         last_messages = response['last_messsages'];
+                        console.log("🚀 ~ last_messsages:", response['last_messsages'])
                         last_messages_keys = Object.keys(last_messages);
                         unread_chats_keys = Object.keys(unread_chats);
                         last_messages_keys.forEach(element => {
