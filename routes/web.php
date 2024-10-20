@@ -13,6 +13,7 @@ use App\Http\Controllers\get_user;
 use App\Http\Controllers\GetKeys;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SendMessage;
+use App\Http\Controllers\ReadMessage;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,19 +33,27 @@ Route::get('/', function () {
 
 Route::get('/friends', function () {
     return view('friends');
-})->middleware(['auth', 'verified'])->name('friends');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('friends');
 
 Route::get('/video', function () {
     return view('video');
-})->middleware(['auth', 'verified'])->name('video');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('video');
 
 Route::get('/chats', function () {
     return view('chats');
-})->middleware(['auth', 'verified'])->name('chats');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('chats');
 
 Route::get('/user_profile', function () {
     return view('user_profile');
-})->middleware(['auth', 'verified'])->name('user_profile');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('user_profile');
 
 Route::get('/user_profile', [ProfileUserShow::class, 'getUserName']);
 // Route::get('/test', [ProfileUserShow::class, 'getUserName']);
@@ -54,11 +63,15 @@ Route::get('/test', function () {
 });
 Route::get('/feed', function () {
     return view('feed');
-})->middleware(['auth', 'verified'])->name('feed');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('feed');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -69,10 +82,14 @@ Route::middleware('auth')->group(function () {
 Route::get('/avatar/{user}', [ProfileController::class, 'avatar'])->name('profile.avatar');
 Route::post('/friends', [UserSearch::class, 'submit'])->name('contact.submit');
 Route::get('/get_chats', [GetUserChats::class, 'getChats']);
+
 Route::get('/get_user', [get_user::class, 'get_user']);
 Route::get('/send_message', [SendMessage::class, 'send_message']);
 Route::get('/get_keys', [GetKeys::class, 'get_keys']);
 Route::get('/get_messages_from_chat', [get_chat_messages::class, 'get_messages_from_chat']);
 Route::get('/unread_chats', [ChatReadController::class, 'get_unread_chats']);
+
+Route::get('/read_message', [ReadMessage::class, 'reading_message']);
+// Route::get('/read_message', [read_message::class, 'reading_message']);
 // Route::get('/get_all_messages_from_chat', [MessageController::class, 'get_all_messages_from_chat']);
 require __DIR__ . '/auth.php';

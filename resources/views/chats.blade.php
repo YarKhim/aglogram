@@ -15,7 +15,7 @@
         this_user_id = null;
         favorite_id_chat = null;
         unread_chats = {};
-
+        read_messaegs = {};
         document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
@@ -129,29 +129,59 @@
             document.getElementById('last_message_' + got_chat_id).innerText = message_result;
             if (got_chat_id == selected_chat) {
                 console.log("В откртый чат пришло собщение!!!");
-
+                // console.log(JSON.parse(event.data))
 
                 if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
 
-                    chat_tab_div = `<div class="message border_debug">
-            <div class="recived_message border_debug">
-                <p>` + message_result + `
-                </p>
-            </div>
-        </div>
-        `;
+                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)['message'][
+                        'message_id'
+                    ] + `">
+                                        <div class="recived_message border_debug">
+                                            <p>` + message_result + `
+                                            </p>
+                                        </div>
+                                    </div>
+`;
+                    $('#messages_all').append(chat_tab_div);
+
+                    function handleIntersection(entries, observer) {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                read_messaegs.push(JSON.parse(event.data)['message'][
+                                    'message_id'
+                                ]);
+                                observer.unobserve(entry.target);
+                            } else {
+
+                                console.log(
+                                    'Элемент не виден в области просмотра.');
+                            }
+                        });
+                    }
+
+                    // Создание экземпляра Intersection Observer
+                    const observer = new IntersectionObserver(handleIntersection);
+
+                    // Получение целевого элемента и начало наблюдения
+                    const targetElement = document.getElementById(JSON.parse(event.data)['message'][
+                        'message_id'
+                    ]);
+                    observer.observe(targetElement);
                 } else {
-                    chat_tab_div = `<div class="message border_debug">
+                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)['messge'][
+                        'message_id'
+                    ] + `">
             <div class="my_message border_debug">
                 <p>` + message_result + `
                 </p>
             </div>
         </div>
         `;
+                    $('#messages_all').append(chat_tab_div);
                 }
-                $('#messages_all').append(chat_tab_div);
+
                 message_tabs = document.querySelectorAll('.message_tab');
-                console.log(message_tabs);
+                // console.log(message_tabs);
                 message_tabs.forEach(function(message_tab) {
                     message_tab.addEventListener('contextmenu', function(event) {});
                 });
@@ -308,9 +338,24 @@
                                 function handleIntersection(entries, observer) {
                                     entries.forEach(entry => {
                                         if (entry.isIntersecting) {
-                                            console.log(
-                                                'Элемент' + entry.target.id +
-                                                ' виден в области просмотра!');
+                                            // read_messaegs.push(element['message_id']);
+                                            $.ajax({
+                                                url: '/read_message',
+                                                type: 'GET',
+                                                data: {
+                                                    message_id: element[
+                                                        'message_id']
+                                                },
+                                                success: function(res) {
+                                                    console.log(res);
+                                                },
+                                                error: function(xhr, status,
+                                                    error) {
+                                                    console.error(xhr
+                                                        .responseText
+                                                    ); // Обработка ошибки
+                                                }
+                                            });
                                             observer.unobserve(entry.target);
                                         } else {
                                             console.log(
