@@ -197,8 +197,14 @@
 
         function select_chat(user_id, chat_id) {
             return function() {
+
                 $('#messages_all').empty();
+
+
+
+                // console.log("🚀 ~ returnfunction ~ messages_all:", messages_all)
                 document.getElementById('message_input').value = '';
+                // document.getElementById('messages_plane').style.visibility = 'hidden';
                 document.getElementById('message_input').focus();
                 selected_chat = chat_id;
                 document.getElementById('messages_plane').style.visibility = 'visible';
@@ -214,7 +220,11 @@
                         // offset: offset
                     },
                     success: function(response) {
-                        // console.log(1);
+                        // console.log(1);\
+                        flag = false;
+                        isReadMessages_id = [];
+                        this_unread_message = null;
+
                         function decryptMessage(encryptedMessage, private_key) {
                             const privateKey = forge.pki.privateKeyFromPem(private_key);
                             const decodedMessage = forge.util.decode64(encryptedMessage);
@@ -226,8 +236,23 @@
                         this_user = response['this_user'];
                         second_user = response['second_user'];
                         console.log(all_messages);
+                        const scrollContainer = document.getElementById('messages_all');
+
+                        function isElementInViewport(el) {
+                            const rect = el.getBoundingClientRect();
+                            return (
+                                rect.top >= 0 &&
+                                rect.left >= 0 &&
+                                rect.bottom <= (window.innerHeight || document.documentElement
+                                    .clientHeight) &&
+                                rect.right <= (window.innerWidth || document.documentElement
+                                    .clientWidth)
+                            );
+                        }
                         all_messages.forEach(element => {
                             sender_id = element['sender_id'];
+                            // console.log(element);
+
                             message_result = '';
                             if (sender_id == this_user_id) {
                                 key_string = decryptMessage(element['key_string'], second_user[
@@ -239,7 +264,8 @@
                                             CryptoJS
                                             .enc.Utf8);
                                 });
-                                chat_tab_div = `<div class="message border_debug">
+                                chat_tab_div = `<div class="message border_debug" id="` + element[
+                                    'message_id'] + `">
                                                         <div class="my_message border_debug">
                                                             <p class='message_p'>` + message_result + `
                                                             </p>
@@ -248,6 +274,18 @@
                                                     `;
                                 $('#messages_all').append(chat_tab_div);
                             } else {
+                                // element
+
+                                if (element['isRead'] == 0) {
+                                    if (flag == false) {
+                                        flag = true
+                                        $('#messages_all').append(
+                                            '<h1 style="text-align: center;" id="unread_messages_mark">непрочитанные сообщения!!</h1>'
+                                        );
+                                    }
+                                    isReadMessages_id.push(element['message_id']);
+                                }
+
                                 key_string = decryptMessage(element['key_string'], this_user[
                                     'private_key']);
                                 JSON.parse(element['message']).forEach(element_message => {
@@ -257,7 +295,8 @@
                                             CryptoJS
                                             .enc.Utf8);
                                 });
-                                chat_tab_div = `<div class="message border_debug">
+                                chat_tab_div = `<div class="message border_debug" id="` + element[
+                                    'message_id'] + `" >
                                                         <div class="recived_message border_debug">
                                                             <p class='message_p'>` + message_result + `
                                                             </p>
@@ -265,9 +304,33 @@
                                                     </div>
                                                     `;
                                 $('#messages_all').append(chat_tab_div);
+
+                                function handleIntersection(entries, observer) {
+                                    entries.forEach(entry => {
+                                        if (entry.isIntersecting) {
+                                            console.log(
+                                                'Элемент' + entry.target.id +
+                                                ' виден в области просмотра!');
+                                            observer.unobserve(entry.target);
+                                        } else {
+                                            console.log(
+                                                'Элемент не виден в области просмотра.');
+                                        }
+                                    });
+                                }
+
+                                // Создание экземпляра Intersection Observer
+                                const observer = new IntersectionObserver(handleIntersection);
+
+                                // Получение целевого элемента и начало наблюдения
+                                const targetElement = document.getElementById(element[
+                                    'message_id']);
+                                observer.observe(targetElement);
                             }
+
                         });
                     },
+                    // I need to call function
                     error: function(xhr, status, error) {
                         console.error('Ошибка AJAX:', error);
                     }
@@ -282,10 +345,12 @@
 
 
 
-                        const all_chats_list = document.getElementById('user_info_header');
+                        const all_chats_list = document.getElementById(
+                            'user_info_header');
                         if (user_id_chat != parseInt(this_user_id)) {
                             user_chats_header =
-                                `<div class="user_info_header_foto border_debug" id=` + response
+                                `<div class="user_info_header_foto border_debug" id=` +
+                                response
                                 .user
                                 .id +
                                 `><img src=` + response.user
@@ -299,7 +364,8 @@
                         } else {
                             favorite_id_chat = chat_id
                             user_chats_header =
-                                `<div class="user_info_header_foto border_debug" id=` + response
+                                `<div class="user_info_header_foto border_debug" id=` +
+                                response
                                 .user
                                 .id +
                                 `><img src=` + response.user
@@ -312,11 +378,13 @@
                         }
 
                         $('#user_info_header').append(user_chats_header);
-                        document.getElementById('user_info_header_without_foto').addEventListener(
-                            'click',
-                            function() {
-                                window.open('/user_profile?id= ' + response.user.username)
-                            });
+                        document.getElementById('user_info_header_without_foto')
+                            .addEventListener(
+                                'click',
+                                function() {
+                                    window.open('/user_profile?id= ' + response.user
+                                        .username)
+                                });
 
 
                     },
