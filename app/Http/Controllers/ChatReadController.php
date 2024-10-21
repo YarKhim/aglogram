@@ -30,13 +30,13 @@ class ChatReadController extends Controller
                 // dd($addr);
                 // $last_message_arr = [];
                 $addr = User::where('id', $addr_id)->first();
-                $last_message_arr[] = [
+                $last_message_arr = [
                     'addressee' => $addr,
                     'last_message' => $last_message,
                 ];
-                $last_messages_all[$chat->id] = $last_message_arr[0];
+                $last_messages_all[$chat->id] = $last_message_arr;
             }
-            $last_message_arr = [];
+            $last_message_arr = null;
         }
         $all_messages = Message::where('addressee', $this_user_id)->where('sender_id', '!=', $this_user_id)->where('isRead', 0)->get();
         $full_messages = Message::where('sender_id', $this_user_id)->get();

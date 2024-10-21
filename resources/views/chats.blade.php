@@ -269,20 +269,21 @@
                         console.log(all_messages);
                         const scrollContainer = document.getElementById('messages_all');
 
-                        function isElementInViewport(el) {
-                            const rect = el.getBoundingClientRect();
-                            return (
-                                rect.top >= 0 &&
-                                rect.left >= 0 &&
-                                rect.bottom <= (window.innerHeight || document.documentElement
-                                    .clientHeight) &&
-                                rect.right <= (window.innerWidth || document.documentElement
-                                    .clientWidth)
-                            );
-                        }
+                        // function isElementInViewport(el) {
+                        //     const rect = el.getBoundingClientRect();
+                        //     return (
+                        //         rect.top >= 0 &&
+                        //         rect.left >= 0 &&
+                        //         rect.bottom <= (window.innerHeight || document.documentElement
+                        //             .clientHeight) &&
+                        //         rect.right <= (window.innerWidth || document.documentElement
+                        //             .clientWidth)
+                        //     );
+                        // }
                         all_messages.forEach(element => {
                             sender_id = element['sender_id'];
-                            // console.log(element);
+                            // console.log(element['chat_id']);
+
 
                             message_result = '';
                             if (sender_id == this_user_id) {
@@ -305,10 +306,27 @@
                                                     `;
                                 $('#messages_all').append(chat_tab_div);
                             } else {
+                                // console.log(unread_chats[element['chat_id']]);
                                 // element
                                 function handleIntersection(entries, observer) {
                                     entries.forEach(entry => {
                                         if (entry.isIntersecting) {
+                                            unread_chats[element['chat_id']]--;
+                                            if (unread_chats[element['chat_id']] != 0) {
+                                                document.getElementById(
+                                                        'unread_messages_counter_' +
+                                                        element[
+                                                            'chat_id']).innerText =
+                                                    unread_chats[element[
+                                                        'chat_id']];
+                                            } else {
+                                                document.getElementById(
+                                                        'unread_messages_counter_' +
+                                                        element[
+                                                            'chat_id']).style
+                                                    .display =
+                                                    'none';
+                                            }
                                             // read_messaegs.push(element['message_id']);
                                             $.ajax({
                                                 url: '/read_message',
@@ -343,7 +361,7 @@
                                     }
 
                                 }
-
+                                // unread_chats
                                 key_string = decryptMessage(element['key_string'], this_user[
                                     'private_key']);
                                 JSON.parse(element['message']).forEach(element_message => {
@@ -557,7 +575,7 @@
                         // console.log("🚀 ~ last_messages_keys:", last_messages_keys)
                         unread_chats_keys = Object.keys(unread_chats);
                         last_messages_keys.forEach(element => {
-                            console.log(element);
+                            // console.log(element);
                             message_object = last_messages[element];
                             // console.log("🚀 ~ user_object:", message_object['addressee']);
                             // console.log("🚀 ~ message_object:", message_object[
@@ -577,7 +595,7 @@
                                 message_result += CryptoJS.AES.decrypt(message_text,
                                     key_string).toString(CryptoJS.enc.Utf8);
                             })
-                            console.log(message_result);
+                            // console.log(message_result);
                             document.getElementById('last_message_' + element).innerText =
                                 message_result.slice(0, 34) + '...'
                             var message_result = '';
