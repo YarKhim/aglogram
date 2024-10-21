@@ -15,20 +15,29 @@ class ChatReadController extends Controller
         $this_user_id = Auth::user()->id;
         $chats_with_unread_message = [];
         $last_messages = [];
-        // function getChatId($user1Id, $user2Id)
-        // {
-        //     return Chat->where(function ($query) use ($user1Id, $user2Id) {
-        //         $query->where('creator', $user1Id)->where('invted', $user2Id);
-        //     })
-        //         ->orWhere(function ($query) use ($user1Id, $user2Id) {
-        //             $query->where('invted', $user2Id)->where('creator', $user1Id);
-        //         })
-        //         ->get(); // Получаем только ID чата
-        // }
-        // $all_chats_with_user =  getChatId($this_user_id, $this_user_id);
-        // dump($all_chats_with_user);
-
-        // $all_chats_with_user = getChatId($this_user_id, $this_user_id);
+        $last_messages_all = [];
+        $all_chats = Chat::where('creator', $this_user_id)->orWhere('invted', $this_user_id)->get();
+        // dd($all_chats);
+        foreach ($all_chats as $chat) {
+            $last_message = Message::where('chat_id', $chat->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+            // dump($last_message);
+            if ($last_message) {
+                // dd($last_message);
+                // dd($last_message->addressee);
+                $addr_id = $last_message->addressee;
+                // dd($addr);
+                // $last_message_arr = [];
+                $addr = User::where('id', $addr_id)->first();
+                $last_message_arr[] = [
+                    'addressee' => $addr,
+                    'last_message' => $last_message,
+                ];
+                $last_messages_all[$chat->id] = $last_message_arr[0];
+            }
+            $last_message_arr = [];
+        }
         $all_messages = Message::where('addressee', $this_user_id)->where('sender_id', '!=', $this_user_id)->where('isRead', 0)->get();
         $full_messages = Message::where('sender_id', $this_user_id)->get();
         foreach ($all_messages as $message) {
@@ -43,6 +52,6 @@ class ChatReadController extends Controller
             }
             // dump($message->isRead, $message->chat_id);W
         }
-        return response()->json(['chats_id' => $chats_with_unread_message, 'last_messsages' => $last_messages]);
+        return response()->json(['chats_id' => $chats_with_unread_message, 'last_messsages' => $last_messages_all]);
     }
 }
