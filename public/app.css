@@ -1,0 +1,511 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.border_debug {
+    border: solid 1px red;
+}
+
+.font-semibold {
+    height: 20px;
+}
+
+.result_search_tab {
+    width: 100%;
+    /* text-align: center; */
+    display: flex;
+    height: 4.8em;
+    margin-top: 0.5em;
+}
+
+.result_search_tab_info {
+    width: 90%;
+    border: solid gray 3px;
+    margin-left: 5%;
+    /* border-radius: 10px; */
+    height: 100%;
+    display: flex;
+    /* justify-content: center;
+    align-items: center; */
+}
+
+.result_search {
+    border: solid rgba(0, 0, 161, 0.694) 3px;
+    width: 50%;
+    float: right;
+    background-color: #1a3568cd;
+    border-radius: 10px;
+    height: 25em;
+    overflow-y: auto;
+}
+
+.result_search>h2 {
+    font-size: 200%;
+    text-align: center;
+}
+
+.input_data_for_search {
+    width: 50%;
+    float: left;
+}
+
+.find_friends_input_text {
+    color: #fff;
+    width: 75%;
+    border-radius: 10px;
+    background: none;
+}
+
+.find_friends_submit {
+    background-color: rgb(17 24 39);
+    width: 20%;
+    border-radius: 10px;
+    height: 2.6em;
+    margin-left: 1em;
+    float: right;
+    margin-right: 10px;
+}
+
+.find_friends {
+    margin-top: 3em;
+    width: 100%;
+    display: flex;
+}
+
+.user_image {
+    float: left;
+
+    width: 4.5em;
+    height: 100%;
+}
+
+.user_image>img {
+    border-radius: 50%;
+}
+
+.text_info_search {
+    margin-left: 3em;
+    width: 70%;
+    height: 100%;
+}
+
+
+.post {
+    width: 50%;
+    border-radius: 3%;
+    border-color: black;
+    border-width: 0.05cm;
+    height: flex;
+    background-color: #8f8ead46;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-bottom: 1em;
+    margin-top: 5%;
+    /* margin-top: ; */
+}
+
+.avatar {
+    width: 3.2em;
+    height: 3.2em;
+    border-radius: 100%;
+    border-color: black;
+    border-width: 0.05cm;
+
+    margin-left: 4%;
+
+    margin-bottom: 1em;
+    margin-top: 4%;
+}
+
+.avatar>img {
+    border-radius: 100%;
+}
+
+.username {
+
+    border-color: black;
+    border-width: 0.0cm;
+    width: 70%;
+    height: 2em;
+    margin-left: 90px;
+    margin-top: -65px;
+}
+
+.timecode {
+    border-color: black;
+    border-width: 0.0cm;
+    width: 15%;
+    height: 0.9em;
+    margin-left: 90px;
+    margin-top: -0.3em;
+}
+
+.foto {
+    border-color: black;
+    border-width: 0.05cm;
+    width: 90%;
+    height: flex;
+    margin-left: 5%;
+    margin-top: 5%;
+}
+
+.description {
+    border-color: black;
+    border-width: 0.05cm;
+    width: 90%;
+    height: flex;
+    margin-left: 5%;
+    margin-top: 1%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+
+.likes {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 40px;
+    height: 40px;
+    border-color: black;
+    border-width: 0.05cm;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    margin-left: 5%;
+}
+
+.comments {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 40px;
+    height: 40px;
+    border-color: black;
+    border-width: 0.05cm;
+    margin-top: -60px;
+    margin-bottom: 20px;
+    margin-left: 70px;
+}
+
+.share {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 40px;
+    height: 40px;
+    border-color: black;
+    border-width: 0.05cm;
+    margin-top: -60px;
+    margin-bottom: 20px;
+    margin-left: 115px;
+}
+
+.chats {
+    width: 90%;
+    border-color: rgb(27, 27, 43);
+    border-width: 0.1cm;
+    border-radius: 10px;
+    height: flex;
+    background-color: rgb(27, 27, 43);
+}
+
+.name {
+    width: flex;
+    margin-left: 5%;
+}
+
+.lastmessege {
+    margin-left: 5%;
+    background-color: rgb(27, 27, 43);
+    width: 90%;
+    border-radius: 10px;
+    border-top-left-radius: 5px;
+}
+
+.txt {
+    margin-left: 5px;
+    max-width: 180px;
+    height: flex;
+}
+
+.messegetime {
+    margin-left: 80%;
+    margin-top: -20px;
+}
+
+.a {
+    height: flex;
+    width: 30%;
+
+    position: absolute;
+    top: 2cqb;
+    margin: auto;
+
+}
+
+.opened_chat {
+    width: 70%;
+    /* height: 200vh; */
+    height: 96%;
+    border-radius: 10px;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    background-color: rgb(27, 27, 43);
+    margin-left: 31%;
+    margin-top: -0.8cqb;
+}
+
+.p-6 {
+
+    position: relative;
+}
+
+.py-12 {
+    width: 100%;
+    margin-left: 0;
+
+    height: 85.9cqb;
+}
+
+.max-w-10xl {
+    margin-top: -3cqb;
+}
+
+.main_plane {
+    width: 100%;
+    display: flex;
+    height: 100%;
+}
+
+.all_chats_list {
+    overflow-y: auto;
+    width: 30%;
+    height: 100%;
+}
+
+.chat_tab {
+    position: relative;
+    display: flex;
+    height: 15%;
+    margin-top: 5%;
+}
+
+.chat_foto {
+    border-radius: 50%;
+    width: 20%;
+    height: 100%;
+}
+
+.chat_foto>img {
+    border-radius: 50%;
+}
+
+.right_side_chat_tab {
+    display: flex;
+    width: 80%;
+    flex-direction: column;
+}
+
+.chat_info {
+    width: 100%;
+    display: flex;
+    height: 50%;
+    float: right;
+}
+
+.chat_name {
+    width: 80%;
+    float: left;
+    /* background-color: aqua; */
+}
+
+.last_message_time {
+    width: 12.5%;
+    /* background-color: wheat; */
+    /* float: right; */
+}
+
+.read_receipts {
+    /* background-color: rebeccapurple; */
+    text-align: center;
+    width: 7.5%;
+}
+
+.last_message {
+    display: flex;
+    width: 90%;
+    height: 100%;
+    /* background-color: white; */
+}
+
+.messages_plane {
+
+    width: 70%;
+    position: relative;
+}
+
+#messages_plane {
+    visibility: hidden;
+}
+
+
+
+.input {
+    height: 10%;
+}
+
+.messages {
+    /* background-color: ; */
+    height: 80%;
+    overflow-y: auto;
+}
+
+.messages::-webkit-scrollbar {
+    visibility: hidden;
+    width: 1%;
+}
+
+.message_input {
+    width: 90%;
+    height: 3.5em;
+    background: none;
+}
+
+.message {
+    color: black;
+    min-height: 10%;
+    height: auto;
+    display: flex;
+    margin-top: 0.75%;
+    display: flex;
+    flex-direction: column;
+}
+
+.my_message {
+    padding: 15px;
+    margin-right: 1%;
+    background-color: rgb(255, 0, 0);
+    border-radius: 15px;
+    border-bottom-right-radius: 0px;
+    max-width: 40%;
+    min-width: 20%;
+    height: 100%;
+    align-self: flex-end;
+
+}
+
+.recived_message {
+    padding: 15px;
+    margin-left: 1%;
+    background-color: rgb(227, 216, 216);
+    border-radius: 15px;
+    border-bottom-left-radius: 0px;
+    max-width: 40%;
+    min-width: 20%;
+    align-self: flex-start;
+    height: 100%;
+}
+.message_p{
+    word-wrap: break-word;
+}
+.user_info_header {
+    width: 100%;
+    height: 10%;
+    display: flex;
+    /* flex-direction: column; */
+    /* background-color: #fff; */
+}
+
+.user_info_header_without_foto {
+    margin-left: 1%;
+    height: 100%;
+    flex-direction: column;
+}
+
+/* .user_info_header_without_foto>img{
+    height: 100%;
+} */
+.user_info_header_foto {
+    height: 100%;
+    width: 6%;
+    border-radius: 50%;
+    float: left;
+
+}
+
+.user_info_header_foto>img {
+    /* height: 100%;s */
+    border-radius: 50%;
+}
+
+.user_info_header_name {
+    height: 50%;
+
+}
+
+.user_info_header_is_online {
+    height: 50%;
+}
+
+@keyframes blink {
+    0% {
+        background-color: transparent;
+        /* Начальный прозрачный фон */
+    }
+
+    50% {
+        background-color: rgba(255, 255, 255, 0.3);
+        /* Моргаем белым цветом */
+    }
+
+    100% {
+        background-color: transparent;
+        /* Возвращаемся к прозрачному фону */
+    }
+}
+
+.blink-background {
+
+    color: white;
+    border-radius: 10px;
+    animation: blink 1s forwards;
+}
+
+.unread_messages {
+    display: flex;
+    width: 12.5%;
+
+    justify-content: center;
+    align-items: center;
+    /* display: flex; */
+    /* text-align: center; */
+    /* right: 0; */
+    /* text-align: right; */
+    /* float: right; */
+    /* background-color: #fff; */
+}
+
+.about_messaegs {
+    display: flex;
+    height: 50%;
+}
+
+.unread_messages_counter {
+    display: none;
+    /* visibility: hidden; */
+    width: 50%;
+    height: 50%;
+    background-color: #fff;
+    border-radius: 100%;
+    /* vertical-align: middle; */
+    /* text-align: center; */
+    font-size: small;
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    color: #000;
+}

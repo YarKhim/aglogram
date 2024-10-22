@@ -5,10 +5,11 @@
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    {{-- <link href="/app.css" rel="stylesheet"> --}}
     <script>
         var selected_chat = null;
         const token = 'YOUR_AUTH_TOKEN';
-        const socket = new WebSocket('ws://localhost:8888');
+        const socket = new WebSocket('ws://neptune:8888');
         let unreadChatsData = null;
         let offset = 0;
         const limit = 10
@@ -78,15 +79,13 @@
                         console.log(message)
                         const addressee = document.querySelector('.user_info_header_foto').id;
                         let data = {
+                            type_message: 'message',
                             message: message,
                             addressee: addressee,
                             encrypted_key: encryptMessage(secretKey, publicKeyPem),
                             chat_id: response['chat_id'],
                             privateKey: privateKeyPem,
                         };
-                        // console.log(data);
-
-                        // console.log(data.message);
                         sendMessage(JSON.stringify(data));
                         document.getElementById('last_message_' + response['chat_id']).innerText = document
                             .getElementById('message_input').value;
@@ -219,10 +218,7 @@
             console.log('Соединение закрыто');
         };
 
-        // Отправка сообщения на сервер
         function sendMessage(message) {
-            // console.log(JSON.parse(message)['message']);
-
             socket.send(message);
         }
 
@@ -230,12 +226,7 @@
             return function() {
 
                 $('#messages_all').empty();
-
-
-
-                // console.log("🚀 ~ returnfunction ~ messages_all:", messages_all)
                 document.getElementById('message_input').value = '';
-                // document.getElementById('messages_plane').style.visibility = 'hidden';
                 document.getElementById('message_input').focus();
                 selected_chat = chat_id;
                 document.getElementById('messages_plane').style.visibility = 'visible';
@@ -268,23 +259,8 @@
                         second_user = response['second_user'];
                         console.log(all_messages);
                         const scrollContainer = document.getElementById('messages_all');
-
-                        // function isElementInViewport(el) {
-                        //     const rect = el.getBoundingClientRect();
-                        //     return (
-                        //         rect.top >= 0 &&
-                        //         rect.left >= 0 &&
-                        //         rect.bottom <= (window.innerHeight || document.documentElement
-                        //             .clientHeight) &&
-                        //         rect.right <= (window.innerWidth || document.documentElement
-                        //             .clientWidth)
-                        //     );
-                        // }
                         all_messages.forEach(element => {
                             sender_id = element['sender_id'];
-                            // console.log(element['chat_id']);
-
-
                             message_result = '';
                             if (sender_id == this_user_id) {
                                 key_string = decryptMessage(element['key_string'], second_user[
@@ -306,8 +282,6 @@
                                                     `;
                                 $('#messages_all').append(chat_tab_div);
                             } else {
-                                // console.log(unread_chats[element['chat_id']]);
-                                // element
                                 function handleIntersection(entries, observer) {
                                     entries.forEach(entry => {
                                         if (entry.isIntersecting) {
@@ -327,7 +301,6 @@
                                                     .display =
                                                     'none';
                                             }
-                                            // read_messaegs.push(element['message_id']);
                                             $.ajax({
                                                 url: '/read_message',
                                                 type: 'GET',
@@ -342,13 +315,10 @@
                                                     error) {
                                                     console.error(xhr
                                                         .responseText
-                                                    ); // Обработка ошибки
+                                                    );
                                                 }
                                             });
                                             observer.unobserve(entry.target);
-                                        } else {
-                                            // console.log(
-                                            //     'Элемент не виден в области просмотра.');
                                         }
                                     });
                                 }
@@ -381,30 +351,16 @@
                                                     `;
                                 $('#messages_all').append(chat_tab_div);
                                 if (element['isRead'] == 0) {
-                                    // document.addEventListener('DOMContentLoaded', () => {
                                     const observer = new IntersectionObserver(
                                         handleIntersection);
-
-                                    // Получение целевого элемента и начало наблюдения
                                     const targetElement = document.getElementById(
                                         element[
                                             'message_id']);
-
-                                    // console.log(targetElement);
                                     observer.observe(targetElement);
-                                    // });
-
-                                    // isReadMessages_id.push(element['message_id']);
                                 }
-
-
-                                // Создание экземпляра Intersection Observer
-
                             }
-
                         });
                     },
-                    // I need to call function
                     error: function(xhr, status, error) {
                         console.error('Ошибка AJAX:', error);
                     }
@@ -416,9 +372,6 @@
                     success: function(response) {
                         user_id_chat = response['user']['id']
                         $('#user_info_header').empty();
-
-
-
                         const all_chats_list = document.getElementById(
                             'user_info_header');
                         if (user_id_chat != parseInt(this_user_id)) {
@@ -511,8 +464,6 @@
             success: function(response) {
 
                 for (let i = 0; i < response.сhats.length; i++) {
-                    // #TODOсделать правильно отображение полседниех сообщений
-                    // console.log(response['chat_id'][i]['creator'], ' ', response['chat_id'][i]['invted']);
                     id = 'last_message_' + response['chat_id'][i]['id'];
                     if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
 
@@ -559,7 +510,6 @@
                             </div>`;
                     }
                     $('#all_chats_list').append(chat_tab_div);
-                    // console.log(response['chat_id'][i]['id'])
                     document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
                         response.сhats[i]['id'], response['chat_id'][i]['id']));
                 }
@@ -567,37 +517,34 @@
                     url: '/unread_chats', // URL вашего маршрута
                     method: 'GET', // Метод запроса (GET или POST)
                     success: function(response) {
-                        // console.log(response);
                         unread_chats = response['chats_id'];
                         last_messages = response['last_messsages'];
-                        // console.log("🚀 ~ last_messsages:", response['last_messsages'])
                         last_messages_keys = Object.keys(last_messages);
-                        // console.log("🚀 ~ last_messages_keys:", last_messages_keys)
                         unread_chats_keys = Object.keys(unread_chats);
                         last_messages_keys.forEach(element => {
-                            // console.log(element);
                             message_object = last_messages[element];
-                            // console.log("🚀 ~ user_object:", message_object['addressee']);
-                            // console.log("🚀 ~ message_object:", message_object[
-                            //     'last_message']);
-                            // addressee_object = last_messages[element]['sender'];
                             key_string = decryptMessage(message_object['last_message'][
                                     'key_string'
                                 ],
                                 message_object['addressee']['private_key']);
-                            // console.log("🚀 ~ key_string_object:", key_string);
                             message_result = '';
 
                             message_json = JSON.parse(message_object['last_message']
                                 ['message']);
-                            // console.log("🚀 ~ message_json:", message_json);
+
                             message_json.forEach(message_text => {
                                 message_result += CryptoJS.AES.decrypt(message_text,
                                     key_string).toString(CryptoJS.enc.Utf8);
                             })
-                            // console.log(message_result);
-                            document.getElementById('last_message_' + element).innerText =
-                                message_result.slice(0, 34) + '...'
+                            if (message_result.length > 34) {
+                                document.getElementById('last_message_' + element)
+                                    .innerText =
+                                    message_result.slice(0, 34) + '...';
+                            } else {
+                                document.getElementById(
+                                        'last_message_' + element).innerText =
+                                    message_result;
+                            }
                             var message_result = '';
                         });
 
