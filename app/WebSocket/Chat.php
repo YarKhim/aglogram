@@ -26,7 +26,7 @@ class Chat implements MessageComponentInterface
     // private $user_connected;
     public function __construct()
     {
-        $this->clients = new \SplObjectStorage;
+        $this->clients = new \SplObjectStorage();
     }
     // public function a($clientId, $message)
     // {
@@ -47,15 +47,15 @@ class Chat implements MessageComponentInterface
         // dump($this->all_clients[$conn->resourceId]->resourceId);
         // dump($this->all_clients);
         // dump($conn->resourceId);
-        $sessionId = str_replace("%3D", "", Header::parse($conn->httpRequest->getHeader("Cookie"))[0]["laravel_session"]);
-        $sid = (Crypt::decryptString($sessionId));
+        $sessionId = str_replace('%3D', '', Header::parse($conn->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
+        $sid = Crypt::decryptString($sessionId);
         $parts = explode('|', $sid);
-        $dd = unserialize(file_get_contents(config("session.files") . "/" . $parts[1]));
+        $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
         $user = User::where('id', $dd['login_web_' . sha1(SessionGuard::class)])->first();
         $user_connections = Connection::where('user_id', $user->id)->first();
         Connection::where('user_id', $user->id)->delete();
         // if ($user_connections == null) {
-        $conn =  Connection::create([
+        $conn = Connection::create([
             'user_id' => $user->id,
             'connection' => $conn->resourceId,
         ]);
@@ -64,15 +64,15 @@ class Chat implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        $sessionId = str_replace("%3D", "", Header::parse($from->httpRequest->getHeader("Cookie"))[0]["laravel_session"]);
-        $sid = (Crypt::decryptString($sessionId));
+        $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
+        $sid = Crypt::decryptString($sessionId);
         $parts = explode('|', $sid);
-        $dd = unserialize(file_get_contents(config("session.files") . "/" . $parts[1]));
+        $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
         $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
         $message = json_decode($msg);
         $MESSAGE = '';
         foreach ($message->message as $mess) {
-            $MESSAGE  = $MESSAGE . $mess;
+            $MESSAGE = $MESSAGE . $mess;
         }
         $addressee = $message->addressee;
         $connection = Connection::where('user_id', $addressee)->first();
@@ -90,7 +90,8 @@ class Chat implements MessageComponentInterface
         // $targetResourceId = $connection_addressee; // Замените на нужный resourceId
 
         if ($connection == null) {
-            echo ('Клиент не в сети <br>');
+            echo 'Клиент не в сети\n';
+            // return ('Клиент не в сети\n');
         } else {
             $connection_addressee = intval($connection->connection);
             $targetResourceId = $connection_addressee; // Замените на нужный resourceId
@@ -104,10 +105,10 @@ class Chat implements MessageComponentInterface
         // Удалите подключение
         $this->clients->detach($conn);
         unset($this->all_clients[$conn->resourceId]);
-        $sessionId = str_replace("%3D", "", Header::parse($conn->httpRequest->getHeader("Cookie"))[0]["laravel_session"]);
-        $sid = (Crypt::decryptString($sessionId));
+        $sessionId = str_replace('%3D', '', Header::parse($conn->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
+        $sid = Crypt::decryptString($sessionId);
         $parts = explode('|', $sid);
-        $dd = unserialize(file_get_contents(config("session.files") . "/" . $parts[1]));
+        $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
         $user = User::where('id', $dd['login_web_' . sha1(SessionGuard::class)])->first();
         $user_id = $user->id;
         Connection::where('user_id', $user_id)->delete();

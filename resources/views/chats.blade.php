@@ -79,14 +79,14 @@
                         console.log(message)
                         const addressee = document.querySelector('.user_info_header_foto').id;
                         let data = {
-                            type_message: 'message',
+                            // type_message: 'message',
                             message: message,
                             addressee: addressee,
                             encrypted_key: encryptMessage(secretKey, publicKeyPem),
                             chat_id: response['chat_id'],
                             privateKey: privateKeyPem,
                         };
-                        sendMessage(JSON.stringify(data));
+                        sendMessage(JSON.stringify(data), 'send_message');
                         document.getElementById('last_message_' + response['chat_id']).innerText = document
                             .getElementById('message_input').value;
                         all_message = document.getElementById('message_input').value;
@@ -218,7 +218,11 @@
             console.log('Соединение закрыто');
         };
 
-        function sendMessage(message) {
+        function sendMessage(message, type_query) {
+            // socket.send(JSON.stringify({
+            //     'message': message,
+            //     'type_query': type_query
+            // }));
             socket.send(message);
         }
 
