@@ -120,6 +120,7 @@
 
 
             got_chat_id = JSON.parse(event.data)['chat_id'];
+            // console.log(JSON.parse(event.data));
             for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
                 message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
                     CryptoJS
@@ -139,8 +140,7 @@
                                             <p>` + message_result + `
                                             </p>
                                         </div>
-                                    </div>
-`;
+                                    </div>`;
                     $('#messages_all').append(chat_tab_div);
 
                     function handleIntersection(entries, observer) {
@@ -477,7 +477,11 @@
                                     <div class="border_debug chat_info">
                                         <div class="border_debug chat_name">` + response.сhats[i]['name'] +
                             `</div>
-                                        <div class="border_debug read_receipts">&#10003;</div>
+                                        <div class="border_debug read_receipts" id="read_receipts_` + response[
+                                'chat_id'][i][
+                                'id'
+                            ] +
+                            `"></div>
                                         <div class="border_debug last_message_time">41.23</div>
 
                                     </div>
@@ -500,7 +504,10 @@
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
                                         <div class="border_debug chat_name">Избранное</div>
-                                        <div class="border_debug read_receipts">&#10003;</div>
+                                        <div class="border_debug read_receipts" id="read_receipts_` + response[
+                                'chat_id'][i][
+                                'id'
+                            ] + `"></div>
                                         <div class="border_debug last_message_time">41.23</div>
 
                                     </div>
@@ -521,8 +528,26 @@
                         last_messages = response['last_messsages'];
                         last_messages_keys = Object.keys(last_messages);
                         unread_chats_keys = Object.keys(unread_chats);
+                        console.log(response);
                         last_messages_keys.forEach(element => {
                             message_object = last_messages[element];
+                            if (last_messages[element]['addressee']['id'] != this_user_id &&
+                                last_messages[element]['last_message']['isRead'] == true
+                            ) {
+                                document.getElementById(
+                                    'read_receipts_' + element).innerText = '✓✓';
+                            }
+                            if (last_messages[element]['addressee']['id'] != this_user_id &&
+                                last_messages[element]['last_message']['isRead'] == false
+                            ) {
+                                document.getElementById(
+                                    'read_receipts_' + element).innerText = '✓';
+                            }
+                            if (last_messages[element]['addressee']['id'] ==
+                                last_messages[element]['last_message']['sender_id']) {
+                                document.getElementById(
+                                    'read_receipts_' + element).innerText = '✓✓';
+                            }
                             key_string = decryptMessage(message_object['last_message'][
                                     'key_string'
                                 ],
