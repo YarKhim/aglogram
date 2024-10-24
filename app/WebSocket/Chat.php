@@ -64,40 +64,50 @@ class Chat implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
-        $sid = Crypt::decryptString($sessionId);
-        $parts = explode('|', $sid);
-        $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
-        $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
-        $message = json_decode($msg);
-        $MESSAGE = '';
-        foreach ($message->message as $mess) {
-            $MESSAGE = $MESSAGE . $mess;
-        }
-        $addressee = $message->addressee;
-        $connection = Connection::where('user_id', $addressee)->first();
-        $message_table = Message::create([
-            'sender_id' => $user_id,
-            'addressee' => $addressee,
-            'chat_id' => $message->chat_id,
-            'message' => json_encode($message->message),
-            'key_string' => $message->encrypted_key,
-        ]);
-        // if ($connection != null) {
-        // dd( $connection);
+        if (json_decode($msg)->type_message == 'message') {
+            $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
+            $sid = Crypt::decryptString($sessionId);
+            $parts = explode('|', $sid);
+            $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
+            $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
+            $message = json_decode($msg);
+            $MESSAGE = '';
+            foreach ($message->message as $mess) {
+                $MESSAGE = $MESSAGE . $mess;
+            }
+            $addressee = $message->addressee;
+            $connection = Connection::where('user_id', $addressee)->first();
+            $message_table = Message::create([
+                'sender_id' => $user_id,
+                'addressee' => $addressee,
+                'chat_id' => $message->chat_id,
+                'message' => json_encode($message->message),
+                'key_string' => $message->encrypted_key,
+            ]);
+            // if ($connection != null) {
+            // dd( $connection);
 
-        // $connection_addressee = intval($connection->connection);
-        // $targetResourceId = $connection_addressee; // Замените на нужный resourceId
+            // $connection_addressee = intval($connection->connection);
+            // $targetResourceId = $connection_addressee; // Замените на нужный resourceId
 
-        if ($connection == null) {
-            echo 'Клиент не в сети\n';
-            // return ('Клиент не в сети\n');
-        } else {
-            $connection_addressee = intval($connection->connection);
-            $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-            $this->all_clients[$targetResourceId]->send($msg);
+            if ($connection == null) {
+                echo 'Клиент не в сети\n';
+                // return ('Клиент не в сети\n');
+            } else {
+                $connection_addressee = intval($connection->connection);
+                $targetResourceId = $connection_addressee; // Замените на нужный resourceId
+                $this->all_clients[$targetResourceId]->send($msg);
+            }
+            // dump('Адресат: ' . $message->addressee . ', Отправитель: ' . $user_id);
         }
-        // dump('Адресат: ' . $message->addressee . ', Отправитель: ' . $user_id);
+        if (json_decode($msg)->type_message == 'read_sate_update') {
+            $data = json_decode($msg);
+            $message_read = Message::where('message_id', $data->message_id)
+                ->first()
+                ->update(['isRead' => true]);
+            $addressee = $message_read->addressee;
+            dump(Message::where('message_id', $data->message_id)->first());
+        }
     }
 
     public function onClose(ConnectionInterface $conn)
