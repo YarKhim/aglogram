@@ -83,7 +83,12 @@ class Chat implements MessageComponentInterface
                 'chat_id' => $message->chat_id,
                 'message' => json_encode($message->message),
                 'key_string' => $message->encrypted_key,
-            ]);
+            ])->id;
+
+            $msg = json_decode($msg);
+            $msg->message_id_new = $message_table;
+            $msg = json_encode($msg);
+            // dump($msg);
             // if ($connection != null) {
             // dd( $connection);
 
@@ -97,16 +102,17 @@ class Chat implements MessageComponentInterface
                 $connection_addressee = intval($connection->connection);
                 $targetResourceId = $connection_addressee; // Замените на нужный resourceId
                 $this->all_clients[$targetResourceId]->send($msg);
+                // dump($msg);
             }
+
             // dump('Адресат: ' . $message->addressee . ', Отправитель: ' . $user_id);
         }
         if (json_decode($msg)->type_message == 'read_sate_update') {
             $data = json_decode($msg);
-            $message_read = Message::where('message_id', $data->message_id)
-                ->first()
-                ->update(['isRead' => true]);
-            $addressee = $message_read->addressee;
-            dump(Message::where('message_id', $data->message_id)->first());
+            dump($data);
+            $message_read = Message::where('message_id', $data->message_id)->update(['isRead' => true]);
+            // $addressee = $message_read->addressee;
+            // dump(Message::where('message_id', $data->message_id)->first());
         }
     }
 

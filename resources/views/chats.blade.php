@@ -129,12 +129,37 @@
             document.getElementById('last_message_' + got_chat_id).innerText = message_result;
             if (got_chat_id == selected_chat) {
                 console.log("В откртый чат пришло собщение!!!");
-                // console.log(JSON.parse(event.data))
+                console.log(JSON.parse(event.data))
 
                 if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
+                    console.log(JSON.parse(event.data));
+                    if (JSON.parse(event.data)['chat_id'] in unread_chats) {
+                        unread_chats[JSON.parse(event.data)['chat_id']] += 1;
 
-                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)['message'][
-                        'message_id'
+                    } else {
+                        unread_chats[JSON.parse(event.data)['chat_id']] = 1;
+
+                    }
+                    document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
+                        .display =
+                        'flex';
+                    console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
+                        .style.display);
+                    document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText =
+                        unread_chats[JSON.parse(event.data)['chat_id']];
+                    new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
+                    // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
+                    if (new_message_chat.classList.contains('blink-background')) {
+                        new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
+                    } else {
+                        new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
+                    }
+                    new_message_chat.classList.add('blink-background');
+                    setTimeout(() => {
+                        new_message_chat.classList.remove('blink-background');
+                    }, 1000);
+                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
+                        'message_id_new'
                     ] + `">
                                         <div class="recived_message border_debug">
                                             <p>` + message_result + `
@@ -146,31 +171,48 @@
                     function handleIntersection(entries, observer) {
                         entries.forEach(entry => {
                             if (entry.isIntersecting) {
-                                // read_messaegs.push(JSON.parse(event.data)['message'][
-                                //     'message_id'
-                                // ]);
+                                unread_chats[JSON.parse(event.data)['chat_id']]--;
+                                if (unread_chats[JSON.parse(event.data)['chat_id']] != 0) {
+                                    document.getElementById(
+                                            'unread_messages_counter_' +
+                                            JSON.parse(event.data)['chat_id']).innerText =
+                                        unread_chats[JSON.parse(event.data)['chat_id']];
+                                } else {
+                                    document.getElementById(
+                                            'unread_messages_counter_' +
+                                            JSON.parse(event.data)['chat_id']).style
+                                        .display =
+                                        'none';
+                                }
+                                let data = {
+                                    type_message: 'read_sate_update',
+                                    message_id: JSON.parse(event.data)[
+                                        'message_id_new'
+                                    ],
+                                };
+                                // console.log(
+                                //     "🚀 ~ handleIntersection ~ data:",
+                                //     data)
+
+                                sendMessage(JSON.stringify(
+                                    data));
                                 observer.unobserve(entry.target);
-
-                            } else {
-
-                                console.log(
-                                    'Элемент не виден в области просмотра.');
                             }
                         });
                     }
 
                     // Создание экземпляра Intersection Observer
-                    const observer = new IntersectionObserver(handleIntersection);
-
-                    // Получение целевого элемента и начало наблюдения
-                    const targetElement = document.getElementById(JSON.parse(event.data)['message'][
-                        'message_id'
-                    ]);
+                    const observer = new IntersectionObserver(
+                        handleIntersection);
+                    const targetElement = document.getElementById(
+                        JSON.parse(event.data)[
+                            'message_id_new'
+                        ]);
                     observer.observe(targetElement);
                 } else {
                     console.log(JSON.parse(event.data)['message']);
-                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)['message'][
-                        'message_id'
+                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
+                        'message_id_new'
                     ] + `">
             <div class="my_message border_debug">
                 <p>` + message_result + `
@@ -197,8 +239,8 @@
                 }
                 document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style.display =
                     'flex';
-                console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
-                    .style.display);
+                // console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
+                //     .style.display);
                 document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText =
                     unread_chats[JSON.parse(event.data)['chat_id']];
                 new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
@@ -307,34 +349,18 @@
                                                     .display =
                                                     'none';
                                             }
-                                            $.ajax({
-                                                url: '/read_message',
-                                                type: 'GET',
-                                                data: {
-                                                    message_id: element[
-                                                        'message_id']
-                                                },
-                                                success: function(res) {
-                                                    let data = {
-                                                        type_message: 'read_sate_update',
-                                                        message_id: element[
-                                                            'message_id'
-                                                        ],
-                                                    };
-                                                    console.log(
-                                                        "🚀 ~ handleIntersection ~ data:",
-                                                        data)
+                                            let data = {
+                                                type_message: 'read_sate_update',
+                                                message_id: element[
+                                                    'message_id'
+                                                ],
+                                            };
+                                            // console.log(
+                                            //     "🚀 ~ handleIntersection ~ data:",
+                                            //     data)
 
-                                                    sendMessage(JSON.stringify(
-                                                        data));
-                                                },
-                                                error: function(xhr, status,
-                                                    error) {
-                                                    console.error(xhr
-                                                        .responseText
-                                                    );
-                                                }
-                                            });
+                                            sendMessage(JSON.stringify(
+                                                data));
                                             observer.unobserve(entry.target);
                                         }
                                     });
@@ -368,6 +394,8 @@
                                                     `;
                                 $('#messages_all').append(chat_tab_div);
                                 if (element['isRead'] == 0) {
+
+                                    // #TODO
                                     const observer = new IntersectionObserver(
                                         handleIntersection);
                                     const targetElement = document.getElementById(
