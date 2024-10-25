@@ -27,6 +27,14 @@
             return forge.util.encode64(encrypted); // Кодируем в base64
         }
 
+        function generateGUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
         function decryptMessage(encryptedMessage, private_key) {
             const privateKey = forge.pki.privateKeyFromPem(private_key);
             const decodedMessage = forge.util.decode64(encryptedMessage);
@@ -64,7 +72,7 @@
                             return decrypted;
                         }
                         message = [];
-
+                        // console.log(document.getElementById('message_input').value);
                         if (document.getElementById('message_input').value.length < 100) {
                             message[0] = document.getElementById('message_input').value;
                         } else {
@@ -76,8 +84,9 @@
                             message[i] = (encryptedMessage);
                             encryptedMessage = null;
                         }
-                        console.log(message)
+                        // console.log(message)
                         const addressee = document.querySelector('.user_info_header_foto').id;
+                        guid = generateGUID();
                         let data = {
                             type_message: 'message',
                             message: message,
@@ -85,18 +94,42 @@
                             encrypted_key: encryptMessage(secretKey, publicKeyPem),
                             chat_id: response['chat_id'],
                             privateKey: privateKeyPem,
+                            guid: guid,
                         };
                         sendMessage(JSON.stringify(data));
                         document.getElementById('last_message_' + response['chat_id']).innerText = document
                             .getElementById('message_input').value;
                         all_message = document.getElementById('message_input').value;
                         if (addressee_id != this_user_id) {
-                            chat_tab_div = `<div class="message border_debug">
-                                            <div class="my_message border_debug">
-                                                <p>` + all_message + `
-                                                </p>
-                                            </div>
-                                        </div>`;
+
+                            console.log("🚀 ~ send_message ~ guid:", guid)
+
+                            // chat_tab_div = `<div class="message border_debug">
+                        //                 <div class="my_message border_debug">
+                        //                     <p>` + all_message + `
+                        //                     </p>
+                        //                 </div>
+                        //             </div>`;
+                            // #TODOНеобходимо сделать создания временного id для элемента сообщения пока websocket_server не вернёт его постояный id my_message_time_ guid my_message_read_state_
+                            chat_tab_div = `<div class="message border_debug" id="` +
+                                guid +
+                                `">
+                                                        <div class="my_message border_debug">
+                                                            <div class='my_message_text'><p class='message_p'>` +
+                                document.getElementById('message_input').value +
+                                `
+                                                            </p></div>
+
+                                                            <div class="message_time no_select" ><p id="my_message_time_` +
+                                guid +
+                                `">23:40</p></div>
+
+                                                            <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                guid + `'>` + ("✓".repeat(1)) + `</p></div>
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                    `;
                             $('#messages_all').append(chat_tab_div);
                         }
 
@@ -112,27 +145,128 @@
             console.log('Подключено к WebSocket серверу');
         };
         socket.onmessage = function(event) {
-            const privateKey = forge.pki.privateKeyFromPem(JSON.parse(event.data)['privateKey']);
-            const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
-            const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
-            var message_result = '';
+            if (JSON.parse(event.data)['flag'] == 'new_message') {
+                const privateKey = forge.pki.privateKeyFromPem(JSON.parse(event.data)['privateKey']);
+                const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
+                const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
+                var message_result = '';
 
 
 
-            got_chat_id = JSON.parse(event.data)['chat_id'];
-            // console.log(JSON.parse(event.data));
-            for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
-                message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
-                    CryptoJS
-                    .enc.Utf8);
-            }
-            document.getElementById('last_message_' + got_chat_id).innerText = message_result;
-            if (got_chat_id == selected_chat) {
-                console.log("В откртый чат пришло собщение!!!");
-                console.log(JSON.parse(event.data))
+                got_chat_id = JSON.parse(event.data)['chat_id'];
+                // console.log(JSON.parse(event.data));
+                for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
+                    message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted).toString(
+                        CryptoJS
+                        .enc.Utf8);
+                }
+                document.getElementById('last_message_' + got_chat_id).innerText = message_result;
+                if (got_chat_id == selected_chat) {
+                    console.log("В откртый чат пришло собщение!!!");
+                    console.log(JSON.parse(event.data))
 
-                if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
-                    console.log(JSON.parse(event.data));
+                    if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
+                        console.log(JSON.parse(event.data));
+                        if (JSON.parse(event.data)['chat_id'] in unread_chats) {
+                            unread_chats[JSON.parse(event.data)['chat_id']] += 1;
+
+                        } else {
+                            unread_chats[JSON.parse(event.data)['chat_id']] = 1;
+
+                        }
+                        document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
+                            .display =
+                            'flex';
+                        console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)[
+                                'chat_id'])
+                            .style.display);
+                        document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
+                            .innerText =
+                            unread_chats[JSON.parse(event.data)['chat_id']];
+                        new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
+                        // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
+                        if (new_message_chat.classList.contains('blink-background')) {
+                            new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
+                        } else {
+                            new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
+                        }
+                        new_message_chat.classList.add('blink-background');
+                        setTimeout(() => {
+                            new_message_chat.classList.remove('blink-background');
+                        }, 1000);
+                        chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
+                            'message_id_new'
+                        ] + `">
+                                        <div class="recived_message border_debug">
+                                            <div class='recived_message_text'><p>` + message_result + `
+                                            </p></div>
+
+                                        </div>
+                                    </div>`;
+                        $('#messages_all').append(chat_tab_div);
+
+                        function handleIntersection(entries, observer) {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    unread_chats[JSON.parse(event.data)['chat_id']]--;
+                                    if (unread_chats[JSON.parse(event.data)['chat_id']] != 0) {
+                                        document.getElementById(
+                                                'unread_messages_counter_' +
+                                                JSON.parse(event.data)['chat_id']).innerText =
+                                            unread_chats[JSON.parse(event.data)['chat_id']];
+                                    } else {
+                                        document.getElementById(
+                                                'unread_messages_counter_' +
+                                                JSON.parse(event.data)['chat_id']).style
+                                            .display =
+                                            'none';
+                                    }
+                                    let data = {
+                                        type_message: 'read_sate_update',
+                                        message_id: JSON.parse(event.data)[
+                                            'message_id_new'
+                                        ],
+                                    };
+                                    // console.log(
+                                    //     "🚀 ~ handleIntersection ~ data:",
+                                    //     data)
+
+                                    sendMessage(JSON.stringify(
+                                        data));
+                                    observer.unobserve(entry.target);
+                                }
+                            });
+                        }
+
+                        // Создание экземпляра Intersection Observer
+                        const observer = new IntersectionObserver(
+                            handleIntersection);
+                        const targetElement = document.getElementById(
+                            JSON.parse(event.data)[
+                                'message_id_new'
+                            ]);
+                        observer.observe(targetElement);
+                    } else {
+                        console.log(JSON.parse(event.data)['message']);
+                        chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
+                            'message_id_new'
+                        ] + `">
+            <div class="my_message border_debug">
+                <p>` + message_result + `
+                </p>
+            </div>
+        </div>
+        `;
+                        $('#messages_all').append(chat_tab_div);
+                    }
+
+                    message_tabs = document.querySelectorAll('.message_tab');
+                    // console.log(message_tabs);
+                    message_tabs.forEach(function(message_tab) {
+                        message_tab.addEventListener('contextmenu', function(event) {});
+                    });
+
+                } else {
                     if (JSON.parse(event.data)['chat_id'] in unread_chats) {
                         unread_chats[JSON.parse(event.data)['chat_id']] += 1;
 
@@ -143,8 +277,8 @@
                     document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
                         .display =
                         'flex';
-                    console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
-                        .style.display);
+                    // console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
+                    //     .style.display);
                     document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText =
                         unread_chats[JSON.parse(event.data)['chat_id']];
                     new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
@@ -158,103 +292,22 @@
                     setTimeout(() => {
                         new_message_chat.classList.remove('blink-background');
                     }, 1000);
-                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
-                        'message_id_new'
-                    ] + `">
-                                        <div class="recived_message border_debug">
-                                            <p>` + message_result + `
-                                            </p>
-                                        </div>
-                                    </div>`;
-                    $('#messages_all').append(chat_tab_div);
-
-                    function handleIntersection(entries, observer) {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                unread_chats[JSON.parse(event.data)['chat_id']]--;
-                                if (unread_chats[JSON.parse(event.data)['chat_id']] != 0) {
-                                    document.getElementById(
-                                            'unread_messages_counter_' +
-                                            JSON.parse(event.data)['chat_id']).innerText =
-                                        unread_chats[JSON.parse(event.data)['chat_id']];
-                                } else {
-                                    document.getElementById(
-                                            'unread_messages_counter_' +
-                                            JSON.parse(event.data)['chat_id']).style
-                                        .display =
-                                        'none';
-                                }
-                                let data = {
-                                    type_message: 'read_sate_update',
-                                    message_id: JSON.parse(event.data)[
-                                        'message_id_new'
-                                    ],
-                                };
-                                // console.log(
-                                //     "🚀 ~ handleIntersection ~ data:",
-                                //     data)
-
-                                sendMessage(JSON.stringify(
-                                    data));
-                                observer.unobserve(entry.target);
-                            }
-                        });
-                    }
-
-                    // Создание экземпляра Intersection Observer
-                    const observer = new IntersectionObserver(
-                        handleIntersection);
-                    const targetElement = document.getElementById(
-                        JSON.parse(event.data)[
-                            'message_id_new'
-                        ]);
-                    observer.observe(targetElement);
-                } else {
-                    console.log(JSON.parse(event.data)['message']);
-                    chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
-                        'message_id_new'
-                    ] + `">
-            <div class="my_message border_debug">
-                <p>` + message_result + `
-                </p>
-            </div>
-        </div>
-        `;
-                    $('#messages_all').append(chat_tab_div);
                 }
-
-                message_tabs = document.querySelectorAll('.message_tab');
-                // console.log(message_tabs);
-                message_tabs.forEach(function(message_tab) {
-                    message_tab.addEventListener('contextmenu', function(event) {});
-                });
-
-            } else {
-                if (JSON.parse(event.data)['chat_id'] in unread_chats) {
-                    unread_chats[JSON.parse(event.data)['chat_id']] += 1;
-
-                } else {
-                    unread_chats[JSON.parse(event.data)['chat_id']] = 1;
-
-                }
-                document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style.display =
-                    'flex';
-                // console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
-                //     .style.display);
-                document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).innerText =
-                    unread_chats[JSON.parse(event.data)['chat_id']];
-                new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
-                // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
-                if (new_message_chat.classList.contains('blink-background')) {
-                    new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
-                } else {
-                    new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
-                }
-                new_message_chat.classList.add('blink-background');
-                setTimeout(() => {
-                    new_message_chat.classList.remove('blink-background');
-                }, 1000);
             }
+            if (JSON.parse(event.data)['flag'] == 'remove_guid') {
+                if (JSON.parse(event.data)['chat_id'] == selected_chat) {
+                    console.log(JSON.parse(event.data)['message_id_new']);
+                    // my_message_time_ guid my_message_read_state_
+                    document.getElementById('my_message_time_' + JSON.parse(event.data)['guid']).id =
+                        'my_message_time_' + JSON.parse(event.data)['message_id_new']
+                    document.getElementById(JSON.parse(event.data)['guid']).id = JSON.parse(event.data)[
+                        'message_id_new']
+                    document.getElementById('my_message_read_state_' + JSON.parse(event.data)['guid']).id =
+                        'my_message_read_state_' + JSON.parse(event.data)['message_id_new']
+                }
+
+            }
+
         };
 
         socket.onclose = function(event) {
@@ -320,10 +373,23 @@
                                             .enc.Utf8);
                                 });
                                 chat_tab_div = `<div class="message border_debug" id="` + element[
-                                    'message_id'] + `">
+                                        'message_id'] +
+                                    `">
                                                         <div class="my_message border_debug">
-                                                            <p class='message_p'>` + message_result + `
-                                                            </p>
+                                                            <div class='my_message_text'><p class='message_p'>` +
+                                    message_result +
+                                    `
+                                                            </p></div>
+
+                                                            <div class="message_time no_select" ><p id="my_message_time_` +
+                                    element[
+                                        'message_id'] +
+                                    `">23:40</p></div>
+
+                                                            <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                    element['message_id'] + `'>` + ("✓".repeat((parseInt(element[
+                                        'isRead']) + 1))) + `</p></div>
+                                                        </div>
                                                         </div>
                                                     </div>
                                                     `;
@@ -355,10 +421,6 @@
                                                     'message_id'
                                                 ],
                                             };
-                                            // console.log(
-                                            //     "🚀 ~ handleIntersection ~ data:",
-                                            //     data)
-
                                             sendMessage(JSON.stringify(
                                                 data));
                                             observer.unobserve(entry.target);
@@ -384,18 +446,22 @@
                                             CryptoJS
                                             .enc.Utf8);
                                 });
+                                // #TODO
+                                // console.log("✓".repeat((parseInt(element['isRead']) + 1)));
                                 chat_tab_div = `<div class="message border_debug" id="` + element[
-                                    'message_id'] + `" >
+                                        'message_id'] +
+                                    `" >
                                                         <div class="recived_message border_debug">
-                                                            <p class='message_p'>` + message_result + `
-                                                            </p>
+                                                            <div class='recived_message_text ' ><p class='message_p'>` +
+                                    message_result +
+                                    `
+                                                            </p></div>
+                                                            <div class="message_time no_select" ><p>23:40</p></div>
                                                         </div>
                                                     </div>
                                                     `;
                                 $('#messages_all').append(chat_tab_div);
                                 if (element['isRead'] == 0) {
-
-                                    // #TODO
                                     const observer = new IntersectionObserver(
                                         handleIntersection);
                                     const targetElement = document.getElementById(
@@ -553,7 +619,7 @@
                                 'chat_id'][i][
                                 'id'
                             ] + `"></div>
-                                        <div class="border_debug last_message_time">41.23</div>
+                                        <div class="border_debug last_message_time">23:43</div>
 
                                     </div>
                                     <div class="border_debug last_message" id='` + id + `'></div>
@@ -655,3 +721,7 @@
         });
     </script>
 </x-app-layout>
+{{--
+<div class='recived_message_read_state '><p id='my_message_read_state_` +
+    element['message_id'] + `'>` + ("✓".repeat((parseInt(element[
+        'isRead']) + 1))) + `</p></div> --}}

@@ -3,7 +3,7 @@
 namespace App\WebSocket;
 
 // use App\Auth;
-
+// use App\WebSocket\stdClass
 use App\Http\Controllers\SendMessage;
 use App\Models\Connection;
 use App\Models\Message;
@@ -87,7 +87,9 @@ class Chat implements MessageComponentInterface
 
             $msg = json_decode($msg);
             $msg->message_id_new = $message_table;
+            $msg->flag = 'new_message';
             $msg = json_encode($msg);
+
             // dump($msg);
             // if ($connection != null) {
             // dd( $connection);
@@ -105,11 +107,25 @@ class Chat implements MessageComponentInterface
                 // dump($msg);
             }
 
-            // dump('Адресат: ' . $message->addressee . ', Отправитель: ' . $user_id);
+            // Тут мы отпраим пользователю обратно ууже полученный id сообщения вместо guid
+            $connection = Connection::where('user_id', $user_id)->first();
+            $msg = json_decode($msg);
+            // unset($msg->$key);
+            $msg->latest_message_id = $message->guid;
+            $msg->new_message_id = $message_table;
+            $msg->flag = 'remove_guid';
+            $msg = json_encode($msg);
+            if ($connection == null) {
+                echo 'Клиент не в сети' . PHP_EOL;
+            } else {
+                $connection_addressee = intval($connection->connection);
+                $targetResourceId = $connection_addressee; // Замените на нужный resourceId
+                $this->all_clients[$targetResourceId]->send($msg);
+            }
         }
         if (json_decode($msg)->type_message == 'read_sate_update') {
             $data = json_decode($msg);
-            dump($data);
+            //dump($data);
             $message_read = Message::where('message_id', $data->message_id)->update(['isRead' => true]);
             // $addressee = $message_read->addressee;
             // dump(Message::where('message_id', $data->message_id)->first());
