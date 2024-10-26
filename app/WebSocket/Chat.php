@@ -83,11 +83,12 @@ class Chat implements MessageComponentInterface
                 'chat_id' => $message->chat_id,
                 'message' => json_encode($message->message),
                 'key_string' => $message->encrypted_key,
-            ])->id;
+            ]);
 
             $msg = json_decode($msg);
-            $msg->message_id_new = $message_table;
+            $msg->message_id_new = $message_table->id;
             $msg->flag = 'new_message';
+            $msg->created_at = $message_table->created_at;
             $msg = json_encode($msg);
 
             // dump($msg);
@@ -112,7 +113,7 @@ class Chat implements MessageComponentInterface
             $msg = json_decode($msg);
             // unset($msg->$key);
             $msg->latest_message_id = $message->guid;
-            $msg->new_message_id = $message_table;
+            $msg->new_message_id = $message_table->id;
             $msg->flag = 'remove_guid';
             $msg = json_encode($msg);
             if ($connection == null) {
@@ -125,8 +126,17 @@ class Chat implements MessageComponentInterface
         }
         if (json_decode($msg)->type_message == 'read_sate_update') {
             $data = json_decode($msg);
-            //dump($data);
+            $msg = json_decode($msg);
+
+            // dump($data);
+            // $msg -> type = 'read_sate_update';
             $message_read = Message::where('message_id', $data->message_id)->update(['isRead' => true]);
+            $user_addressee = Message::where('message_id', $data->message_id)->first()->sender_id;
+            $msg->chat_id = Message::where('message_id', $data->message_id)->first()->chat_id;
+            $connection_addressee = intval(Connection::where('user_id', $user_addressee)->first()->connection);
+            $targetResourceId = $connection_addressee;
+            $msg = json_encode($msg);
+            // dump($this->all_clients[$targetResourceId]->send($msg));
             // $addressee = $message_read->addressee;
             // dump(Message::where('message_id', $data->message_id)->first());
         }

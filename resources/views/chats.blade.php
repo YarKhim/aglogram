@@ -87,6 +87,10 @@
                         // console.log(message)
                         const addressee = document.querySelector('.user_info_header_foto').id;
                         guid = generateGUID();
+                        const now = new Date();
+                        const hours = now.getHours();
+                        const minutes = now.getMinutes();
+                        const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
                         let data = {
                             type_message: 'message',
                             message: message,
@@ -102,7 +106,7 @@
                         all_message = document.getElementById('message_input').value;
                         if (addressee_id != this_user_id) {
 
-                            console.log("🚀 ~ send_message ~ guid:", guid)
+                            // console.log("🚀 ~ send_message ~ guid:", hours+ ':'+ formattedMinutes);
 
                             // chat_tab_div = `<div class="message border_debug">
                         //                 <div class="my_message border_debug">
@@ -111,21 +115,24 @@
                         //                 </div>
                         //             </div>`;
                             // #TODOНеобходимо сделать создания временного id для элемента сообщения пока websocket_server не вернёт его постояный id my_message_time_ guid my_message_read_state_
+
                             chat_tab_div = `<div class="message border_debug" id="` +
                                 guid +
                                 `">
                                                         <div class="my_message border_debug">
-                                                            <div class='my_message_text'><p class='message_p'>` +
+                                                            <div class='my_message_data'><div class='my_message_text'><p class='message_p'>` +
                                 document.getElementById('message_input').value +
                                 `
                                                             </p></div>
 
                                                             <div class="message_time no_select" ><p id="my_message_time_` +
                                 guid +
-                                `">23:40</p></div>
+                                `">` + hours + ':' + formattedMinutes +
+                                `</p></div>
 
                                                             <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
-                                guid + `'>` + ("✓".repeat(1)) + `</p></div>
+                                guid + `'>` + ("✓".repeat(1)) + `</p></div></div>
+
                                                         </div>
                                                         </div>
                                                     </div>
@@ -161,12 +168,21 @@
                         .enc.Utf8);
                 }
                 document.getElementById('last_message_' + got_chat_id).innerText = message_result;
+
+                // last_message_time_
+                const date = new Date(JSON.parse(event.data)['created_at']);
+
+                // Получаем часы и минуты
+                const hours = date.getHours(); // Часы
+                const minutes = date.getMinutes(); // Минуты
+                document.getElementById('last_message_time_' + got_chat_id).innerText = hours + ':' + minutes;
                 if (got_chat_id == selected_chat) {
                     console.log("В откртый чат пришло собщение!!!");
                     console.log(JSON.parse(event.data))
 
                     if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
                         console.log(JSON.parse(event.data));
+
                         if (JSON.parse(event.data)['chat_id'] in unread_chats) {
                             unread_chats[JSON.parse(event.data)['chat_id']] += 1;
 
@@ -195,12 +211,16 @@
                             new_message_chat.classList.remove('blink-background');
                         }, 1000);
                         chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
-                            'message_id_new'
-                        ] + `">
+                                'message_id_new'
+                            ] + `">
                                         <div class="recived_message border_debug">
-                                            <div class='recived_message_text'><p>` + message_result + `
+                                            <div class='recived_message_text'><p class='message_p'>` + message_result + `
                                             </p></div>
-
+                                            <div class="message_time no_select" ><p id="my_message_time_` +
+                            JSON.parse(event.data)[
+                                'message_id_new'
+                            ] +
+                            `">` + hours + ":" + minutes + `</p></div>
                                         </div>
                                     </div>`;
                         $('#messages_all').append(chat_tab_div);
@@ -307,6 +327,17 @@
                 }
 
             }
+            // #TODOДелаем обновление статуса прочтения сообщения в формате онлайн
+            if (JSON.parse(event.data)['type_message'] == 'read_sate_update') {
+
+                if (selected_chat == JSON.parse(event.data)['chat_id']) {
+                    document.getElementById('my_message_read_state_' + JSON.parse(event.data)[
+                        'message_id']).innerText = '✓✓';
+                    // document.getElementById('my_message_read_state_' + JSON.parse(event.data)['message_id']).style.display = 'none';
+                }
+                // document.getElementById(JSON.parse(event.data)['message_id']).classList.add('read_message')
+            }
+            // read_sate_update
 
         };
 
@@ -376,7 +407,8 @@
                                         'message_id'] +
                                     `">
                                                         <div class="my_message border_debug">
-                                                            <div class='my_message_text'><p class='message_p'>` +
+                                                            <div class='my_message_data'>
+                                                                <div class='my_message_text'><p class='message_p'>` +
                                     message_result +
                                     `
                                                             </p></div>
@@ -389,6 +421,7 @@
                                                             <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
                                     element['message_id'] + `'>` + ("✓".repeat((parseInt(element[
                                         'isRead']) + 1))) + `</p></div>
+                                                            </div>
                                                         </div>
                                                         </div>
                                                     </div>
@@ -576,6 +609,7 @@
 
                 for (let i = 0; i < response.сhats.length; i++) {
                     id = 'last_message_' + response['chat_id'][i]['id'];
+                    // console.log("chat_id", response)
                     if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
 
                         // console.log(id)
@@ -593,7 +627,9 @@
                                 'id'
                             ] +
                             `"></div>
-                                        <div class="border_debug last_message_time">41.23</div>
+                                        <div class="border_debug last_message_time" id="last_message_time_` + response[
+                                'chat_id'][i]['id'] +
+                            `"></div>
 
                                     </div>
                                     <div class='border_debug about_messaegs' ><div class="border_debug last_message" id='` +
@@ -606,6 +642,7 @@
 
                             </div>`;
                     } else {
+                        // console.log(response['chat_id'][i])
                         this_user_id = response['chat_id'][i]['creator'];
                         chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
                                 'id'
@@ -619,7 +656,9 @@
                                 'chat_id'][i][
                                 'id'
                             ] + `"></div>
-                                        <div class="border_debug last_message_time">23:43</div>
+                                        <div class="border_debug last_message_time" id="last_message_time_` + response[
+                                'chat_id'][i]['id'] +
+                            `"></div>
 
                                     </div>
                                     <div class="border_debug last_message" id='` + id + `'></div>
@@ -639,9 +678,23 @@
                         last_messages = response['last_messsages'];
                         last_messages_keys = Object.keys(last_messages);
                         unread_chats_keys = Object.keys(unread_chats);
-                        console.log(response);
+                        // console.log(response);
                         last_messages_keys.forEach(element => {
                             message_object = last_messages[element];
+                            const date = new Date(message_object[
+                                'last_message']['created_at']);
+
+                            // Получаем часы и минуты
+                            const hours_last = date.getHours(); // Часы
+                            const minutes_last = date.getMinutes(); // Минуты
+                            // console.log("🚀 ~ message_object:", message_object[
+                            //     'last_message']['chat_id']);
+                            document.getElementById('last_message_time_' + message_object[
+                                    'last_message']['chat_id']).innerText = hours_last +
+                                ":" + minutes_last;
+
+
+
                             if (last_messages[element]['addressee']['id'] != this_user_id &&
                                 last_messages[element]['last_message']['isRead'] == true
                             ) {
