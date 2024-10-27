@@ -1,12 +1,15 @@
 <?php
 
 namespace App\WebSocket;
-
+// namespace App\Models;
 // use App\Auth;
 // use App\WebSocket\stdClass
 use App\Http\Controllers\SendMessage;
 use App\Models\Connection;
 use App\Models\Message;
+// use App\Models\Chat;
+use App\Models\Chat as UserChat;
+
 use App\Models\User;
 use Exception;
 use GuzzleHttp\Promise\Create;
@@ -36,7 +39,6 @@ class Chat implements MessageComponentInterface
     {
         // Храните ссылку на подключение
         // $this->clients[$conn->resourceId] = $conn;
-
         $this->clients->attach($conn);
 
         $this->all_clients[$conn->resourceId] = $conn;
@@ -52,6 +54,8 @@ class Chat implements MessageComponentInterface
         $parts = explode('|', $sid);
         $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
         $user = User::where('id', $dd['login_web_' . sha1(SessionGuard::class)])->first();
+        $user_id = $user->id;
+
         $user_connections = Connection::where('user_id', $user->id)->first();
         Connection::where('user_id', $user->id)->delete();
         // if ($user_connections == null) {
@@ -59,7 +63,57 @@ class Chat implements MessageComponentInterface
             'user_id' => $user->id,
             'connection' => $conn->resourceId,
         ]);
-        // }
+
+        $all_chats = UserChat::where('creator', $user_id)->orWhere('invted', $user_id)->where('chat_started', true)->get();
+        $users_for_online_state_update = [];
+        foreach ($all_chats as $chat) {
+            if ($chat->creator != $chat->invted) {
+                echo $chat->creator . PHP_EOL;
+                echo $chat->invted . PHP_EOL;
+                if ($chat->creator == $user_id && Connection::where('user_id', $chat->invted)->first() != null) {
+                    $users_for_online_state_update[] = $chat->invted;
+                } else {
+                    if (Connection::where('user_id', $chat->creator)->first() != null) {
+                        $users_for_online_state_update[] = $chat->creator;
+                    }
+                }
+            }
+        }
+        $key = array_search($user_id, $users_for_online_state_update);
+        if ($key !== false) {
+            unset($users_for_online_state_update[$key]);
+        }
+        // $object = new \stdClass();
+        // $object->type = 'update_online_state';
+        // $object->user_id = $user_id;
+
+        $msg = new \stdClass();
+
+        // Устанавливаем свойства
+        $msg->type = 'update_online_state';
+        $msg->user_id = $user_id;
+        $msg->is_online = true;
+        $msg = json_encode($msg);
+        // Для проверки
+        // dump($msg);
+        dump($users_for_online_state_update);
+        foreach ($users_for_online_state_update as $us) {
+            // dump($us);
+            $connection = Connection::where('user_id', $us)->first();
+            // dump($connection);
+            if ($connection != null) {
+                $connection_addressee = intval($connection->connection);
+                // dump($connection_addressee);
+                $targetResourceId = $connection_addressee; // Замените на нужный resourceId
+                dump($this->all_clients);
+                // if (array_search($targetResourceId, $this->all_clients) !== false) {
+                $this->all_clients[$targetResourceId]->send($msg);
+                // }
+                // $user_connections = intval(Connection::where('user_id', $user->id)->first()->connection);
+                // $this->all_clients[$user_connections]->send($msg);
+            }
+        }
+        // dd(1);
     }
 
     public function onMessage(ConnectionInterface $from, $msg)

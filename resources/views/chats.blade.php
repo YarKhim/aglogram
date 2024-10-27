@@ -152,6 +152,11 @@
             console.log('Подключено к WebSocket серверу');
         };
         socket.onmessage = function(event) {
+            // update_online_state
+            if (JSON.parse(event.data)['type'] == 'update_online_state') {
+                console.log("🚀 ~ JSON:", JSON.parse(event.data)['user_id']);
+                console.log("🚀 ~ JSON:", JSON.parse(event.data)['is_online']);
+            }
             if (JSON.parse(event.data)['flag'] == 'new_message') {
                 const privateKey = forge.pki.privateKeyFromPem(JSON.parse(event.data)['privateKey']);
                 const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
