@@ -17,6 +17,7 @@
         favorite_id_chat = null;
         unread_chats = {};
         read_messaegs = {};
+        var user_id_opened_chat = null;
         document.addEventListener('contextmenu', function(event) {
             event.preventDefault();
         });
@@ -156,6 +157,58 @@
             if (JSON.parse(event.data)['type'] == 'update_online_state') {
                 console.log("🚀 ~ JSON:", JSON.parse(event.data)['user_id']);
                 console.log("🚀 ~ JSON:", JSON.parse(event.data)['is_online']);
+                if (user_id_opened_chat == JSON.parse(event.data)['user_id']) {
+                    // console.log(12);
+                    if (JSON.parse(event.data)['is_online'] == true) {
+                        // user_info_header_is_online_` + user_id_chat + `
+                        document.getElementById('user_info_header_is_online_' + JSON.parse(event.data)['user_id'])
+                            .innerText =
+                            'online';
+                        document.getElementById('user_info_header_is_online_' + JSON.parse(event.data)['user_id']).style
+                            .color =
+                            'green';
+                    }
+                    if (JSON.parse(event.data)['is_online'] == false) {
+                        document.getElementById('user_info_header_is_online_' + JSON.parse(event.data)['user_id'])
+                            .innerText =
+                            'offline';
+                        document.getElementById('user_info_header_is_online_' + JSON.parse(event.data)['user_id']).style
+                            .color =
+                            'gray';
+                    }
+                    if (JSON.parse(event.data)['is_online'] == true) {
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).innerText =
+                            'online';
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).style
+                            .color =
+                            'green';
+                    }
+                    if (JSON.parse(event.data)['is_online'] == false) {
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).innerText =
+                            'offline';
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).style
+                            .color =
+                            'gray';
+                    }
+                } else {
+                    if (JSON.parse(event.data)['is_online'] == true) {
+                        // console.log(1);
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).innerText =
+                            'online';
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).style
+                            .color =
+                            'green';
+                    }
+                    if (JSON.parse(event.data)['is_online'] == false) {
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).innerText =
+                            'offline';
+                        document.getElementById('online_in_chats_list_' + JSON.parse(event.data)['user_id']).style
+                            .color =
+                            'gray';
+                    }
+                }
+
+
             }
             if (JSON.parse(event.data)['flag'] == 'new_message') {
                 const privateKey = forge.pki.privateKeyFromPem(JSON.parse(event.data)['privateKey']);
@@ -359,8 +412,10 @@
         }
 
         function select_chat(user_id, chat_id) {
-            return function() {
 
+            return function() {
+                // console.log("🚀 ~ select_chat ~ user_id:", user_id)
+                user_id_opened_chat = user_id;
                 $('#messages_all').empty();
                 document.getElementById('message_input').value = '';
                 document.getElementById('message_input').focus();
@@ -535,7 +590,7 @@
         <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
                                 response.user.lastname + ' @' + response.user.username + `<i>
             </div>
-            <div class="user_info_header_is_online border_debug"></div>
+            <div class="user_info_header_is_online border_debug" id="user_info_header_is_online_` + user_id_chat + `"></div>
         </div>`;
                         } else {
                             favorite_id_chat = chat_id
@@ -611,13 +666,27 @@
             url: '/get_chats', // URL вашего маршрута
             method: 'GET', // Метод запроса (GET или POST)
             success: function(response) {
-
+                online = null;
+                console.log("response", response.сhats);
                 for (let i = 0; i < response.сhats.length; i++) {
                     id = 'last_message_' + response['chat_id'][i]['id'];
-                    // console.log("chat_id", response)
-                    if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
 
-                        // console.log(id)
+
+                    if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
+                        user_2 = null;
+                        // console.log("response", response.сhats[i]['isOnline']);
+                        if (response.сhats[i]['isOnline'] == 0) {
+                            online = 'offline';
+                        } else {
+                            online = 'online';
+                        }
+                        if (response['chat_id'][i]['creator'] == this_user_id) {
+                            user_2 = response['chat_id'][i]['invted'];
+                        } else {
+                            user_2 = response['chat_id'][i]['creator'];
+
+                        }
+                        // console.log("🚀 ~ user_2:", user_2);
                         chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
                                 'id'
                             ] +
@@ -626,7 +695,8 @@
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
                                         <div class="border_debug chat_name">` + response.сhats[i]['name'] +
-                            `</div>
+                            `<div id='online_in_chats_list_` + user_2 + `' class = 'online_in_chats_list'>` +
+                            online + `</div></div>
                                         <div class="border_debug read_receipts" id="read_receipts_` + response[
                                 'chat_id'][i][
                                 'id'
@@ -646,6 +716,16 @@
                                 </div>
 
                             </div>`;
+                        $('#all_chats_list').append(chat_tab_div);
+                        if (online == 'online') {
+                            document.getElementById('online_in_chats_list_' + user_2).style.color = 'green';
+                        } else {
+                            document.getElementById('online_in_chats_list_' + user_2).style.color = 'gray';
+                        }
+                        // console.log(document.getElementById('online_in_chats_list_' + user_2).style.color);
+                        document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
+                            response.сhats[i]['id'], response['chat_id'][i]['id']));
+
                     } else {
                         // console.log(response['chat_id'][i])
                         this_user_id = response['chat_id'][i]['creator'];
@@ -670,10 +750,11 @@
                                 </div>
 
                             </div>`;
+                        $('#all_chats_list').append(chat_tab_div);
+                        document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
+                            response.сhats[i]['id'], response['chat_id'][i]['id']));
                     }
-                    $('#all_chats_list').append(chat_tab_div);
-                    document.getElementById(response.сhats[i]['id']).addEventListener('click', select_chat(
-                        response.сhats[i]['id'], response['chat_id'][i]['id']));
+
                 }
                 $.ajax({
                     url: '/unread_chats', // URL вашего маршрута

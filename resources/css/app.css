@@ -409,6 +409,11 @@
     display: flex;
 }
 
+.online_in_chats_list{
+    display: flex;
+    font-size: x-small;
+    color: gray;
+}
 .message_time {
     color: skyblue;
     /* height: ; */

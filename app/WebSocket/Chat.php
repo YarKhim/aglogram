@@ -55,7 +55,12 @@ class Chat implements MessageComponentInterface
         $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
         $user = User::where('id', $dd['login_web_' . sha1(SessionGuard::class)])->first();
         $user_id = $user->id;
-
+        // dump($user);
+        // dump($user->isOnline);
+        $user->isOnline = true;
+        $user->save();
+        // dump($user->isOnline);
+        // $user->update
         $user_connections = Connection::where('user_id', $user->id)->first();
         Connection::where('user_id', $user->id)->delete();
         // if ($user_connections == null) {
@@ -63,7 +68,7 @@ class Chat implements MessageComponentInterface
             'user_id' => $user->id,
             'connection' => $conn->resourceId,
         ]);
-
+        //рассылаем людям к оторыми у него есть чат сообщение о том что он вошёл в сеть и обновляем данеые в бд
         $all_chats = UserChat::where('creator', $user_id)->orWhere('invted', $user_id)->where('chat_started', true)->get();
         $users_for_online_state_update = [];
         foreach ($all_chats as $chat) {
@@ -108,6 +113,8 @@ class Chat implements MessageComponentInterface
                 dump($this->all_clients);
                 // if (array_search($targetResourceId, $this->all_clients) !== false) {
                 $this->all_clients[$targetResourceId]->send($msg);
+
+                // $user->where('id', $user_id)->update(['isOnine' => true]);
                 // }
                 // $user_connections = intval(Connection::where('user_id', $user->id)->first()->connection);
                 // $this->all_clients[$user_connections]->send($msg);
@@ -208,7 +215,63 @@ class Chat implements MessageComponentInterface
         $user = User::where('id', $dd['login_web_' . sha1(SessionGuard::class)])->first();
         $user_id = $user->id;
         Connection::where('user_id', $user_id)->delete();
-        echo "Пользователь отключен: {$conn->resourceId}\n";
+        //рассылаем людям к оторыми у него есть чат сообщение о том что он вышел из сети и обновляем данеые в бд
+        $currentTime = now();
+        echo $currentTime;
+        $all_chats = UserChat::where('creator', $user_id)->orWhere('invted', $user_id)->where('chat_started', true)->get();
+        $users_for_online_state_update = [];
+        foreach ($all_chats as $chat) {
+            if ($chat->creator != $chat->invted) {
+                echo $chat->creator . PHP_EOL;
+                echo $chat->invted . PHP_EOL;
+                if ($chat->creator == $user_id && Connection::where('user_id', $chat->invted)->first() != null) {
+                    $users_for_online_state_update[] = $chat->invted;
+                } else {
+                    if (Connection::where('user_id', $chat->creator)->first() != null) {
+                        $users_for_online_state_update[] = $chat->creator;
+                    }
+                }
+            }
+        }
+        $key = array_search($user_id, $users_for_online_state_update);
+        if ($key !== false) {
+            unset($users_for_online_state_update[$key]);
+        }
+        // $object = new \stdClass();
+        // $object->type = 'update_online_state';
+        // $object->user_id = $user_id;
+
+        $msg = new \stdClass();
+
+        // Устанавливаем свойства
+        $msg->type = 'update_online_state';
+        $msg->user_id = $user_id;
+        $msg->is_online = false;
+        $msg = json_encode($msg);
+        // Для проверки
+        // dump($msg);
+        dump($users_for_online_state_update);
+        foreach ($users_for_online_state_update as $us) {
+            // dump($us);
+            $connection = Connection::where('user_id', $us)->first();
+            // dump($connection);
+            if ($connection != null) {
+                $connection_addressee = intval($connection->connection);
+                // dump($connection_addressee);
+                $targetResourceId = $connection_addressee; // Замените на нужный resourceId
+                dump($this->all_clients);
+                // if (array_search($targetResourceId, $this->all_clients) !== false) {
+                $this->all_clients[$targetResourceId]->send($msg);
+
+                // $user->where('id', $user_id)->update(['isOnine' => true]);
+                // }
+                // $user_connections = intval(Connection::where('user_id', $user->id)->first()->connection);
+                // $this->all_clients[$user_connections]->send($msg);
+            }
+        }
+        $user->isOnline = false;
+        $user->save();
+        echo " Пользователь отключен: {$conn->resourceId}\n";
     }
 
     public function onError(ConnectionInterface $conn, \Exception $e)
