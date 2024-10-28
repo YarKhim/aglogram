@@ -26,7 +26,7 @@ class ProfileController extends Controller
     public function avatar(User $user)
     {
         //dd($user);
-        return Storage::download( $user->avatar);
+        return Storage::download($user->avatar);
     }
 
     /**
@@ -36,7 +36,7 @@ class ProfileController extends Controller
     {
         // dd($request->validated());
         $request->user()->fill($request->validated());
-        $path =  $request->file('avatar')->store("/usermedia/avatars");
+        $path = $request->file('avatar')->store();
         if ($path) {
             $request->user()->avatar = $path;
         }

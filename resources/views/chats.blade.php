@@ -389,6 +389,8 @@
             if (JSON.parse(event.data)['type_message'] == 'read_sate_update') {
 
                 if (selected_chat == JSON.parse(event.data)['chat_id']) {
+                    console.log(JSON.parse(event.data)[
+                        'message_id']);
                     document.getElementById('my_message_read_state_' + JSON.parse(event.data)[
                         'message_id']).innerText = '✓✓';
                     // document.getElementById('my_message_read_state_' + JSON.parse(event.data)['message_id']).style.display = 'none';
@@ -401,6 +403,7 @@
 
         socket.onclose = function(event) {
             console.log('Соединение закрыто');
+            alert('Соединение закрыто');
         };
 
         function sendMessage(message) {
@@ -574,7 +577,15 @@
                     method: 'GET', // Метод запроса (GET или POST)
                     data: data,
                     success: function(response) {
-                        user_id_chat = response['user']['id']
+                        console.log(response['user']['avatar']);
+                        user_id_chat = response['user']['id'];
+                        console.log('response', response['user']['isOnline']);
+                        user_online = false;
+                        if (response['user']['isOnline']) {
+                            user_online = 'online';
+                        } else {
+                            user_online = 'offline';
+                        }
                         $('#user_info_header').empty();
                         const all_chats_list = document.getElementById(
                             'user_info_header');
@@ -584,14 +595,25 @@
                                 response
                                 .user
                                 .id +
-                                `><img src=` + response.user
-                                .avatar + `></div>
+                                `><img src='` + response.user
+                                .avatar + `'></div>
     <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
         <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
                                 response.user.lastname + ' @' + response.user.username + `<i>
             </div>
-            <div class="user_info_header_is_online border_debug" id="user_info_header_is_online_` + user_id_chat + `"></div>
+            <div class="user_info_header_is_online border_debug" id="user_info_header_is_online_` + user_id_chat +
+                                `">` + user_online + `</div>
         </div>`;
+                            $('#user_info_header').append(user_chats_header);
+                            if (response['user']['isOnline']) {
+                                document.getElementById('user_info_header_is_online_' + user_id_chat)
+                                    .style
+                                    .color = 'green';
+                            } else {
+                                document.getElementById('user_info_header_is_online_' + user_id_chat)
+                                    .style
+                                    .color = 'gray';
+                            }
                         } else {
                             favorite_id_chat = chat_id
                             user_chats_header =
@@ -606,9 +628,10 @@
             </div>
             <div class="user_info_header_is_online border_debug"></div>
         </div>`;
+                            $('#user_info_header').append(user_chats_header);
                         }
 
-                        $('#user_info_header').append(user_chats_header);
+
                         document.getElementById('user_info_header_without_foto')
                             .addEventListener(
                                 'click',
@@ -650,6 +673,11 @@
                                     @csrf
                                     <input type="text" autocomplete="off" class="message_input" id='message_input'>
                                     <button type="button" id="send_message">Отправить</button>
+                                    <input type="file" id="imageInput">
+                                    <div id="encryptedText"></div>
+                                    <input type="text" id="decryptionKey" value="123456">
+                                    <button id="decryptButton">Decrypt</button>
+                                    <div id="decryptedImage"></div>
                                 </form>
 
                             </div>
@@ -674,7 +702,7 @@
 
                     if (response['chat_id'][i]['creator'] != response['chat_id'][i]['invted']) {
                         user_2 = null;
-                        // console.log("response", response.сhats[i]['isOnline']);
+                        console.log("response", response.сhats[i]);
                         if (response.сhats[i]['isOnline'] == 0) {
                             online = 'offline';
                         } else {
@@ -691,7 +719,9 @@
                                 'id'
                             ] +
                             `" id=` + response.сhats[i]['id'] + `>
-                                <div class="border_debug chat_foto"><img src=` + response.сhats[i]['avatar'] + `></div>
+                                <div class="border_debug chat_foto"><img src=./storage/` + response.сhats[i][
+                                'avatar'
+                            ] + `></div>
                                 <div class="border_debug right_side_chat_tab">
                                     <div class="border_debug chat_info">
                                         <div class="border_debug chat_name">` + response.сhats[i]['name'] +

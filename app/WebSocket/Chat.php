@@ -197,7 +197,7 @@ class Chat implements MessageComponentInterface
             $connection_addressee = intval(Connection::where('user_id', $user_addressee)->first()->connection);
             $targetResourceId = $connection_addressee;
             $msg = json_encode($msg);
-            // dump($this->all_clients[$targetResourceId]->send($msg));
+            $this->all_clients[$targetResourceId]->send($msg);
             // $addressee = $message_read->addressee;
             // dump(Message::where('message_id', $data->message_id)->first());
         }
