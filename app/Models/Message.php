@@ -10,13 +10,7 @@ class Message extends Model
     use HasFactory;
     protected $primaryKey = 'id';
     protected $table = 'messages';
-    protected $fillable = [
-        'sender_id',
-        'addressee',
-        'chat_id',
-        'message',
-        'key_string',
-    ];
+    protected $fillable = ['sender_id', 'addressee', 'chat_id', 'message', 'key_string', 'type_message'];
     // public function send_message(){
 
     // }

@@ -18,6 +18,7 @@ use Illuminate\Auth\SessionGuard;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
 use Illuminate\Support\Facades\Log;
@@ -34,6 +35,12 @@ class Chat implements MessageComponentInterface
     // public function a($clientId, $message)
     // {
 
+    // }
+    // public static function generateGUID($input)
+    // {
+    //     $hash = hassh('sha256', $input);
+    //     $guid = sprintf('%s-%s-%s-%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), substr($hash, 12, 4), substr($hash, 16, 4), substr($hash, 20, 12));
+    //     return $guid;
     // }
     public function onOpen(ConnectionInterface $conn)
     {
@@ -101,7 +108,7 @@ class Chat implements MessageComponentInterface
         $msg = json_encode($msg);
         // Для проверки
         // dump($msg);
-        dump($users_for_online_state_update);
+        // dump($users_for_online_state_update);
         foreach ($users_for_online_state_update as $us) {
             // dump($us);
             $connection = Connection::where('user_id', $us)->first();
@@ -110,7 +117,7 @@ class Chat implements MessageComponentInterface
                 $connection_addressee = intval($connection->connection);
                 // dump($connection_addressee);
                 $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-                dump($this->all_clients);
+                // dump($this->all_clients);
                 // if (array_search($targetResourceId, $this->all_clients) !== false) {
                 $this->all_clients[$targetResourceId]->send($msg);
 
@@ -132,24 +139,57 @@ class Chat implements MessageComponentInterface
             $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
             $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
             $message = json_decode($msg);
+            // dump($message);
+            // dump($message->message_data);
             $MESSAGE = '';
             foreach ($message->message as $mess) {
                 $MESSAGE = $MESSAGE . $mess;
             }
             $addressee = $message->addressee;
             $connection = Connection::where('user_id', $addressee)->first();
-            $message_table = Message::create([
-                'sender_id' => $user_id,
-                'addressee' => $addressee,
-                'chat_id' => $message->chat_id,
-                'message' => json_encode($message->message),
-                'key_string' => $message->encrypted_key,
-            ]);
+            // if ($message->message_data == 'file') {
+            //     $hash = md5(microtime());
+            //     echo $hash;
+            //     $guid = sprintf('%s-%s-%s-%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), substr($hash, 12, 4), substr($hash, 16, 4), substr($hash, 20, 12));
+            // }
+            // $guid_file_name = generateGUID(microtime());
+            // type_message
+            // dump($message->message_data);
+            // dump($message->type_message);
+            if ($message->message_data == 'file') {
+                // echo 1;
+                $hash = hash('sha256', microtime());
+                $guid_file_name = sprintf('%s-%s-%s-%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), substr($hash, 12, 4), substr($hash, 16, 4), substr($hash, 20, 12));
+                Storage::disk('local')->put('photos_users/' . $guid_file_name . '.txt', json_encode($message->message));
 
+                $url = Storage::url('photos_users/' . $guid_file_name . '.txt');
+                $message_table = Message::create([
+                    'sender_id' => $user_id,
+                    'addressee' => $addressee,
+                    'chat_id' => $message->chat_id,
+                    'message' => $url,
+                    'key_string' => $message->encrypted_key,
+                    'type_message' => $message->message_data,
+                ]);
+            }
+            if ($message->message_data == 'text') {
+                $message_table = Message::create([
+                    'sender_id' => $user_id,
+                    'addressee' => $addressee,
+                    'chat_id' => $message->chat_id,
+                    'message' => json_encode($message->message),
+                    'key_string' => $message->encrypted_key,
+                    'type_message' => $message->message_data,
+                ]);
+            }
+            // return $guid;
+
+            // dump($message_table);
             $msg = json_decode($msg);
             $msg->message_id_new = $message_table->id;
             $msg->flag = 'new_message';
             $msg->created_at = $message_table->created_at;
+            // $msg->
             $msg = json_encode($msg);
 
             // dump($msg);
@@ -259,7 +299,7 @@ class Chat implements MessageComponentInterface
                 $connection_addressee = intval($connection->connection);
                 // dump($connection_addressee);
                 $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-                dump($this->all_clients);
+                // dump($this->all_clients);
                 // if (array_search($targetResourceId, $this->all_clients) !== false) {
                 $this->all_clients[$targetResourceId]->send($msg);
 
