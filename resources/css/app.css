@@ -409,11 +409,16 @@
     display: flex;
 }
 
-.online_in_chats_list{
+.my_message_with_media {
+    padding: 0;
+}
+
+.online_in_chats_list {
     display: flex;
     font-size: x-small;
     color: gray;
 }
+
 .message_time {
     color: skyblue;
     /* height: ; */
@@ -431,11 +436,48 @@
     /* Центрирование по горизонтали */
     align-items: flex-end;
 }
-.my_message_data{
+
+.message_media_photo>img {
+    width: auto;
+    max-height: 25em;
+    border-radius: 15px;
+    /* float: right; */
+    /* margin-right: 100%; */
+    /* float: right; */
+}
+
+.message_media_photo {
+    width: auto;
+    height: auto;
+    /* width: fit-content; */
     display: flex;
+    /* border: 1px solid white; */
+    /* width: ; */
+    /* height: -moz-fit-content;
+    width: -moz-fit-content; */
+    justify-content: flex-end;
+    align-items: flex-end;
+    flex-grow: 1;
+}
+
+
+.my_message_data {
+    display: flex;
+    /* flex-direction: column; */
     /* border: 1px solid blue; */
     /* align-self: flex-end; */
 }
+
+.my_message_text_data_with_media {
+    display: flex;
+    align-self: flex-end;
+}
+
+.my_message_data_with_media {
+    display: flex;
+    flex-direction: column;
+}
+
 .recived_message {
     padding: 15px;
     margin-left: 1%;

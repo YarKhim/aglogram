@@ -160,7 +160,7 @@ class Chat implements MessageComponentInterface
                 // echo 1;
                 $hash = hash('sha256', microtime());
                 $guid_file_name = sprintf('%s-%s-%s-%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), substr($hash, 12, 4), substr($hash, 16, 4), substr($hash, 20, 12));
-                Storage::disk('local')->put('photos_users/' . $guid_file_name . '.txt', json_encode($message->message));
+                Storage::disk('public')->put('photos_users/' . $guid_file_name . '.txt', json_encode($message->message));
 
                 $url = Storage::url('photos_users/' . $guid_file_name . '.txt');
                 $message_table = Message::create([
@@ -170,6 +170,7 @@ class Chat implements MessageComponentInterface
                     'message' => $url,
                     'key_string' => $message->encrypted_key,
                     'type_message' => $message->message_data,
+                    'label' => json_encode($message->label),
                 ]);
             }
             if ($message->message_data == 'text') {
@@ -215,6 +216,9 @@ class Chat implements MessageComponentInterface
             // unset($msg->$key);
             $msg->latest_message_id = $message->guid;
             $msg->new_message_id = $message_table->id;
+            // if ($message->message_data == 'file'){
+            //     $msg->url = $url;
+            // }
             $msg->flag = 'remove_guid';
             $msg = json_encode($msg);
             if ($connection == null) {

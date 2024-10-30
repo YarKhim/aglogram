@@ -45,9 +45,25 @@
             return decrypted;
         }
 
+        function dataURLtoBlob(dataURL) {
+            const byteString = atob(dataURL.split(',')[1]);
+            const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+
+
+            return new Blob([ab], {
+                type: mimeString
+            });
+        }
+
         function send_message() {
 
-            if (document.getElementById('message_input').value.trim()) {
+            if (document.getElementById('message_input').value.trim() || message_send_type == 'file') {
                 const encrypt = new JSEncrypt();
                 addressee_id = document.querySelector('.user_info_header_foto').id;
                 let data_get_keys = {
@@ -74,11 +90,13 @@
                             const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
                             return decrypted;
                         }
-
-
-
-
                         message = [];
+                        label_text = [];
+                        image_src = null;
+                        guid = generateGUID();
+
+
+
                         // #TODO
                         if (message_send_type == 'file') {
                             function loadImageAndEncrypt(file, secretKey) {
@@ -94,16 +112,18 @@
                                                 }
                                                 return chunks;
                                             }
-
+                                            image_src_res = event.target.result;
+                                            // console.log("🚀 ~ returnnewPromise ~ image_src_res:",
+                                            //     image_src_res.toString());
                                             const encryptedImage = CryptoJS.AES.encrypt(event.target
                                                 .result, secretKey).toString();
                                             const chunkSize = 500;
                                             const dataChunks = splitData(encryptedImage, chunkSize);
-                                            console.log("🚀 ~ returnnewPromise ~ dataChunks:",
-                                                dataChunks)
+                                            // console.log("🚀 ~ returnnewPromise ~ dataChunks:",
+                                            //     dataChunks);
 
                                             resolve(
-                                                dataChunks
+                                                dataChunks, image_src_res
                                             ); // Разрешаем промис с полученными данными
                                         } catch (error) {
                                             console.error('Ошибка при обработке изображения:',
@@ -120,19 +140,36 @@
                                     reader.readAsDataURL(file); // Или другой метод чтения файла
                                 });
                             }
+                            // console.log('lbl_2: ',
+                            //     document.getElementById('message_input').value);
+                            // console.log('trim',document.getElementById('message_input').value.trim());
+                            if (document.getElementById('message_input').value.trim()) {
 
+                                if (document.getElementById('message_input').value.length < 100) {
+                                    label_text[0] = document.getElementById('message_input').value;
+                                } else {
+                                    label_text = splitString(document.getElementById('message_input').value);
+                                }
+
+                                for (let i = 0; i < label_text.length; i++) {
+                                    encryptedMessage = CryptoJS.AES.encrypt(label_text[i], secretKey)
+                                        .toString();
+                                    // console.log("🚀 ~ send_message ~ encryptedMessage:", encryptedMessage)
+                                    label_text[i] = encryptedMessage;
+                                    encryptedMessage = null;
+                                }
+                            } else {
+                                // console.log(123433245);
+                                label_text = '';
+                            }
+                            console.log('Должно быть загифровано: ',
+                                label_text);
                             const fileInput = document.getElementById('imageInput');
-                            // fileInput.addEventListener('change', function() {
                             const file = fileInput.files[0];
-                            const secretKey = 'your-secret-key';
-
                             loadImageAndEncrypt(file, secretKey)
                                 .then(dataChunks => {
-                                    console.log('Полученные части данных:', dataChunks);
-                                    // message = dataChunks;
-                                    // console.log('message: ', message)
                                     const addressee = document.querySelector('.user_info_header_foto').id;
-                                    guid = generateGUID();
+
                                     const now = new Date();
                                     const hours = now.getHours();
                                     const minutes = now.getMinutes();
@@ -146,23 +183,71 @@
                                         privateKey: privateKeyPem,
                                         guid: guid,
                                         message_data: 'file',
+                                        label: label_text,
                                     };
-                                    console.log("🚀 ~ send_message ~ data:", data)
+                                    // console.log("🚀 ~ send_message ~ data:", data)
                                     sendMessage(JSON.stringify(data));
+                                    // console.log('23432', image_src_res);
+                                    if (addressee_id != this_user_id) {
+                                        // вёрстка отображения фото с подписью
+                                        const now = new Date();
+                                        const hours = now.getHours();
+                                        const minutes = now.getMinutes();
+                                        chat_tab_div = `<div class="message border_debug" id="` +
+                                            guid +
+                                            `">
+                                                    <div class="my_message_with_media my_message border_debug" id="my_message_` +
+                                            guid +
+                                            `">
 
+                                                        <div class='my_message_data_with_media'><div class= 'message_media_photo'><img id="media_message_` +
+                                            guid +
+                                            `" src='` + image_src_res +
+                                            `'></div>
+                                                            <div class='my_message_text_data_with_media'><div class='my_message_text'><p class='message_p'>` +
+                                            document.getElementById('message_input').value +
+                                            `
+                                                        </p></div>
+
+                                                        <div class="message_time no_select" ><p id="my_message_time_` +
+                                            guid +
+                                            `">` + hours + ':' + minutes +
+                                            `</p></div>
+
+                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                            guid + `'>` + ("✓".repeat(1)) + `</p></div</div>
+                                                        </div>
+
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                `;
+                                        $('#messages_all').append(chat_tab_div);
+                                        document.getElementById('message_input').value = null;
+                                        document.getElementById('imageInput').value = null;
+                                        // document.getElementById("my_message_" + guid).style.padding = '0';
+                                        // document.getElementById("media_message_" + guid).style
+                                        //     .borderRadius = '15px';
+                                        // document.getElementById(media_message_` +
+                                    //     guid +
+                                    //     `).src = image_src_res;
+                                    }
                                     // Здесь вы можете работать с dataChunks
                                 })
+                                // .then(image_src_res => {
+                                //     console.log(image_src_res);
+                                // })
                                 .catch(error => {
                                     console.error('Ошибка:', error);
                                 });
                             // });
-                            console.log('mess: ', message);
+                            // console.log('file: ', file);
+
 
                             document.getElementById('last_message_' + response['chat_id']).innerText =
                                 'Файл';
 
-
-                            return;
+                            // return;
                         }
                         if (message_send_type == 'text') {
                             if (document.getElementById('message_input').value.length < 100) {
@@ -180,58 +265,120 @@
                                 document
                                 .getElementById('message_input').value;
                             all_message = document.getElementById('message_input').value;
+                            const addressee = document.querySelector('.user_info_header_foto').id;
+
+                            const now = new Date();
+                            const hours = now.getHours();
+                            const minutes = now.getMinutes();
+                            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+                            let data = {
+                                type_message: 'message',
+                                message: message,
+                                addressee: addressee,
+                                encrypted_key: encryptMessage(secretKey, publicKeyPem),
+                                chat_id: response['chat_id'],
+                                privateKey: privateKeyPem,
+                                guid: guid,
+                                message_data: 'text',
+                            };
+                            console.log("🚀 ~ send_message ~ data:", data)
+                            sendMessage(JSON.stringify(data));
+                            if (addressee_id != this_user_id) { // вёрстка отображения текстового сообщения
+                                chat_tab_div = `<div class="message border_debug" id="` +
+                                    guid +
+                                    `">
+                                                    <div class="my_message border_debug">
+                                                        <div class='my_message_data'>
+                                                            <div class='my_message_text'><p class='message_p'>` +
+                                    document.getElementById('message_input').value +
+                                    `
+                                                        </p></div>
+
+                                                        <div class="message_time no_select" ><p id="my_message_time_` +
+                                    guid +
+                                    `">` + hours + ':' + formattedMinutes +
+                                    `</p></div>
+
+                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                    guid + `'>` + ("✓".repeat(1)) + `</p></div></div>
+
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                `;
+                                $('#messages_all').append(chat_tab_div);
+                                document.getElementById('message_input').value = null;
+                            }
                         }
 
                         // console.log(document.getElementById('message_input').value);
 
-                        console.log('message: ', message)
-                        const addressee = document.querySelector('.user_info_header_foto').id;
-                        guid = generateGUID();
-                        const now = new Date();
-                        const hours = now.getHours();
-                        const minutes = now.getMinutes();
-                        const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
-                        let data = {
-                            type_message: 'message',
-                            message: message,
-                            addressee: addressee,
-                            encrypted_key: encryptMessage(secretKey, publicKeyPem),
-                            chat_id: response['chat_id'],
-                            privateKey: privateKeyPem,
-                            guid: guid,
-                            message_data: 'text',
-                        };
-                        console.log("🚀 ~ send_message ~ data:", data)
-                        sendMessage(JSON.stringify(data));
+                        // console.log('message: ', message)
 
 
 
-                        if (addressee_id != this_user_id) {
-                            // #TODOНеобходимо сделать создания временного id для элемента сообщения пока websocket_server не вернёт его постояный id my_message_time_ guid my_message_read_state_
 
-                            chat_tab_div = `<div class="message border_debug" id="` +
-                                guid +
-                                `">
-                                                        <div class="my_message border_debug">
-                                                            <div class='my_message_data'><div class='my_message_text'><p class='message_p'>` +
-                                document.getElementById('message_input').value +
-                                `
-                                                            </p></div>
+                        // if (addressee_id != this_user_id) {
+                        // #TODOНеобходимо сделать создания временного id для элемента сообщения пока websocket_server не вернёт его постояный id my_message_time_ guid my_message_read_state_
+                        // // вёрстка отображения текстового сообщения
+                        // chat_tab_div = `<div class="message border_debug" id="` +
+                        //     guid +
+                        //     `">
+                    //                         <div class="my_message border_debug">
+                    //                             <div class='my_message_data'>
+                    //                                 <div class='my_message_text'><p class='message_p'>` +
+                        //     document.getElementById('message_input').value +
+                        //     `
+                    //                             </p></div>
 
-                                                            <div class="message_time no_select" ><p id="my_message_time_` +
-                                guid +
-                                `">` + hours + ':' + formattedMinutes +
-                                `</p></div>
+                    //                             <div class="message_time no_select" ><p id="my_message_time_` +
+                        //     guid +
+                        //     `">` + hours + ':' + formattedMinutes +
+                        //     `</p></div>
 
-                                                            <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
-                                guid + `'>` + ("✓".repeat(1)) + `</p></div></div>
+                    //                             <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                        //     guid + `'>` + ("✓".repeat(1)) + `</p></div></div>
 
-                                                        </div>
-                                                        </div>
-                                                    </div>
-                                                    `;
-                            $('#messages_all').append(chat_tab_div);
-                        }
+                    //                         </div>
+                    //                         </div>
+                    //                     </div>
+                    //                     `;
+                        // /storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg
+                        // https://avatars.mds.yandex.net/i?id=bd14a4ae75206cfb8758fdbc9cd88e9dab833744-5843498-images-thumbs&n=13
+
+
+                        // вёрстка отображения фото с подписью
+                        // chat_tab_div = `<div class="message border_debug" id="` +
+                        //     guid +
+                        //     `">
+                    //                             <div class="my_message border_debug" id="my_message_` + guid +
+                        //     `">
+
+                    //                                 <div class='my_message_data_with_media'><div class= 'message_media_photo'><img id="media_message_` +
+                        //     guid +
+                        //     `" src='/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg'></div>
+                    //                                     <div class='my_message_text_data_with_media'><div class='my_message_text'><p class='message_p'>` +
+                        //     document.getElementById('message_input').value +
+                        //     `
+                    //                                 </p></div>
+
+                    //                                 <div class="message_time no_select" ><p id="my_message_time_` +
+                        //     guid +
+                        //     `">` + hours + ':' + formattedMinutes +
+                        //     `</p></div>
+
+                    //                                 <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                        //     guid + `'>` + ("✓".repeat(1)) + `</p></div</div>
+                    //                                 </div>
+
+                    //                             </div>
+                    //                             </div>
+                    //                         </div>
+                    //                         `;
+                        // $('#messages_all').append(chat_tab_div);
+                        // document.getElementById("my_message_" + guid).style.padding = '0';
+                        // document.getElementById("media_message_" + guid).style.borderRadius = '15px';
+                        // }
                         //  else {
                         //     chat_tab_div = `<div class="message border_debug" id="` +
                         //         guid +
@@ -256,7 +403,7 @@
                     //                             `;
                         //     $('#messages_all').append(chat_tab_div);
                         // }
-                        document.getElementById('message_input').value = null;
+
                     },
                     error: function(xhr, status, error) {
                         console.error(xhr.responseText); // Обработка ошибки
@@ -503,7 +650,8 @@
             }
             if (JSON.parse(event.data)['flag'] == 'remove_guid') {
                 if (JSON.parse(event.data)['chat_id'] == selected_chat) {
-                    console.log(JSON.parse(event.data)['message_id_new']);
+                    // console.log(JSON.parse(event.data)['message_id_new']);
+                    // console.log(JSON.parse(event.data)['message']);
                     // my_message_time_ guid my_message_read_state_
                     document.getElementById('my_message_time_' + JSON.parse(event.data)['guid']).id =
                         'my_message_time_' + JSON.parse(event.data)['message_id_new']
@@ -583,6 +731,7 @@
                         console.log(all_messages);
                         const scrollContainer = document.getElementById('messages_all');
                         all_messages.forEach(element => {
+                            // console.log('qeeh34q0jhg934jtu30950: ',element);
                             sender_id = element['sender_id'];
                             message_result = '';
                             // if (JSON.parse(event.data)['message_data'] == 'text'){}
@@ -590,9 +739,9 @@
                             if (sender_id == this_user_id) {
                                 key_string = decryptMessage(element['key_string'], second_user[
                                     'private_key']);
-                                console.log(element);
+                                console.log('element: ', element);
                                 if (element['type_message'] == 'text') {
-                                    console.log(1)
+                                    // console.log(1)
                                     JSON.parse(element['message']).forEach(element_message => {
                                         message_result += CryptoJS.AES.decrypt(
                                                 element_message,
@@ -605,7 +754,9 @@
                                         element[
                                             'message_id'] +
                                         `">
-                                                        <div class="my_message border_debug">
+                                                        <div class="my_message border_debug" id="my_message_` +
+                                        element[
+                                            'message_id'] + `">
                                                             <div class='my_message_data'>
                                                                 <div class='my_message_text'><p class='message_p'>` +
                                         message_result +
@@ -628,7 +779,126 @@
                                                     `;
                                     $('#messages_all').append(chat_tab_div);
                                 }
+                                if (element['type_message'] == 'file') {
+                                    console.log("Дешифруем как изображение");
+                                    key_string = decryptMessage(element['key_string'], second_user[
+                                        'private_key']);
+                                    // console.log('werw: ', element);
+                                    const url = 'http://neptune:8000' + element['message'];
+                                    console.log("🚀 ~ returnfunction ~ url:", url);
+                                    encryptedImg = '';
+                                    const controller =
+                                        new AbortController(); // Создаем экземпляр AbortController
+                                    const signal = controller.signal; // Получаем сигнал
+                                    fetch(url)
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('Сеть не в порядке: ' + response
+                                                    .statusText);
+                                            }
+                                            // console.log(response.text());
+                                            return response.text(); // Получаем текст
+                                        })
+                                        .then(data => {
+                                            encryptedImg = '';
 
+                                            // #TODOсделать дешифровку сообщения с фото
+                                            // Обрабатываем данные
+                                            encryptedImg_array = JSON.parse(data);
+                                            // console.log(
+                                            //     "🚀 ~ returnfunction ~ encryptedImg_array:",
+                                            //     encryptedImg_array[0])
+                                            console.log(
+                                                "🚀 ~ returnfunction ~ encryptedImg_array:",
+                                                encryptedImg_array[0]);
+                                            // console.log('element[label]: ', element['label']);
+                                            // if (element['label'] != "") {
+                                            // console.log(123456);
+                                            encryptedlabel_array = JSON.parse(element[
+                                                'label']);
+                                            // console.log(
+                                            //     "🚀 ~ returnfunction ~ encryptedlabel_array:",
+                                            //     encryptedlabel_array.length);
+                                            if (encryptedlabel_array.length != 0) {
+                                                encryptedlabel_array.forEach(element => {
+                                                    decryptedlabel = CryptoJS.AES
+                                                        .decrypt(
+                                                            element, key_string)
+                                                        .toString(
+                                                            CryptoJS.enc.Utf8);
+                                                });
+
+
+                                            } else {
+                                                decryptedlabel = '';
+                                            }
+                                            // console.log(
+                                            //     "🚀 ~ returnfunction ~ encryptedlabel:",
+                                            //     decryptedlabel);
+                                            // }
+                                            encryptedImg_array.forEach(element => {
+                                                encryptedImg += element;
+                                            });
+                                            // console.log("🚀 ~ returnfunction ~ encryptedImg:",
+                                            //     encryptedImg);
+                                            decryptedImg_bytes = CryptoJS.AES.decrypt(
+                                                encryptedImg, key_string);
+                                            // console.log(
+                                            //     "🚀 ~ returnfunction ~ decryptedImg_bytes:",
+                                            //     decryptedImg_bytes);
+                                            decryptedImg = decryptedImg_bytes.toString(
+                                                CryptoJS.enc.Utf8);
+                                            // console.log("🚀 ~ returnfunction ~ decryptedImg:",
+                                            //     decryptedImg);
+                                            decryptedImageBlob = dataURLtoBlob(
+                                                decryptedImg); // Convert to Blob
+                                            decryptedImageURL = URL.createObjectURL(
+                                                decryptedImageBlob);
+                                            console.log(
+                                                "🚀 ~ returnfunction ~ decryptedImageURL:",
+                                                decryptedImageURL);
+                                            const now = new Date();
+                                            const hours = now.getHours();
+                                            const minutes = now.getMinutes();
+                                            chat_tab_div =
+                                                `<div class="message border_debug" id="` +
+                                                element['message_id'] +
+                                                `">
+                                                    <div class="my_message_with_media my_message border_debug" id="my_message_` +
+                                                element['message_id'] +
+                                                `">
+
+                                                        <div class='my_message_data_with_media'><div class= 'message_media_photo'><img id="media_message_` +
+                                                element['message_id'] +
+                                                `" src='` + decryptedImageURL +
+                                                `'></div>
+                                                            <div class='my_message_text_data_with_media'><div class='my_message_text'><p class='message_p'>` +
+                                                decryptedlabel +
+                                                `
+                                                        </p></div>
+
+                                                        <div class="message_time no_select" ><p id="my_message_time_` +
+                                                element['message_id'] +
+                                                `">` + hours + ':' + minutes +
+                                                `</p></div>
+
+                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                                element['message_id'] + `'>` + ("✓".repeat(1)) + `</p></div</div>
+                                                        </div>
+
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                `;
+                                            $('#messages_all').append(chat_tab_div);
+                                            // break
+
+                                        })
+                                        .catch(error => {
+                                            console.error('Ошибка:', error);
+                                        });
+                                    // controller.abort();
+                                }
 
                             } else {
                                 // #TODOСделать прочтение обновляющееся через вебсокет
@@ -712,7 +982,7 @@
                                         observer.observe(targetElement);
                                     }
                                 }
-
+                                // if (element['type_message'] == 'file'){}
 
                             }
                         });
@@ -816,6 +1086,26 @@
                             <div class=" user_info_header border_debug" id="user_info_header">
                             </div>
                             <div class="border_debug messages" id="messages_all">
+                                {{-- <div class="message border_debug">
+                                    <div class="my_message border_debug">
+                                        <div class='my_message_data'>
+                                            <div class='my_message_text'>
+                                                <p class='message_p'>
+                                                    4к34е34е
+                                                </p>
+                                            </div>
+
+                                            <div class="message_time no_select">
+                                                <p id="my_message_time_"></p>
+                                            </div>
+
+                                            <div class='my_message_read_state border_debug no_select'>
+                                                <p id='my_message_read_state_'></p>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div> --}}
                             </div>
 
                             <div class="border_debug input">
@@ -995,24 +1285,40 @@
                                 ],
                                 message_object['addressee']['private_key']);
                             message_result = '';
-
-                            message_json = JSON.parse(message_object['last_message']
-                                ['message']);
-
-                            message_json.forEach(message_text => {
-                                message_result += CryptoJS.AES.decrypt(message_text,
-                                    key_string).toString(CryptoJS.enc.Utf8);
-                            })
-                            if (message_result.length > 34) {
-                                document.getElementById('last_message_' + element)
-                                    .innerText =
-                                    message_result.slice(0, 34) + '...';
-                            } else {
+                            // console.log('2131: ', message_object['last_message'][
+                            //     'type_message'
+                            // ]);
+                            if (message_object['last_message'][
+                                    'type_message'
+                                ] == 'file') {
                                 document.getElementById(
                                         'last_message_' + element).innerText =
-                                    message_result;
+                                    'Файл';
                             }
-                            var message_result = '';
+                            if (message_object['last_message'][
+                                    'type_message'
+                                ] == 'text') {
+                                message_json = JSON.parse(message_object['last_message']
+                                    ['message']);
+
+                                message_json.forEach(message_text => {
+                                    message_result += CryptoJS.AES.decrypt(
+                                        message_text,
+                                        key_string).toString(CryptoJS.enc.Utf8);
+                                })
+                                if (message_result.length > 34) {
+                                    document.getElementById('last_message_' + element)
+                                        .innerText =
+                                        message_result.slice(0, 34) + '...';
+                                } else {
+                                    document.getElementById(
+                                            'last_message_' + element).innerText =
+                                        message_result;
+                                }
+                                var message_result = '';
+                            }
+                            // if()
+
                         });
 
                         unread_chats_keys.forEach(element => {
@@ -1052,7 +1358,3 @@
         });
     </script>
 </x-app-layout>
-{{--
-<div class='recived_message_read_state '><p id='my_message_read_state_` +
-    element['message_id'] + `'>` + ("✓".repeat((parseInt(element[
-        'isRead']) + 1))) + `</p></div> --}}
