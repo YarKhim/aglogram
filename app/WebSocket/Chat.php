@@ -156,6 +156,7 @@ class Chat implements MessageComponentInterface
             // type_message
             // dump($message->message_data);
             // dump($message->type_message);
+            $msg = json_decode($msg);
             if ($message->message_data == 'file') {
                 // echo 1;
                 $hash = hash('sha256', microtime());
@@ -172,6 +173,7 @@ class Chat implements MessageComponentInterface
                     'type_message' => $message->message_data,
                     'label' => json_encode($message->label),
                 ]);
+                $msg->message_url = $url;
             }
             if ($message->message_data == 'text') {
                 $message_table = Message::create([
@@ -186,14 +188,15 @@ class Chat implements MessageComponentInterface
             // return $guid;
 
             // dump($message_table);
-            $msg = json_decode($msg);
+
             $msg->message_id_new = $message_table->id;
             $msg->flag = 'new_message';
             $msg->created_at = $message_table->created_at;
+            // dump($msg);
             // $msg->
             $msg = json_encode($msg);
 
-            // dump($msg);
+
             // if ($connection != null) {
             // dd( $connection);
 

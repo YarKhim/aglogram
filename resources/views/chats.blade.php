@@ -1,11 +1,21 @@
 <x-app-layout>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="http://peterolson.github.com/BigInteger.js/BigInteger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script> --}}
+    {{-- <script src="{{mix('js/app.js')}}"></script> --}}
     {{-- <link href="/app.css" rel="stylesheet"> --}}
+    <script src="{{ asset('js/BigInteger.js') }}"></script>
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('js/jsencrypt.min.js') }}"></script>
+    <script src="{{ asset('js/RSA.min.js') }}"></script>
+    <script src="{{ asset('js/forge.min.js') }}"></script>
+    <script src="{{ asset('js/crypto-js.min.js') }}"></script>
+
+
+
     <script>
         var selected_chat = null;
         const token = 'YOUR_AUTH_TOKEN';
@@ -69,6 +79,12 @@
                 let data_get_keys = {
                     addressee: document.querySelector('.user_info_header_foto').id,
                 };
+                if (!imageInput.files.length) {
+                    message_send_type = 'text';
+                } else {
+                    message_send_type = 'file';
+                }
+                // console.log(message_send_type);
                 $.ajax({
                     url: '/get_keys', // URL вашего маршрута
                     method: 'GET', // Метод запроса (GET или POST)
@@ -162,8 +178,8 @@
                                 // console.log(123433245);
                                 label_text = '';
                             }
-                            console.log('Должно быть загифровано: ',
-                                label_text);
+                            // console.log('Должно быть загифровано: ',
+                            //     label_text);
                             const fileInput = document.getElementById('imageInput');
                             const file = fileInput.files[0];
                             loadImageAndEncrypt(file, secretKey)
@@ -246,7 +262,7 @@
 
                             document.getElementById('last_message_' + response['chat_id']).innerText =
                                 'Файл';
-
+                            message_send_type = null;
                             // return;
                         }
                         if (message_send_type == 'text') {
@@ -281,7 +297,7 @@
                                 guid: guid,
                                 message_data: 'text',
                             };
-                            console.log("🚀 ~ send_message ~ data:", data)
+                            // console.log("🚀 ~ send_message ~ data:", data)
                             sendMessage(JSON.stringify(data));
                             if (addressee_id != this_user_id) { // вёрстка отображения текстового сообщения
                                 chat_tab_div = `<div class="message border_debug" id="` +
@@ -483,14 +499,11 @@
                 const decodedMessage = forge.util.decode64(JSON.parse(event.data)['encrypted_key']);
                 const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
                 var message_result = '';
-
-                // console.log(222222);
-
                 got_chat_id = JSON.parse(event.data)['chat_id'];
-                console.log(JSON.parse(event.data));
+                // console.log(JSON.parse(event.data));
                 // message_data
                 if (JSON.parse(event.data)['message_data'] == 'text') {
-                    console.log(111111);
+                    // console.log(111111);
                     for (i = 0; i < JSON.parse(event.data)['message'].length; i++) {
                         message_result += CryptoJS.AES.decrypt(JSON.parse(event.data)['message'][i], decrypted)
                             .toString(
@@ -501,35 +514,28 @@
 
                     // last_message_time_
                     const date = new Date(JSON.parse(event.data)['created_at']);
-
                     // Получаем часы и минуты
                     const hours = date.getHours(); // Часы
                     const minutes = date.getMinutes(); // Минуты
                     document.getElementById('last_message_time_' + got_chat_id).innerText = hours + ':' + minutes;
                     if (got_chat_id == selected_chat) {
-                        console.log("В откртый чат пришло собщение!!!");
-                        console.log(JSON.parse(event.data))
+                        // console.log("В откртый чат пришло собщение!!!");
+                        // console.log(JSON.parse(event.data))
 
                         if (JSON.parse(event.data)['chat_id'] != favorite_id_chat) {
                             console.log(JSON.parse(event.data));
 
                             if (JSON.parse(event.data)['chat_id'] in unread_chats) {
                                 unread_chats[JSON.parse(event.data)['chat_id']] += 1;
-
                             } else {
                                 unread_chats[JSON.parse(event.data)['chat_id']] = 1;
-
                             }
                             document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
-                                .style
-                                .display =
-                                'flex';
-                            console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)[
-                                    'chat_id'])
-                                .style.display);
+                                .style.display = 'flex';
+                            // console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)[
+                            //     'chat_id']).style.display);
                             document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
-                                .innerText =
-                                unread_chats[JSON.parse(event.data)['chat_id']];
+                                .innerText = unread_chats[JSON.parse(event.data)['chat_id']];
                             new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
                             // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
                             if (new_message_chat.classList.contains('blink-background')) {
@@ -541,6 +547,7 @@
                             setTimeout(() => {
                                 new_message_chat.classList.remove('blink-background');
                             }, 1000);
+
                             chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
                                     'message_id_new'
                                 ] + `">
@@ -578,10 +585,6 @@
                                                 'message_id_new'
                                             ],
                                         };
-                                        // console.log(
-                                        //     "🚀 ~ handleIntersection ~ data:",
-                                        //     data)
-
                                         sendMessage(JSON.stringify(
                                             data));
                                         observer.unobserve(entry.target);
@@ -598,16 +601,35 @@
                                 ]);
                             observer.observe(targetElement);
                         } else {
-                            console.log(JSON.parse(event.data)['message']);
-                            chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
-                                'message_id_new'
-                            ] + `">
-            <div class="my_message border_debug">
-                <p>` + message_result + `
-                </p>
-            </div>
-        </div>
-        `;
+                            chat_tab_div =
+                                `<div class="message border_debug" id="` +
+                                JSON.parse(event.data)[
+                                    'message_id_new'
+                                ] +
+                                `">
+                                                    <div class="my_message border_debug">
+                                                        <div class='my_message_data'>
+                                                            <div class='my_message_text'><p class='message_p'>` +
+                                document.getElementById('message_input').value +
+                                `
+                                                        </p></div>
+
+                                                        <div class="message_time no_select" ><p id="my_message_time_` +
+                                JSON.parse(event.data)[
+                                    'message_id_new'
+                                ] +
+                                `">` + hours + ':' + minutes +
+                                `</p></div>
+
+                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                JSON.parse(event.data)[
+                                    'message_id_new'
+                                ] + `'>` + ("✓".repeat(2)) + `</p></div></div>
+
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                                `;
                             $('#messages_all').append(chat_tab_div);
                         }
 
@@ -646,19 +668,208 @@
                         }, 1000);
                     }
                 }
+                if (JSON.parse(event.data)['message_data'] == 'file') {
+                    // #TODOdecrypted
+                    if (got_chat_id == selected_chat) {
+                        // console.log('Дешифруеем как фото СОБЕСЕДНИКА!!!');
+                        document.getElementById('last_message_' + got_chat_id).innerText = "Файл";
+                        console.log('Структура данных', JSON.parse(event.data));
+                        // key_string = decryptMessage(JSON.parse(event.data)['key_string'], this_user[
+                        //     'private_key']);
+                        // console.log(JSON.parse(event.data)['message_url']);
+                        key_string = decrypted;
+                        const url = 'http://neptune:8000' + JSON.parse(event.data)['message_url'];
+                        // console.log("🚀 ~ returnfunction ~ url:", url);
+                        encryptedImg = ''
+                        // console.log("JSON.parse(event.data)['message_id']: ", JSON.parse(event.data)['message_id']);
+                        message_class_div = `<div class="message border_debug" id="` +
+                            JSON.parse(event.data)['message_id'] +
+                            `"> </div>`;
+                        // console.log("🚀 ~ returnfunction ~ message_class_div:",
+                        //     message_class_div);
+                        $('#messages_all').append(message_class_div);
+                        // console.log(document.getElementById(JSON.parse(event.data)['message_id']));
+                        // из за асинхронного процесса следующие сообщения грузятся не дожидаясь загрузки прошлых,
+                        // в частоности фото, которые дешифруются дольше, поэтому оставим под них пустые места <div class='message'></div>
+                        function fetchImage(url) {
+                            fetch(url)
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Сеть не в порядке: ' +
+                                            response
+                                            .statusText);
+                                    }
+                                    // console.log(response.text());
+                                    return response.text(); // Получаем текст
+                                })
+                                .then(data => {
+                                    encryptedImg = '';
+
+                                    // #TODOсделать дешифровку сообщения с фото
+                                    // Обрабатываем данные
+                                    encryptedImg_array = JSON.parse(data);
+                                    // console.log(
+                                    //     "🚀 ~ returnfunction ~ encryptedImg_array:",
+                                    //     encryptedImg_array[0]);
+                                    encryptedlabel_array = JSON.parse(event.data)[
+                                        'label'];
+                                    if (encryptedlabel_array.length != 0) {
+                                        encryptedlabel_array.forEach(element => {
+                                            decryptedlabel = CryptoJS.AES
+                                                .decrypt(
+                                                    element, key_string)
+                                                .toString(
+                                                    CryptoJS.enc.Utf8);
+                                        });
+
+
+                                    } else {
+                                        decryptedlabel = '';
+                                    }
+                                    encryptedImg_array.forEach(element => {
+                                        encryptedImg += element;
+                                    });
+                                    decryptedImg_bytes = CryptoJS.AES.decrypt(
+                                        encryptedImg, key_string);
+                                    decryptedImg = decryptedImg_bytes.toString(
+                                        CryptoJS.enc.Utf8);
+                                    decryptedImageBlob = dataURLtoBlob(
+                                        decryptedImg);
+                                    decryptedImageURL = URL.createObjectURL(
+                                        decryptedImageBlob);
+                                    // console.log(
+                                    //     "🚀 ~ returnfunction ~ decryptedImageURL:",
+                                    //     decryptedImageURL);
+                                    const now = new Date(JSON.parse(event.data)['created_at']);
+                                    const hours = now.getHours();
+                                    const minutes = now.getMinutes();
+                                    // #TODO
+                                    chat_tab_div =
+                                        `
+                                                <div class="recived_message_with_media recived_message border_debug" id="recived_message_` +
+                                        JSON.parse(event.data)['message_id'] +
+                                        `">
+
+                                                    <div class='my_message_data_with_media'><div class= 'message_media_photo'><img id="media_message_` +
+                                        JSON.parse(event.data)['message_id'] +
+                                        `" src='` + decryptedImageURL +
+                                        `'></div>
+                                                        <div class='my_message_text_data_with_media'><div class='recived_message_text'><p class='message_p label '>` +
+                                        decryptedlabel +
+                                        `
+                                                    </p></div>
+
+                                                    <div class="message_time no_select" ><p id="recived_message_time_` +
+                                        JSON.parse(event.data)['message_id'] +
+                                        `">` + hours + ':' + minutes +
+                                        `</p></div>
+
+                                                    </div>
+                                                    </div>
+
+                                                </div>
+                                                </div>
+
+                                            `;
+                                    $('#' + JSON.parse(event.data)['message_id']).append(
+                                        chat_tab_div);
+                                    // console.log('Я тут)) ', JSON.parse(event.data))
+                                    // if (JSON.parse(event.data)['isRead'] == 0) {
+                                    // console.log("Я тута_)))))!");
+                                    function handleIntersection(entries, observer) {
+                                        entries.forEach(entry => {
+                                            if (entry.isIntersecting) {
+                                                unread_chats[JSON.parse(event.data)['chat_id']]--;
+                                                if (unread_chats[JSON.parse(event.data)['chat_id']] != 0) {
+                                                    document.getElementById(
+                                                            'unread_messages_counter_' +
+                                                            JSON.parse(event.data)['chat_id']).innerText =
+                                                        unread_chats[JSON.parse(event.data)['chat_id']];
+                                                } else {
+                                                    document.getElementById(
+                                                            'unread_messages_counter_' +
+                                                            JSON.parse(event.data)['chat_id']).style
+                                                        .display =
+                                                        'none';
+                                                }
+                                                let data = {
+                                                    type_message: 'read_sate_update',
+                                                    message_id: JSON.parse(event.data)[
+                                                        'message_id_new'
+                                                    ],
+                                                };
+                                                sendMessage(JSON.stringify(
+                                                    data));
+                                                observer.unobserve(entry.target);
+                                            }
+                                        });
+                                    }
+                                    const observer = new IntersectionObserver(
+                                        handleIntersection);
+                                    const targetElement = document.getElementById(
+                                        JSON.parse(event.data)[
+                                            'message_id']);
+                                    console.log("🚀 ~ fetchImage ~ targetElement:", targetElement)
+                                    observer.observe(targetElement);
+                                    // }
+                                    document.getElementById('recived_message_' +
+                                            JSON.parse(event.data)['message_id']).style.padding =
+                                        '0';
+                                    // break
+
+                                })
+
+                                .catch(error => {
+                                    console.error('Ошибка:', error);
+                                });
+                        }
+                        fetchImage(url);
+                        // controller.abort();
+
+                    } else {
+                        if (JSON.parse(event.data)['chat_id'] in unread_chats) {
+                            unread_chats[JSON.parse(event.data)['chat_id']] += 1;
+
+                        } else {
+                            unread_chats[JSON.parse(event.data)['chat_id']] = 1;
+
+                        }
+                        document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id']).style
+                            .display =
+                            'flex';
+                        // console.log(document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
+                        //     .style.display);
+                        document.getElementById('unread_messages_counter_' + JSON.parse(event.data)['chat_id'])
+                            .innerText =
+                            unread_chats[JSON.parse(event.data)['chat_id']];
+                        new_message_chat = document.querySelector('.chat_' + JSON.parse(event.data)['chat_id']);
+                        // new_message_chat = document.querySelector('.chat_' + selected_chat).classList.add('blink-background');
+                        if (new_message_chat.classList.contains('blink-background')) {
+                            new_message_chat.classList.remove('blink-background'); // Удаляем класс, если он есть
+                        } else {
+                            new_message_chat.classList.add('blink-background'); // Добавляем класс, если его нет
+                        }
+                        new_message_chat.classList.add('blink-background');
+                        setTimeout(() => {
+                            new_message_chat.classList.remove('blink-background');
+                        }, 1000);
+                    }
+                }
 
             }
             if (JSON.parse(event.data)['flag'] == 'remove_guid') {
+                //получаем id сообщения вместо временного guid-а
                 if (JSON.parse(event.data)['chat_id'] == selected_chat) {
-                    // console.log(JSON.parse(event.data)['message_id_new']);
-                    // console.log(JSON.parse(event.data)['message']);
-                    // my_message_time_ guid my_message_read_state_
+                    if (document.getElementById('media_message_' + JSON.parse(event.data)['guid'])) {
+                        document.getElementById('media_message_' + JSON.parse(event.data)['guid']).id =
+                            'media_message_' + JSON.parse(event.data)['message_id_new'];
+                    }
                     document.getElementById('my_message_time_' + JSON.parse(event.data)['guid']).id =
-                        'my_message_time_' + JSON.parse(event.data)['message_id_new']
+                        'my_message_time_' + JSON.parse(event.data)['message_id_new'];
                     document.getElementById(JSON.parse(event.data)['guid']).id = JSON.parse(event.data)[
-                        'message_id_new']
+                        'message_id_new'];
                     document.getElementById('my_message_read_state_' + JSON.parse(event.data)['guid']).id =
-                        'my_message_read_state_' + JSON.parse(event.data)['message_id_new']
+                        'my_message_read_state_' + JSON.parse(event.data)['message_id_new'];
                 }
 
             }
@@ -666,7 +877,7 @@
             if (JSON.parse(event.data)['type_message'] == 'read_sate_update') {
 
                 if (selected_chat == JSON.parse(event.data)['chat_id']) {
-                    console.log(JSON.parse(event.data)[
+                    console.log('Прочитано: ', JSON.parse(event.data)[
                         'message_id']);
                     document.getElementById('my_message_read_state_' + JSON.parse(event.data)[
                         'message_id']).innerText = '✓✓';
@@ -674,8 +885,6 @@
                 }
                 // document.getElementById(JSON.parse(event.data)['message_id']).classList.add('read_message')
             }
-            // read_sate_update
-
         };
 
         socket.onclose = function(event) {
@@ -684,17 +893,12 @@
         };
 
         function sendMessage(message) {
-            // socket.send(JSON.stringify({
-            //     'message': message,
-            //     'type_query': type_query
-            // }));
             socket.send(message);
         }
 
         function select_chat(user_id, chat_id) {
 
             return function() {
-                // console.log("🚀 ~ select_chat ~ user_id:", user_id)
                 user_id_opened_chat = user_id;
                 $('#messages_all').empty();
                 document.getElementById('message_input').value = '';
@@ -731,6 +935,11 @@
                         console.log(all_messages);
                         const scrollContainer = document.getElementById('messages_all');
                         all_messages.forEach(element => {
+                            const date = new Date(element['created_at']);
+
+                            // Получаем часы и минуты
+                            const hours_last = date.getHours(); // Часы
+                            const minutes_last = date.getMinutes(); // Минуты
                             // console.log('qeeh34q0jhg934jtu30950: ',element);
                             sender_id = element['sender_id'];
                             message_result = '';
@@ -739,7 +948,7 @@
                             if (sender_id == this_user_id) {
                                 key_string = decryptMessage(element['key_string'], second_user[
                                     'private_key']);
-                                console.log('element: ', element);
+                                // console.log('element: ', element);
                                 if (element['type_message'] == 'text') {
                                     // console.log(1)
                                     JSON.parse(element['message']).forEach(element_message => {
@@ -766,7 +975,8 @@
                                                             <div class="message_time no_select" ><p id="my_message_time_` +
                                         element[
                                             'message_id'] +
-                                        `">23:40</p></div>
+                                        `">` + hours_last + ':' + minutes_last +
+                                        `</p></div>
 
                                                             <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
                                         element['message_id'] + `'>` + ("✓".repeat((parseInt(
@@ -777,126 +987,119 @@
                                                         </div>
                                                     </div>
                                                     `;
+                                    console.log('isread: ', element[
+                                        'isRead']);
                                     $('#messages_all').append(chat_tab_div);
                                 }
                                 if (element['type_message'] == 'file') {
-                                    console.log("Дешифруем как изображение");
+                                    // console.log("Дешифруем как изображение");
                                     key_string = decryptMessage(element['key_string'], second_user[
                                         'private_key']);
                                     // console.log('werw: ', element);
                                     const url = 'http://neptune:8000' + element['message'];
-                                    console.log("🚀 ~ returnfunction ~ url:", url);
-                                    encryptedImg = '';
-                                    const controller =
-                                        new AbortController(); // Создаем экземпляр AbortController
-                                    const signal = controller.signal; // Получаем сигнал
-                                    fetch(url)
-                                        .then(response => {
-                                            if (!response.ok) {
-                                                throw new Error('Сеть не в порядке: ' + response
-                                                    .statusText);
-                                            }
-                                            // console.log(response.text());
-                                            return response.text(); // Получаем текст
-                                        })
-                                        .then(data => {
-                                            encryptedImg = '';
+                                    // console.log("🚀 ~ returnfunction ~ url:", url);
+                                    encryptedImg = ''
+                                    // console.log("element['message_id']: ", element['message_id']);
+                                    message_class_div = `<div class="message border_debug" id="` +
+                                        element['message_id'] +
+                                        `"> </div>`;
+                                    // console.log("🚀 ~ returnfunction ~ message_class_div:",
+                                    //     message_class_div);
+                                    $('#messages_all').append(message_class_div);
+                                    // console.log(document.getElementById(element['message_id']));
+                                    // из за асинхронного процесса следующие сообщения грузятся не дожидаясь загрузки прошлых,
+                                    // в частоности фото, которые дешифруются дольше, поэтому оставим под них пустые места <div class='message'></div>
+                                    function fetchImage(url) {
+                                        fetch(url)
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Сеть не в порядке: ' +
+                                                        response
+                                                        .statusText);
+                                                }
+                                                // console.log(response.text());
+                                                return response.text(); // Получаем текст
+                                            })
+                                            .then(data => {
+                                                encryptedImg = '';
 
-                                            // #TODOсделать дешифровку сообщения с фото
-                                            // Обрабатываем данные
-                                            encryptedImg_array = JSON.parse(data);
-                                            // console.log(
-                                            //     "🚀 ~ returnfunction ~ encryptedImg_array:",
-                                            //     encryptedImg_array[0])
-                                            console.log(
-                                                "🚀 ~ returnfunction ~ encryptedImg_array:",
-                                                encryptedImg_array[0]);
-                                            // console.log('element[label]: ', element['label']);
-                                            // if (element['label'] != "") {
-                                            // console.log(123456);
-                                            encryptedlabel_array = JSON.parse(element[
-                                                'label']);
-                                            // console.log(
-                                            //     "🚀 ~ returnfunction ~ encryptedlabel_array:",
-                                            //     encryptedlabel_array.length);
-                                            if (encryptedlabel_array.length != 0) {
-                                                encryptedlabel_array.forEach(element => {
-                                                    decryptedlabel = CryptoJS.AES
-                                                        .decrypt(
-                                                            element, key_string)
-                                                        .toString(
-                                                            CryptoJS.enc.Utf8);
+                                                // #TODOсделать дешифровку сообщения с фото
+                                                // Обрабатываем данные
+                                                encryptedImg_array = JSON.parse(data);
+                                                // console.log(
+                                                //     "🚀 ~ returnfunction ~ encryptedImg_array:",
+                                                //     encryptedImg_array[0]);
+                                                encryptedlabel_array = JSON.parse(element[
+                                                    'label']);
+                                                if (encryptedlabel_array.length != 0) {
+                                                    encryptedlabel_array.forEach(element => {
+                                                        decryptedlabel = CryptoJS.AES
+                                                            .decrypt(
+                                                                element, key_string)
+                                                            .toString(
+                                                                CryptoJS.enc.Utf8);
+                                                    });
+
+
+                                                } else {
+                                                    decryptedlabel = '';
+                                                }
+                                                encryptedImg_array.forEach(element => {
+                                                    encryptedImg += element;
                                                 });
-
-
-                                            } else {
-                                                decryptedlabel = '';
-                                            }
-                                            // console.log(
-                                            //     "🚀 ~ returnfunction ~ encryptedlabel:",
-                                            //     decryptedlabel);
-                                            // }
-                                            encryptedImg_array.forEach(element => {
-                                                encryptedImg += element;
-                                            });
-                                            // console.log("🚀 ~ returnfunction ~ encryptedImg:",
-                                            //     encryptedImg);
-                                            decryptedImg_bytes = CryptoJS.AES.decrypt(
-                                                encryptedImg, key_string);
-                                            // console.log(
-                                            //     "🚀 ~ returnfunction ~ decryptedImg_bytes:",
-                                            //     decryptedImg_bytes);
-                                            decryptedImg = decryptedImg_bytes.toString(
-                                                CryptoJS.enc.Utf8);
-                                            // console.log("🚀 ~ returnfunction ~ decryptedImg:",
-                                            //     decryptedImg);
-                                            decryptedImageBlob = dataURLtoBlob(
-                                                decryptedImg); // Convert to Blob
-                                            decryptedImageURL = URL.createObjectURL(
-                                                decryptedImageBlob);
-                                            console.log(
-                                                "🚀 ~ returnfunction ~ decryptedImageURL:",
-                                                decryptedImageURL);
-                                            const now = new Date();
-                                            const hours = now.getHours();
-                                            const minutes = now.getMinutes();
-                                            chat_tab_div =
-                                                `<div class="message border_debug" id="` +
-                                                element['message_id'] +
-                                                `">
+                                                decryptedImg_bytes = CryptoJS.AES.decrypt(
+                                                    encryptedImg, key_string);
+                                                decryptedImg = decryptedImg_bytes.toString(
+                                                    CryptoJS.enc.Utf8);
+                                                decryptedImageBlob = dataURLtoBlob(
+                                                    decryptedImg);
+                                                decryptedImageURL = URL.createObjectURL(
+                                                    decryptedImageBlob);
+                                                console.log(
+                                                    "🚀 ~ returnfunction ~ decryptedImageURL:",
+                                                    decryptedImageURL);
+                                                // const now = new Date();
+                                                // const hours = now.getHours();
+                                                // const minutes = now.getMinutes();
+                                                chat_tab_div =
+                                                    `
                                                     <div class="my_message_with_media my_message border_debug" id="my_message_` +
-                                                element['message_id'] +
-                                                `">
+                                                    element['message_id'] +
+                                                    `">
 
                                                         <div class='my_message_data_with_media'><div class= 'message_media_photo'><img id="media_message_` +
-                                                element['message_id'] +
-                                                `" src='` + decryptedImageURL +
-                                                `'></div>
+                                                    element['message_id'] +
+                                                    `" src='` + decryptedImageURL +
+                                                    `'></div>
                                                             <div class='my_message_text_data_with_media'><div class='my_message_text'><p class='message_p'>` +
-                                                decryptedlabel +
-                                                `
+                                                    decryptedlabel +
+                                                    `
                                                         </p></div>
 
                                                         <div class="message_time no_select" ><p id="my_message_time_` +
-                                                element['message_id'] +
-                                                `">` + hours + ':' + minutes +
-                                                `</p></div>
+                                                    element['message_id'] +
+                                                    `">` + hours_last + ':' + minutes_last +
+                                                    `</p></div>
 
                                                         <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
-                                                element['message_id'] + `'>` + ("✓".repeat(1)) + `</p></div</div>
+                                                    element['message_id'] + `'>` + ("✓".repeat(
+                                                        parseInt(element['isRead']) + 1)) + `</p></div</div>
                                                         </div>
 
                                                     </div>
                                                     </div>
-                                                </div>
-                                                `;
-                                            $('#messages_all').append(chat_tab_div);
-                                            // break
 
-                                        })
-                                        .catch(error => {
-                                            console.error('Ошибка:', error);
-                                        });
+                                                `;
+                                                $('#' + element['message_id'] + '').append(
+                                                    chat_tab_div);
+                                                // break
+
+                                            })
+                                            .catch(error => {
+                                                console.error('Ошибка:', error);
+                                            });
+                                    }
+                                    fetchImage(url);
                                     // controller.abort();
                                 }
 
@@ -929,6 +1132,9 @@
                                             };
                                             sendMessage(JSON.stringify(
                                                 data));
+                                            console.log('Прочитано у получателя:', element[
+                                                'message_id'
+                                            ]);
                                             observer.unobserve(entry.target);
                                         }
                                     });
@@ -968,7 +1174,9 @@
                                         message_result +
                                         `
                                                             </p></div>
-                                                            <div class="message_time no_select" ><p>23:40</p></div>
+                                                            <div class="message_time no_select" ><p>` + hours_last +
+                                        ':' + minutes_last +
+                                        `</p></div>
                                                         </div>
                                                     </div>
                                                     `;
@@ -982,10 +1190,138 @@
                                         observer.observe(targetElement);
                                     }
                                 }
-                                // if (element['type_message'] == 'file'){}
+                                if (element['type_message'] == 'file') {
+                                    // console.log('Дешифруеем как фото СОБЕСЕДНИКА!!!');
+                                    key_string = decryptMessage(element['key_string'], this_user[
+                                        'private_key']);
+                                    const url = 'http://neptune:8000' + element['message'];
+                                    // console.log("🚀 ~ returnfunction ~ url:", url);
+                                    encryptedImg = '';
+                                    is_this_message_read = parseInt(element['isRead']);
+                                    // console.log("🚀 ~ returnfunction ~ is_this_message_read_" +
+                                    //     element['message_id'] + ":",
+                                    //     is_this_message_read);
+                                    // console.log("element['message_id']: ", element['message_id']);
+                                    message_class_div = `<div class="message border_debug" id="` +
+                                        element['message_id'] +
+                                        `"> </div>`;
+                                    // console.log("🚀 ~ returnfunction ~ message_class_div:",
+                                    //     message_class_div);
+                                    $('#messages_all').append(message_class_div);
+                                    // console.log(document.getElementById(element['message_id']));
+                                    // из за асинхронного процесса следующие сообщения грузятся не дожидаясь загрузки прошлых,
+                                    // в частоности фото, которые дешифруются дольше, поэтому оставим под них пустые места <div class='message'></div>
+                                    function fetchImage(url) {
+                                        fetch(url)
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('Сеть не в порядке: ' +
+                                                        response
+                                                        .statusText);
+                                                }
+                                                // console.log(response.text());
+                                                return response.text(); // Получаем текст
+                                            })
+                                            .then(data => {
+                                                encryptedImg = '';
+
+                                                // #TODOсделать дешифровку сообщения с фото
+                                                // Обрабатываем данные
+                                                encryptedImg_array = JSON.parse(data);
+                                                console.log(
+                                                    "🚀 ~ returnfunction ~ encryptedImg_array:",
+                                                    encryptedImg_array[0]);
+                                                encryptedlabel_array = JSON.parse(element[
+                                                    'label']);
+                                                if (encryptedlabel_array.length != 0) {
+                                                    encryptedlabel_array.forEach(element => {
+                                                        decryptedlabel = CryptoJS.AES
+                                                            .decrypt(
+                                                                element, key_string)
+                                                            .toString(
+                                                                CryptoJS.enc.Utf8);
+                                                    });
+
+
+                                                } else {
+                                                    decryptedlabel = '';
+                                                }
+                                                encryptedImg_array.forEach(element => {
+                                                    encryptedImg += element;
+                                                });
+                                                decryptedImg_bytes = CryptoJS.AES.decrypt(
+                                                    encryptedImg, key_string);
+                                                decryptedImg = decryptedImg_bytes.toString(
+                                                    CryptoJS.enc.Utf8);
+                                                decryptedImageBlob = dataURLtoBlob(
+                                                    decryptedImg);
+                                                decryptedImageURL = URL.createObjectURL(
+                                                    decryptedImageBlob);
+                                                console.log(
+                                                    "🚀 ~ returnfunction ~ decryptedImageURL:",
+                                                    decryptedImageURL);
+                                                // const now = new Date();
+                                                // const hours = now.getHours();
+                                                // const minutes = now.getMinutes();
+                                                // #TODO
+                                                chat_tab_div =
+                                                    `
+                                                    <div class="recived_message_with_media recived_message border_debug" id="recived_message_` +
+                                                    element['message_id'] +
+                                                    `">
+
+                                                        <div class='my_message_data_with_media'><div class= 'message_media_photo'><img id="media_message_` +
+                                                    element['message_id'] +
+                                                    `" src='` + decryptedImageURL +
+                                                    `'></div>
+                                                            <div class='my_message_text_data_with_media'><div class='recived_message_text'><p class='message_p label '>` +
+                                                    decryptedlabel +
+                                                    `
+                                                        </p></div>
+
+                                                        <div class="message_time no_select" ><p id="recived_message_time_` +
+                                                    element['message_id'] +
+                                                    `">` + hours_last + ':' + minutes_last +
+                                                    `</p></div>
+
+                                                        </div>
+                                                        </div>
+
+                                                    </div>
+                                                    </div>
+
+                                                `;
+                                                $('#' + element['message_id'] + '').append(
+                                                    chat_tab_div);
+                                                if (element['isRead'] == 0) {
+                                                    const observer = new IntersectionObserver(
+                                                        handleIntersection);
+                                                    const targetElement = document
+                                                        .getElementById(
+                                                            element[
+                                                                'message_id']);
+                                                    // console.log("🚀 ~ returnfunction ~ targetElement:",
+                                                    //     targetElement);
+                                                    observer.observe(targetElement);
+                                                }
+                                                document.getElementById('recived_message_' +
+                                                        element['message_id']).style.padding =
+                                                    '0';
+                                                // break
+
+                                            })
+                                            .catch(error => {
+                                                console.error('Ошибка:', error);
+                                            });
+                                    }
+                                    fetchImage(url);
+                                    // controller.abort();
+
+                                }
 
                             }
                         });
+
                     },
                     error: function(xhr, status, error) {
                         console.error('Ошибка AJAX:', error);
@@ -998,7 +1334,7 @@
                     success: function(response) {
                         console.log(response['user']['avatar']);
                         user_id_chat = response['user']['id'];
-                        console.log('response', response['user']['isOnline']);
+                        // console.log('response', response['user']['isOnline']);
                         user_online = false;
                         if (response['user']['isOnline']) {
                             user_online = 'online';

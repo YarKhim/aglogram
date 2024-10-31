@@ -413,6 +413,14 @@
     padding: 0;
 }
 
+.recived_message_with_media {
+    padding: 0;
+}
+
+/* .recived_message_text>.label {
+    min-width: 30em;
+} */
+
 .online_in_chats_list {
     display: flex;
     font-size: x-small;
