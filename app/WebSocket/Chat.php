@@ -19,8 +19,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
+
 use Illuminate\Support\Facades\Log;
 
 class Chat implements MessageComponentInterface
@@ -32,16 +34,6 @@ class Chat implements MessageComponentInterface
     {
         $this->clients = new \SplObjectStorage();
     }
-    // public function a($clientId, $message)
-    // {
-
-    // }
-    // public static function generateGUID($input)
-    // {
-    //     $hash = hassh('sha256', $input);
-    //     $guid = sprintf('%s-%s-%s-%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), substr($hash, 12, 4), substr($hash, 16, 4), substr($hash, 20, 12));
-    //     return $guid;
-    // }
     public function onOpen(ConnectionInterface $conn)
     {
         // Храните ссылку на подключение
@@ -53,24 +45,16 @@ class Chat implements MessageComponentInterface
         $currentTime = now();
         echo $currentTime;
         echo " Новый пользователь подключен: {$conn->resourceId}\n";
-        // dump($this->all_clients[$conn->resourceId]->resourceId);
-        // dump($this->all_clients);
-        // dump($conn->resourceId);
         $sessionId = str_replace('%3D', '', Header::parse($conn->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
         $sid = Crypt::decryptString($sessionId);
         $parts = explode('|', $sid);
         $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
         $user = User::where('id', $dd['login_web_' . sha1(SessionGuard::class)])->first();
         $user_id = $user->id;
-        // dump($user);
-        // dump($user->isOnline);
         $user->isOnline = true;
         $user->save();
-        // dump($user->isOnline);
-        // $user->update
         $user_connections = Connection::where('user_id', $user->id)->first();
         Connection::where('user_id', $user->id)->delete();
-        // if ($user_connections == null) {
         $conn = Connection::create([
             'user_id' => $user->id,
             'connection' => $conn->resourceId,
@@ -95,9 +79,6 @@ class Chat implements MessageComponentInterface
         if ($key !== false) {
             unset($users_for_online_state_update[$key]);
         }
-        // $object = new \stdClass();
-        // $object->type = 'update_online_state';
-        // $object->user_id = $user_id;
 
         $msg = new \stdClass();
 
@@ -106,25 +87,12 @@ class Chat implements MessageComponentInterface
         $msg->user_id = $user_id;
         $msg->is_online = true;
         $msg = json_encode($msg);
-        // Для проверки
-        // dump($msg);
-        // dump($users_for_online_state_update);
         foreach ($users_for_online_state_update as $us) {
-            // dump($us);
             $connection = Connection::where('user_id', $us)->first();
-            // dump($connection);
             if ($connection != null) {
                 $connection_addressee = intval($connection->connection);
-                // dump($connection_addressee);
                 $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-                // dump($this->all_clients);
-                // if (array_search($targetResourceId, $this->all_clients) !== false) {
                 $this->all_clients[$targetResourceId]->send($msg);
-
-                // $user->where('id', $user_id)->update(['isOnine' => true]);
-                // }
-                // $user_connections = intval(Connection::where('user_id', $user->id)->first()->connection);
-                // $this->all_clients[$user_connections]->send($msg);
             }
         }
         // dd(1);
@@ -132,30 +100,20 @@ class Chat implements MessageComponentInterface
 
     public function onMessage(ConnectionInterface $from, $msg)
     {
-        if (json_decode($msg)->type_message == 'message') {
+        $msg_decode = json_decode($msg);
+        if ($msg_decode->type_message == 'message') {
             $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
             $sid = Crypt::decryptString($sessionId);
             $parts = explode('|', $sid);
             $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
             $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
             $message = json_decode($msg);
-            // dump($message);
-            // dump($message->message_data);
             $MESSAGE = '';
             foreach ($message->message as $mess) {
                 $MESSAGE = $MESSAGE . $mess;
             }
             $addressee = $message->addressee;
             $connection = Connection::where('user_id', $addressee)->first();
-            // if ($message->message_data == 'file') {
-            //     $hash = md5(microtime());
-            //     echo $hash;
-            //     $guid = sprintf('%s-%s-%s-%s-%s', substr($hash, 0, 8), substr($hash, 8, 4), substr($hash, 12, 4), substr($hash, 16, 4), substr($hash, 20, 12));
-            // }
-            // $guid_file_name = generateGUID(microtime());
-            // type_message
-            // dump($message->message_data);
-            // dump($message->type_message);
             $msg = json_decode($msg);
             if ($message->message_data == 'file') {
                 // echo 1;
@@ -185,43 +143,23 @@ class Chat implements MessageComponentInterface
                     'type_message' => $message->message_data,
                 ]);
             }
-            // return $guid;
-
-            // dump($message_table);
 
             $msg->message_id_new = $message_table->id;
             $msg->flag = 'new_message';
             $msg->created_at = $message_table->created_at;
-            // dump($msg);
-            // $msg->
             $msg = json_encode($msg);
-
-
-            // if ($connection != null) {
-            // dd( $connection);
-
-            // $connection_addressee = intval($connection->connection);
-            // $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-
             if ($connection == null) {
                 echo 'Клиент не в сети\n';
-                // return ('Клиент не в сети\n');
             } else {
                 $connection_addressee = intval($connection->connection);
                 $targetResourceId = $connection_addressee; // Замените на нужный resourceId
                 $this->all_clients[$targetResourceId]->send($msg);
-                // dump($msg);
             }
-
             // Тут мы отпраим пользователю обратно ууже полученный id сообщения вместо guid
             $connection = Connection::where('user_id', $user_id)->first();
             $msg = json_decode($msg);
-            // unset($msg->$key);
             $msg->latest_message_id = $message->guid;
             $msg->new_message_id = $message_table->id;
-            // if ($message->message_data == 'file'){
-            //     $msg->url = $url;
-            // }
             $msg->flag = 'remove_guid';
             $msg = json_encode($msg);
             if ($connection == null) {
@@ -232,21 +170,87 @@ class Chat implements MessageComponentInterface
                 $this->all_clients[$targetResourceId]->send($msg);
             }
         }
-        if (json_decode($msg)->type_message == 'read_sate_update') {
+        if ($msg_decode->type_message == 'read_sate_update') {
             $data = json_decode($msg);
             $msg = json_decode($msg);
-
-            // dump($data);
-            // $msg -> type = 'read_sate_update';
             $message_read = Message::where('message_id', $data->message_id)->update(['isRead' => true]);
             $user_addressee = Message::where('message_id', $data->message_id)->first()->sender_id;
-            $msg->chat_id = Message::where('message_id', $data->message_id)->first()->chat_id;
-            $connection_addressee = intval(Connection::where('user_id', $user_addressee)->first()->connection);
-            $targetResourceId = $connection_addressee;
-            $msg = json_encode($msg);
-            $this->all_clients[$targetResourceId]->send($msg);
-            // $addressee = $message_read->addressee;
-            // dump(Message::where('message_id', $data->message_id)->first());
+            if (User::where('id', $user_addressee)->first()->isOnline) {
+                $msg->chat_id = Message::where('message_id', $data->message_id)->first()->chat_id;
+                $connection_addressee = intval(Connection::where('user_id', $user_addressee)->first()->connection);
+                $targetResourceId = $connection_addressee;
+                $msg = json_encode($msg);
+                $this->all_clients[$targetResourceId]->send($msg);
+            }
+        }
+        if ($msg_decode->type_message == 'typing') {
+            $currentTime = now();
+            $msg = json_decode($msg);
+            $user = $msg->user_id;
+            echo $currentTime;
+            echo ' Пользователь: ' . $msg->user_id . ' - Печатает' . PHP_EOL;
+            $chat = UserChat::where('id', $msg->chat_id)->first();
+            if ($chat->creator != $chat->invted) {
+                $user_1 = $chat->creator;
+                $user_2 = $chat->invted;
+                $connection_1 = Connection::where('user_id', $user_1)->first();
+                $connection_2 = Connection::where('user_id', $user_2)->first();
+                if ($user_1 == $user) {
+                    $msg->type = 'is_typing';
+                    if ($connection_2 != null) {
+                        $connection_addressee = $connection_2->connection;
+                        $targetResourceId = $connection_addressee;
+                        $msg = json_encode($msg);
+                        $this->all_clients[$targetResourceId]->send($msg);
+                    }
+                }
+                if ($user_2 == $user) {
+                    //send to user_1
+                    // $user_addr = $user_1;
+                    $msg->type = 'is_typing';
+
+                    if ($connection_1 != null) {
+                        $connection_addressee = $connection_1->connection;
+                        $targetResourceId = $connection_addressee;
+                        $msg = json_encode($msg);
+                        $this->all_clients[$targetResourceId]->send($msg);
+                    }
+                }
+            }
+            return;
+        }
+        if ($msg_decode->type_message == 'isnt_typing') {
+            $currentTime = now();
+            $msg = json_decode($msg);
+            $user = $msg->user_id;
+            echo $currentTime;
+            echo ' Пользователь: ' . $msg->user_id . ' - Не печатает' . PHP_EOL;
+            $chat = UserChat::where('id', $msg->chat_id)->first();
+            if ($chat->creator != $chat->invted) {
+                $user_1 = $chat->creator;
+                $user_2 = $chat->invted;
+                $connection_1 = Connection::where('user_id', $user_1)->first();
+                $connection_2 = Connection::where('user_id', $user_2)->first();
+                if ($user_1 == $user) {
+                    $msg->type = 'isnt_typing';
+                    if ($connection_2 != null) {
+                        $connection_addressee = $connection_2->connection;
+                        $targetResourceId = $connection_addressee;
+                        $msg = json_encode($msg);
+                        $this->all_clients[$targetResourceId]->send($msg);
+                    }
+                }
+                if ($user_2 == $user) {
+                    $msg->type = 'isnt_typing';
+                    dump($connection_1);
+                    if ($connection_1 != null) {
+                        $connection_addressee = $connection_1->connection;
+                        $targetResourceId = $connection_addressee;
+                        $msg = json_encode($msg);
+                        $this->all_clients[$targetResourceId]->send($msg);
+                    }
+                }
+            }
         }
     }
 
@@ -284,10 +288,6 @@ class Chat implements MessageComponentInterface
         if ($key !== false) {
             unset($users_for_online_state_update[$key]);
         }
-        // $object = new \stdClass();
-        // $object->type = 'update_online_state';
-        // $object->user_id = $user_id;
-
         $msg = new \stdClass();
 
         // Устанавливаем свойства
@@ -295,25 +295,12 @@ class Chat implements MessageComponentInterface
         $msg->user_id = $user_id;
         $msg->is_online = false;
         $msg = json_encode($msg);
-        // Для проверки
-        // dump($msg);
-        dump($users_for_online_state_update);
         foreach ($users_for_online_state_update as $us) {
-            // dump($us);
             $connection = Connection::where('user_id', $us)->first();
-            // dump($connection);
             if ($connection != null) {
                 $connection_addressee = intval($connection->connection);
-                // dump($connection_addressee);
                 $targetResourceId = $connection_addressee; // Замените на нужный resourceId
-                // dump($this->all_clients);
-                // if (array_search($targetResourceId, $this->all_clients) !== false) {
                 $this->all_clients[$targetResourceId]->send($msg);
-
-                // $user->where('id', $user_id)->update(['isOnine' => true]);
-                // }
-                // $user_connections = intval(Connection::where('user_id', $user->id)->first()->connection);
-                // $this->all_clients[$user_connections]->send($msg);
             }
         }
         $user->isOnline = false;
@@ -329,11 +316,6 @@ class Chat implements MessageComponentInterface
     }
     public function sendMessageToClient($clientId, $message)
     {
-        // dump($clientId);
-        // dump($message);
-        // dump($clientId);
-        // dump($this->clients[$clientId]);
-
         if (isset($this->clients[$clientId])) {
             $this->clients[$clientId]->send($message);
         }

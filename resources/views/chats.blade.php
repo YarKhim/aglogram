@@ -1,12 +1,6 @@
 <x-app-layout>
-    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="http://peterolson.github.com/BigInteger.js/BigInteger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
-    <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/forge/0.10.0/forge.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.0.0/crypto-js.min.js"></script> --}}
-    {{-- <script src="{{mix('js/app.js')}}"></script> --}}
-    {{-- <link href="/app.css" rel="stylesheet"> --}}
+    {{-- <style></style> --}}
+    {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
     <script src="{{ asset('js/BigInteger.js') }}"></script>
     <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('js/jsencrypt.min.js') }}"></script>
@@ -19,7 +13,8 @@
     <script>
         var selected_chat = null;
         const token = 'YOUR_AUTH_TOKEN';
-        const socket = new WebSocket('ws://neptune:8888');
+        var last_messages = {};
+        const socket = new WebSocket('ws://localhost:8888');
         let unreadChatsData = null;
         let offset = 0;
         const limit = 10
@@ -72,7 +67,12 @@
         }
 
         function send_message() {
-
+            data = {
+                'chat_id': selected_chat,
+                'user_id': this_user_id,
+                'type_message': 'isnt_typing',
+            }
+            sendMessage(JSON.stringify(data));
             if (document.getElementById('message_input').value.trim() || message_send_type == 'file') {
                 const encrypt = new JSEncrypt();
                 addressee_id = document.querySelector('.user_info_header_foto').id;
@@ -326,100 +326,6 @@
                                 document.getElementById('message_input').value = null;
                             }
                         }
-
-                        // console.log(document.getElementById('message_input').value);
-
-                        // console.log('message: ', message)
-
-
-
-
-                        // if (addressee_id != this_user_id) {
-                        // #TODOНеобходимо сделать создания временного id для элемента сообщения пока websocket_server не вернёт его постояный id my_message_time_ guid my_message_read_state_
-                        // // вёрстка отображения текстового сообщения
-                        // chat_tab_div = `<div class="message border_debug" id="` +
-                        //     guid +
-                        //     `">
-                    //                         <div class="my_message border_debug">
-                    //                             <div class='my_message_data'>
-                    //                                 <div class='my_message_text'><p class='message_p'>` +
-                        //     document.getElementById('message_input').value +
-                        //     `
-                    //                             </p></div>
-
-                    //                             <div class="message_time no_select" ><p id="my_message_time_` +
-                        //     guid +
-                        //     `">` + hours + ':' + formattedMinutes +
-                        //     `</p></div>
-
-                    //                             <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
-                        //     guid + `'>` + ("✓".repeat(1)) + `</p></div></div>
-
-                    //                         </div>
-                    //                         </div>
-                    //                     </div>
-                    //                     `;
-                        // /storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg
-                        // https://avatars.mds.yandex.net/i?id=bd14a4ae75206cfb8758fdbc9cd88e9dab833744-5843498-images-thumbs&n=13
-
-
-                        // вёрстка отображения фото с подписью
-                        // chat_tab_div = `<div class="message border_debug" id="` +
-                        //     guid +
-                        //     `">
-                    //                             <div class="my_message border_debug" id="my_message_` + guid +
-                        //     `">
-
-                    //                                 <div class='my_message_data_with_media'><div class= 'message_media_photo'><img id="media_message_` +
-                        //     guid +
-                        //     `" src='/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg'></div>
-                    //                                     <div class='my_message_text_data_with_media'><div class='my_message_text'><p class='message_p'>` +
-                        //     document.getElementById('message_input').value +
-                        //     `
-                    //                                 </p></div>
-
-                    //                                 <div class="message_time no_select" ><p id="my_message_time_` +
-                        //     guid +
-                        //     `">` + hours + ':' + formattedMinutes +
-                        //     `</p></div>
-
-                    //                                 <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
-                        //     guid + `'>` + ("✓".repeat(1)) + `</p></div</div>
-                    //                                 </div>
-
-                    //                             </div>
-                    //                             </div>
-                    //                         </div>
-                    //                         `;
-                        // $('#messages_all').append(chat_tab_div);
-                        // document.getElementById("my_message_" + guid).style.padding = '0';
-                        // document.getElementById("media_message_" + guid).style.borderRadius = '15px';
-                        // }
-                        //  else {
-                        //     chat_tab_div = `<div class="message border_debug" id="` +
-                        //         guid +
-                        //         `">
-                    //                                 <div class="my_message border_debug">
-                    //                                     <div class='my_message_data'><div class='my_message_text'><p class='message_p'>` +
-                        //         document.getElementById('message_input').value +
-                        //         `
-                    //                                     </p></div>
-
-                    //                                     <div class="message_time no_select" ><p id="my_message_time_` +
-                        //         guid +
-                        //         `">` + hours + ':' + formattedMinutes +
-                        //         `</p></div>
-
-                    //                                     <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
-                        //         guid + `'>` + ("✓".repeat(2)) + `</p></div></div>
-
-                    //                                 </div>
-                    //                                 </div>
-                    //                             </div>
-                    //                             `;
-                        //     $('#messages_all').append(chat_tab_div);
-                        // }
-
                     },
                     error: function(xhr, status, error) {
                         console.error(xhr.responseText); // Обработка ошибки
@@ -678,7 +584,7 @@
                         //     'private_key']);
                         // console.log(JSON.parse(event.data)['message_url']);
                         key_string = decrypted;
-                        const url = 'http://neptune:8000' + JSON.parse(event.data)['message_url'];
+                        const url = 'http://localhost:8000' + JSON.parse(event.data)['message_url'];
                         // console.log("🚀 ~ returnfunction ~ url:", url);
                         encryptedImg = ''
                         // console.log("JSON.parse(event.data)['message_id']: ", JSON.parse(event.data)['message_id']);
@@ -773,9 +679,7 @@
                                             `;
                                     $('#' + JSON.parse(event.data)['message_id']).append(
                                         chat_tab_div);
-                                    // console.log('Я тут)) ', JSON.parse(event.data))
-                                    // if (JSON.parse(event.data)['isRead'] == 0) {
-                                    // console.log("Я тута_)))))!");
+
                                     function handleIntersection(entries, observer) {
                                         entries.forEach(entry => {
                                             if (entry.isIntersecting) {
@@ -876,16 +780,38 @@
             // #TODOДелаем обновление статуса прочтения сообщения в формате онлайн
             if (JSON.parse(event.data)['type_message'] == 'read_sate_update') {
 
+                // JSON.parse(event.data)['chat_id']
                 if (selected_chat == JSON.parse(event.data)['chat_id']) {
                     console.log('Прочитано: ', JSON.parse(event.data)[
                         'message_id']);
                     document.getElementById('my_message_read_state_' + JSON.parse(event.data)[
                         'message_id']).innerText = '✓✓';
-                    // document.getElementById('my_message_read_state_' + JSON.parse(event.data)['message_id']).style.display = 'none';
                 }
-                // document.getElementById(JSON.parse(event.data)['message_id']).classList.add('read_message')
+            }
+            // is_typing #TODOделаем обновление статуса того, что пользователь печатает
+
+            if (JSON.parse(event.data)['type'] == 'is_typing') {
+                document.getElementById('last_message_' + JSON.parse(event.data)['chat_id'])
+                    .innerText = 'Печатает...';
+                if (selected_chat == JSON.parse(event.data)['chat_id']) {
+                    document.getElementById('is_typing_' + JSON.parse(event.data)['user_id']).innerText = 'Печатает...';
+                    console.log('Открытый чат пользователь печатает');
+                } else {
+                    console.log('Какой-то пользователь печатает');
+                }
+            }
+            if (JSON.parse(event.data)['type'] == 'isnt_typing') {
+                document.getElementById('last_message_' + JSON.parse(event.data)['chat_id'])
+                    .innerText = last_messages[JSON.parse(event.data)['chat_id']];
+                if (selected_chat == JSON.parse(event.data)['chat_id']) {
+                    document.getElementById('is_typing_' + JSON.parse(event.data)['user_id']).innerText = '';
+                    console.log('Открытый чат пользователь перестал печатать');
+                } else {
+                    console.log('Какой-то пользователь перестал печатает');
+                }
             }
         };
+
 
         socket.onclose = function(event) {
             console.log('Соединение закрыто');
@@ -896,14 +822,45 @@
             socket.send(message);
         }
 
+        function is_typing() {
+            if (document.getElementById('message_input').value.trim()) {
+                console.log('typing');
+                data = {
+                    'chat_id': selected_chat,
+                    'user_id': this_user_id,
+                    'type_message': 'typing',
+                }
+                sendMessage(JSON.stringify(data));
+            } else {
+                console.log('isnt_typing');
+                data = {
+                    'chat_id': selected_chat,
+                    'user_id': this_user_id,
+                    'type_message': 'isnt_typing',
+                }
+                sendMessage(JSON.stringify(data));
+            }
+        }
+
         function select_chat(user_id, chat_id) {
 
             return function() {
                 user_id_opened_chat = user_id;
                 $('#messages_all').empty();
+                // #TODOделаем в режиме онлайн печатает пользователь пользователь в этом чате или нет через websocket
+                message_input_elem = document.getElementById('message_input');
+                message_input_elem.addEventListener('input', is_typing);
+                console.log("🚀 ~ returnfunction ~ message_input_elem:", message_input_elem)
                 document.getElementById('message_input').value = '';
                 document.getElementById('message_input').focus();
+                console.log(selected_chat)
+                // background-color: rgb(0 77 225 / 30%);
+                if(selected_chat!=null){
+                    document.querySelector('.chat_'+selected_chat).style.backgroundColor = 'rgb(0,0,0,0)'
+                }
+                // console.log(selected_chat);
                 selected_chat = chat_id;
+                document.querySelector('.chat_' + selected_chat).style.backgroundColor = 'rgb(0 78 227 / 24%)'
                 document.getElementById('messages_plane').style.visibility = 'visible';
                 let data = {
                     id: user_id,
@@ -914,10 +871,8 @@
                     method: 'GET',
                     data: {
                         chat_id: chat_id,
-                        // offset: offset
                     },
                     success: function(response) {
-                        // console.log(1);\
                         flag = false;
                         isReadMessages_id = [];
                         this_unread_message = null;
@@ -940,11 +895,8 @@
                             // Получаем часы и минуты
                             const hours_last = date.getHours(); // Часы
                             const minutes_last = date.getMinutes(); // Минуты
-                            // console.log('qeeh34q0jhg934jtu30950: ',element);
                             sender_id = element['sender_id'];
                             message_result = '';
-                            // if (JSON.parse(event.data)['message_data'] == 'text'){}
-
                             if (sender_id == this_user_id) {
                                 key_string = decryptMessage(element['key_string'], second_user[
                                     'private_key']);
@@ -992,21 +944,14 @@
                                     $('#messages_all').append(chat_tab_div);
                                 }
                                 if (element['type_message'] == 'file') {
-                                    // console.log("Дешифруем как изображение");
                                     key_string = decryptMessage(element['key_string'], second_user[
                                         'private_key']);
-                                    // console.log('werw: ', element);
-                                    const url = 'http://neptune:8000' + element['message'];
-                                    // console.log("🚀 ~ returnfunction ~ url:", url);
+                                    const url = 'http://localhost:8000' + element['message'];
                                     encryptedImg = ''
-                                    // console.log("element['message_id']: ", element['message_id']);
                                     message_class_div = `<div class="message border_debug" id="` +
                                         element['message_id'] +
                                         `"> </div>`;
-                                    // console.log("🚀 ~ returnfunction ~ message_class_div:",
-                                    //     message_class_div);
                                     $('#messages_all').append(message_class_div);
-                                    // console.log(document.getElementById(element['message_id']));
                                     // из за асинхронного процесса следующие сообщения грузятся не дожидаясь загрузки прошлых,
                                     // в частоности фото, которые дешифруются дольше, поэтому оставим под них пустые места <div class='message'></div>
                                     function fetchImage(url) {
@@ -1150,8 +1095,6 @@
                                     }
 
                                 }
-                                // unread_chats
-                                // console.log('el: ', element);
                                 key_string = decryptMessage(element['key_string'], this_user[
                                     'private_key']);
                                 if (element['type_message'] == 'text') {
@@ -1194,7 +1137,7 @@
                                     // console.log('Дешифруеем как фото СОБЕСЕДНИКА!!!');
                                     key_string = decryptMessage(element['key_string'], this_user[
                                         'private_key']);
-                                    const url = 'http://neptune:8000' + element['message'];
+                                    const url = 'http://localhost:8000' + element['message'];
                                     // console.log("🚀 ~ returnfunction ~ url:", url);
                                     encryptedImg = '';
                                     is_this_message_read = parseInt(element['isRead']);
@@ -1219,7 +1162,6 @@
                                                         response
                                                         .statusText);
                                                 }
-                                                // console.log(response.text());
                                                 return response.text(); // Получаем текст
                                             })
                                             .then(data => {
@@ -1357,11 +1299,95 @@
     <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
         <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
                                 response.user.lastname + ' @' + response.user.username + `<i>
-            </div>
-            <div class="user_info_header_is_online border_debug" id="user_info_header_is_online_` + user_id_chat +
-                                `">` + user_online + `</div>
-        </div>`;
+        </div>
+                <div class="user_info_head">
+                    <div class="user_info_header_is_online border_debug" id="user_info_header_is_online_` +
+                                user_id_chat +
+                                `">` + user_online + `
+                    </div>
+                    <div class="user_info_header_is_typing border_debug" id="is_typing_` + response
+                                .user
+                                .id + `">
+                    </div>
+                </div>
+
+    </div>
+    <div class= 'heeader_buttons'>
+        <div class='call_button' id='start_call_button'>Звонок</div>
+    </div>
+
+`;
                             $('#user_info_header').append(user_chats_header);
+                            document.getElementById('start_call_button').addEventListener('click',
+                                function() {
+                                    resp = confirm('Начать звонок?');
+                                    var isDragging = false;
+                                    var offset = {
+                                        x: 0,
+                                        y: 0
+                                    };
+                                    if (resp) {
+                                        console.log('Звонок начат');
+                                        div = `<div class="call_window" id="call_window">
+                                                    <div class='border_debug call_div_info'>
+                                                        <div class = 'call_info_header border_debug'>
+                                                            <div class= 'call_header_avatar border_debug'><img src='` +
+                                            response.user.avatar + `'></div>
+                                                            <div class='call_header_name border_debug'>Хаймусов Ярослав @YarKhim</div>
+                                                        </div>
+                                                        <div class='call_info_body border_debug'>
+                                                            <div class='call_state border_debug'>Ждём ответа...</div>
+                                                        </div>
+                                                        <div class='body'>
+                                                            <div class='call_video'>
+                                                                <video id="localVideo"  autoplay muted></video>
+                                                                <video id="remoteVideo" autoplay></video>
+                                                            </div>
+                                                            <div class='call_options'><input type='submit'></div>
+
+                                                        </div>
+
+                                                    </div>
+                                                </div>`;
+                                        $('body').append(div);
+                                        let mediaStream;
+                                        const myVideo = document.getElementById('localVideo');
+                                        if (navigator.mediaDevices && navigator.mediaDevices
+                                            .getUserMedia) {
+                                            async function startMedia() {
+                                                try {
+                                                    // Запрашиваем доступ к камере и микрофону
+                                                    mediaStream = await navigator.mediaDevices
+                                                        .getUserMedia({
+                                                            video: true,
+                                                            audio: true
+                                                        });
+                                                    myVideo.srcObject =
+                                                        mediaStream; // Устанавливаем поток в элемент video
+                                                    const iframes = document.querySelectorAll(
+                                                        'iframe');
+
+                                                    iframes.forEach(iframe => {
+                                                        iframe.style.pointerEvents =
+                                                            'none'; // Запретить взаимодействие
+                                                        iframe.src =
+                                                            ''; // Очистить источник, чтобы видео не загружалось
+                                                    });
+                                                } catch (error) {
+                                                    console.error(
+                                                        'Ошибка доступа к медиа-устройствам:',
+                                                        error);
+                                                }
+                                            }
+                                            startMedia();
+                                        } else {
+                                            alert(
+                                                'Ваш браузер не поддерживает доступ к камере и микрофону.'
+                                            );
+                                        }
+
+                                    }
+                                })
                             if (response['user']['isOnline']) {
                                 document.getElementById('user_info_header_is_online_' + user_id_chat)
                                     .style
@@ -1395,14 +1421,11 @@
                                     window.open('/user_profile?id= ' + response.user
                                         .username)
                                 });
-
-
                     },
                     error: function(xhr, status, error) {
                         console.error(xhr.responseText); // Обработка ошибки
                     }
                 })
-
             }
         }
     </script>
@@ -1415,13 +1438,13 @@
         <div class="max-w-10xl mx-auto sm:px-3 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div class="border_debug main_plane">
-                        <div class="border_debug all_chats_list" id='all_chats_list'>
+                    <div class="main_plane">
+                        <div class="all_chats_list" id='all_chats_list'>
                         </div>
-                        <div class="border_debug messages_plane" id="messages_plane">
-                            <div class=" user_info_header border_debug" id="user_info_header">
+                        <div class="messages_plane" id="messages_plane">
+                            <div class=" user_info_header" id="user_info_header">
                             </div>
-                            <div class="border_debug messages" id="messages_all">
+                            <div class="messages" id="messages_all">
                                 {{-- <div class="message border_debug">
                                     <div class="my_message border_debug">
                                         <div class='my_message_data'>
@@ -1510,22 +1533,22 @@
                                 <div class="border_debug chat_foto"><img src=` + response.сhats[i][
                                 'avatar'
                             ] + `></div>
-                                <div class="border_debug right_side_chat_tab">
-                                    <div class="border_debug chat_info">
-                                        <div class="border_debug chat_name">` + response.сhats[i]['name'] +
+                                <div class=" right_side_chat_tab">
+                                    <div class=" chat_info">
+                                        <div class=" chat_name">` + response.сhats[i]['name'] +
                             `<div id='online_in_chats_list_` + user_2 + `' class = 'online_in_chats_list'>` +
                             online + `</div></div>
-                                        <div class="border_debug read_receipts" id="read_receipts_` + response[
+                                        <div class=" read_receipts" id="read_receipts_` + response[
                                 'chat_id'][i][
                                 'id'
                             ] +
                             `"></div>
-                                        <div class="border_debug last_message_time" id="last_message_time_` + response[
+                                        <div class=" last_message_time" id="last_message_time_` + response[
                                 'chat_id'][i]['id'] +
                             `"></div>
 
                                     </div>
-                                    <div class='border_debug about_messaegs' ><div class="border_debug last_message" id='` +
+                                    <div class=' about_messaegs' ><div class=" last_message" id='` +
                             id +
                             `'></div> <div class='unread_messages'><div class='unread_messages_counter' id='unread_messages_counter_` +
                             response['chat_id'][i][
@@ -1551,20 +1574,20 @@
                                 'id'
                             ] +
                             `" id=` + response.сhats[i]['id'] + `>
-                                <div class="border_debug chat_foto"><img src='/storage/EKzXqTT0PRHe6OpYr5iN0VF14kAhm9qpaG48iZrd.png'></div>
-                                <div class="border_debug right_side_chat_tab">
-                                    <div class="border_debug chat_info">
-                                        <div class="border_debug chat_name">Избранное</div>
-                                        <div class="border_debug read_receipts" id="read_receipts_` + response[
+                                <div class=" chat_foto"><img src='/storage/EKzXqTT0PRHe6OpYr5iN0VF14kAhm9qpaG48iZrd.png'></div>
+                                <div class=" right_side_chat_tab">
+                                    <div class=" chat_info">
+                                        <div class=" chat_name">Избранное</div>
+                                        <div class=" read_receipts" id="read_receipts_` + response[
                                 'chat_id'][i][
                                 'id'
                             ] + `"></div>
-                                        <div class="border_debug last_message_time" id="last_message_time_` + response[
+                                        <div class=" last_message_time" id="last_message_time_` + response[
                                 'chat_id'][i]['id'] +
                             `"></div>
 
                                     </div>
-                                    <div class="border_debug last_message" id='` + id + `'></div>
+                                    <div class=" last_message" id='` + id + `'></div>
                                 </div>
 
                             </div>`;
@@ -1651,6 +1674,9 @@
                                             'last_message_' + element).innerText =
                                         message_result;
                                 }
+                                last_messages[message_object[
+                                    'last_message']['chat_id']] = message_result;
+                                console.log(last_messages);
                                 var message_result = '';
                             }
                             // if()
