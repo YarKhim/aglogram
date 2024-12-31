@@ -7,7 +7,7 @@
     <script src="{{ asset('js/RSA.min.js') }}"></script>
     <script src="{{ asset('js/forge.min.js') }}"></script>
     <script src="{{ asset('js/crypto-js.min.js') }}"></script>
-
+    <script src="{{ asset('js/func.js') }}" defe></script>
 
 
     <script>
@@ -25,46 +25,11 @@
         var user_id_opened_chat = null;
         message_send_type = 'text';
         var selectedImage = null;
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
-        });
-
-        function encryptMessage(message, public_key) {
-            const publicKey = forge.pki.publicKeyFromPem(public_key);
-            const encrypted = publicKey.encrypt(message, 'RSA-OAEP');
-            return forge.util.encode64(encrypted); // Кодируем в base64
-        }
-
-        function generateGUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                const r = Math.random() * 16 | 0;
-                const v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-
-        function decryptMessage(encryptedMessage, private_key) {
-            const privateKey = forge.pki.privateKeyFromPem(private_key);
-            const decodedMessage = forge.util.decode64(encryptedMessage);
-            const decrypted = privateKey.decrypt(decodedMessage, 'RSA-OAEP');
-            return decrypted;
-        }
-
-        function dataURLtoBlob(dataURL) {
-            const byteString = atob(dataURL.split(',')[1]);
-            const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
-            const ab = new ArrayBuffer(byteString.length);
-            const ia = new Uint8Array(ab);
-
-            for (let i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
+        // document.addEventListener('contextmenu', function(event) {
+        //     event.preventDefault();
+        // });
 
 
-            return new Blob([ab], {
-                type: mimeString
-            });
-        }
 
         function send_message() {
             data = {
@@ -135,8 +100,6 @@
                                                 .result, secretKey).toString();
                                             const chunkSize = 500;
                                             const dataChunks = splitData(encryptedImage, chunkSize);
-                                            // console.log("🚀 ~ returnnewPromise ~ dataChunks:",
-                                            //     dataChunks);
 
                                             resolve(
                                                 dataChunks, image_src_res
@@ -178,7 +141,7 @@
                                 // console.log(123433245);
                                 label_text = '';
                             }
-                            // console.log('Должно быть загифровано: ',
+                            // console.log('Должно быть зашифровано: ',
                             //     label_text);
                             const fileInput = document.getElementById('imageInput');
                             const file = fileInput.files[0];
@@ -209,10 +172,10 @@
                                         const now = new Date();
                                         const hours = now.getHours();
                                         const minutes = now.getMinutes();
-                                        chat_tab_div = `<div class="message border_debug" id="` +
+                                        chat_tab_div = `<div class="message" id="` +
                                             guid +
                                             `">
-                                                    <div class="my_message_with_media my_message border_debug" id="my_message_` +
+                                                    <div class="my_message_with_media my_message" id="my_message_` +
                                             guid +
                                             `">
 
@@ -230,7 +193,7 @@
                                             `">` + hours + ':' + minutes +
                                             `</p></div>
 
-                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                                        <div class='my_message_read_state no_select'><p id='my_message_read_state_` +
                                             guid + `'>` + ("✓".repeat(1)) + `</p></div</div>
                                                         </div>
 
@@ -300,10 +263,10 @@
                             // console.log("🚀 ~ send_message ~ data:", data)
                             sendMessage(JSON.stringify(data));
                             if (addressee_id != this_user_id) { // вёрстка отображения текстового сообщения
-                                chat_tab_div = `<div class="message border_debug" id="` +
+                                chat_tab_div = `<div class="message" id="` +
                                     guid +
                                     `">
-                                                    <div class="my_message border_debug">
+                                                    <div class="my_message">
                                                         <div class='my_message_data'>
                                                             <div class='my_message_text'><p class='message_p'>` +
                                     document.getElementById('message_input').value +
@@ -315,7 +278,7 @@
                                     `">` + hours + ':' + formattedMinutes +
                                     `</p></div>
 
-                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                                        <div class='my_message_read_state no_select'><p id='my_message_read_state_` +
                                     guid + `'>` + ("✓".repeat(1)) + `</p></div></div>
 
                                                     </div>
@@ -454,10 +417,10 @@
                                 new_message_chat.classList.remove('blink-background');
                             }, 1000);
 
-                            chat_tab_div = `<div class="message border_debug" id="` + JSON.parse(event.data)[
+                            chat_tab_div = `<div class="message" id="` + JSON.parse(event.data)[
                                     'message_id_new'
                                 ] + `">
-                                        <div class="recived_message border_debug">
+                                        <div class="recived_message">
                                             <div class='recived_message_text'><p class='message_p'>` + message_result + `
                                             </p></div>
                                             <div class="message_time no_select" ><p id="my_message_time_` +
@@ -513,7 +476,7 @@
                                     'message_id_new'
                                 ] +
                                 `">
-                                                    <div class="my_message border_debug">
+                                                    <div class="my_message">
                                                         <div class='my_message_data'>
                                                             <div class='my_message_text'><p class='message_p'>` +
                                 document.getElementById('message_input').value +
@@ -527,7 +490,7 @@
                                 `">` + hours + ':' + minutes +
                                 `</p></div>
 
-                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                                        <div class='my_message_read_state no_select'><p id='my_message_read_state_` +
                                 JSON.parse(event.data)[
                                     'message_id_new'
                                 ] + `'>` + ("✓".repeat(2)) + `</p></div></div>
@@ -652,7 +615,7 @@
                                     // #TODO
                                     chat_tab_div =
                                         `
-                                                <div class="recived_message_with_media recived_message border_debug" id="recived_message_` +
+                                                <div class="recived_message_with_media recived_message " id="recived_message_` +
                                         JSON.parse(event.data)['message_id'] +
                                         `">
 
@@ -778,14 +741,27 @@
 
             }
             // #TODOДелаем обновление статуса прочтения сообщения в формате онлайн
-            if (JSON.parse(event.data)['type_message'] == 'read_sate_update') {
+            // if (JSON.parse(event.data)['type_message'] == 'read_sate_update') {
 
-                // JSON.parse(event.data)['chat_id']
-                if (selected_chat == JSON.parse(event.data)['chat_id']) {
-                    console.log('Прочитано: ', JSON.parse(event.data)[
-                        'message_id']);
-                    document.getElementById('my_message_read_state_' + JSON.parse(event.data)[
-                        'message_id']).innerText = '✓✓';
+            //     // JSON.parse(event.data)['chat_id']
+            //     if (selected_chat == JSON.parse(event.data)['chat_id']) {
+            //         console.log('Прочитано: ', JSON.parse(event.data)[
+            //             'message_id']);
+            //         document.getElementById('my_message_read_state_' + JSON.parse(event.data)[
+            //             'message_id']).innerText = '✓✓';
+            //     }
+            // }
+            const eventData = JSON.parse(event.data);
+            const {
+                type_message,
+                chat_id,
+                message_id
+            } = eventData;
+
+            if (type_message == 'read_sate_update') {
+                if (selected_chat == chat_id) {
+                    console.log('Прочитано: ', message_id);
+                    document.getElementById('my_message_read_state_' + message_id).innerText = '✓✓';
                 }
             }
             // is_typing #TODOделаем обновление статуса того, что пользователь печатает
@@ -855,8 +831,8 @@
                 document.getElementById('message_input').focus();
                 console.log(selected_chat)
                 // background-color: rgb(0 77 225 / 30%);
-                if(selected_chat!=null){
-                    document.querySelector('.chat_'+selected_chat).style.backgroundColor = 'rgb(0,0,0,0)'
+                if (selected_chat != null) {
+                    document.querySelector('.chat_' + selected_chat).style.backgroundColor = 'rgb(0,0,0,0)'
                 }
                 // console.log(selected_chat);
                 selected_chat = chat_id;
@@ -911,11 +887,11 @@
                                                 CryptoJS
                                                 .enc.Utf8);
                                     });
-                                    chat_tab_div = `<div class="message border_debug" id="` +
+                                    chat_tab_div = `<div class="message " id="` +
                                         element[
                                             'message_id'] +
                                         `">
-                                                        <div class="my_message border_debug" id="my_message_` +
+                                                        <div class="my_message " id="my_message_` +
                                         element[
                                             'message_id'] + `">
                                                             <div class='my_message_data'>
@@ -930,7 +906,7 @@
                                         `">` + hours_last + ':' + minutes_last +
                                         `</p></div>
 
-                                                            <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                                            <div class='my_message_read_state  no_select'><p id='my_message_read_state_` +
                                         element['message_id'] + `'>` + ("✓".repeat((parseInt(
                                             element[
                                                 'isRead']) + 1))) + `</p></div>
@@ -948,7 +924,7 @@
                                         'private_key']);
                                     const url = 'http://localhost:8000' + element['message'];
                                     encryptedImg = ''
-                                    message_class_div = `<div class="message border_debug" id="` +
+                                    message_class_div = `<div class="message" id="` +
                                         element['message_id'] +
                                         `"> </div>`;
                                     $('#messages_all').append(message_class_div);
@@ -1008,7 +984,7 @@
                                                 // const minutes = now.getMinutes();
                                                 chat_tab_div =
                                                     `
-                                                    <div class="my_message_with_media my_message border_debug" id="my_message_` +
+                                                    <div class="my_message_with_media my_message " id="my_message_` +
                                                     element['message_id'] +
                                                     `">
 
@@ -1026,7 +1002,7 @@
                                                     `">` + hours_last + ':' + minutes_last +
                                                     `</p></div>
 
-                                                        <div class='my_message_read_state border_debug no_select'><p id='my_message_read_state_` +
+                                                        <div class='my_message_read_state no_select'><p id='my_message_read_state_` +
                                                     element['message_id'] + `'>` + ("✓".repeat(
                                                         parseInt(element['isRead']) + 1)) + `</p></div</div>
                                                         </div>
@@ -1108,11 +1084,11 @@
                                     });
 
                                     // console.log("✓".repeat((parseInt(element['isRead']) + 1)));
-                                    chat_tab_div = `<div class="message border_debug" id="` +
+                                    chat_tab_div = `<div class="message" id="` +
                                         element[
                                             'message_id'] +
                                         `" >
-                                                        <div class="recived_message border_debug">
+                                                        <div class="recived_message">
                                                             <div class='recived_message_text ' ><p class='message_p'>` +
                                         message_result +
                                         `
@@ -1145,7 +1121,7 @@
                                     //     element['message_id'] + ":",
                                     //     is_this_message_read);
                                     // console.log("element['message_id']: ", element['message_id']);
-                                    message_class_div = `<div class="message border_debug" id="` +
+                                    message_class_div = `<div class="message" id="` +
                                         element['message_id'] +
                                         `"> </div>`;
                                     // console.log("🚀 ~ returnfunction ~ message_class_div:",
@@ -1208,7 +1184,7 @@
                                                 // #TODO
                                                 chat_tab_div =
                                                     `
-                                                    <div class="recived_message_with_media recived_message border_debug" id="recived_message_` +
+                                                    <div class="recived_message_with_media recived_message" id="recived_message_` +
                                                     element['message_id'] +
                                                     `">
 
@@ -1290,22 +1266,22 @@
                             console.log(response.user
                                 .avatar);
                             user_chats_header =
-                                `<div class="user_info_header_foto border_debug" id=` +
+                                `<div class="user_info_header_foto" id=` +
                                 response
                                 .user
                                 .id +
                                 `><img src='.` + response.user
                                 .avatar + `'></div>
-    <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
-        <div class="user_info_header_name border_debug"> <i>` + response.user.name + ' ' +
+    <div class="user_info_header_without_foto" id='user_info_header_without_foto'>
+        <div class="user_info_header_name"> <i>` + response.user.name + ' ' +
                                 response.user.lastname + ' @' + response.user.username + `<i>
         </div>
                 <div class="user_info_head">
-                    <div class="user_info_header_is_online border_debug" id="user_info_header_is_online_` +
+                    <div class="user_info_header_is_online" id="user_info_header_is_online_` +
                                 user_id_chat +
                                 `">` + user_online + `
                     </div>
-                    <div class="user_info_header_is_typing border_debug" id="is_typing_` + response
+                    <div class="user_info_header_is_typing" id="is_typing_` + response
                                 .user
                                 .id + `">
                     </div>
@@ -1313,7 +1289,7 @@
 
     </div>
     <div class= 'heeader_buttons'>
-        <div class='call_button' id='start_call_button'>Звонок</div>
+        <div class='call_button' id='start_call_button'>✆</div>
     </div>
 
 `;
@@ -1400,15 +1376,15 @@
                         } else {
                             favorite_id_chat = chat_id
                             user_chats_header =
-                                `<div class="user_info_header_foto border_debug" id=` +
+                                `<div class="user_info_header_foto" id=` +
                                 response
                                 .user
                                 .id +
                                 `><img src='/storage/EKzXqTT0PRHe6OpYr5iN0VF14kAhm9qpaG48iZrd.png'></div>
-    <div class="border_debug user_info_header_without_foto" id='user_info_header_without_foto'>
-        <div class="user_info_header_name border_debug"> <i>` + `Избранное` + ' ' + `<i>
+    <div class="user_info_header_without_foto" id='user_info_header_without_foto'>
+        <div class="user_info_header_name"> <i>` + `Избранное` + ' ' + `<i>
             </div>
-            <div class="user_info_header_is_online border_debug"></div>
+            <div class="user_info_header_is_online"></div>
         </div>`;
                             $('#user_info_header').append(user_chats_header);
                         }
@@ -1467,28 +1443,25 @@
                                 </div> --}}
                             </div>
 
-                            <div class="border_debug input">
-                                <form>
+                            <div class="input">
+                                <form class="message_input_form">
                                     @csrf
                                     <input type="text" autocomplete="off" class="message_input" id='message_input'>
-                                    <button type="button" id="send_message">Отправить</button>
+
+                                    <label for="imageInput" class="custom-file-upload">
+                                        📎
+                                    </label>
                                     <input type="file" id="imageInput">
+                                    <button type="button" id="send_message">Send</button>
                                     <div id="encryptedText"></div>
-                                    {{-- <input type="text" id="decryptionKey" value="123456"> --}}
-                                    <button id="decryptButton">Decrypt</button>
+
                                     <div id="decryptedImage"></div>
                                 </form>
                                 <script>
-                                    // #TODO
                                     const imageInput = document.getElementById('imageInput');
-                                    // console.log("🚀 ~ imageInput:", imageInput);
                                     imageInput.addEventListener('change', (event) => {
                                         message_send_type = 'file';
                                         selectedImage = event.target.files[0];
-                                        // const key =
-                                        //     "def00000dbda26f0f4311181889a467e81f0be06906eff82735beaa82d452e38284f4ff888a2be04d80454bb8b524e1c0f14d917f23810436a219ae4ca8fd0f1963795ad";
-
-
                                     });
                                 </script>
                             </div>
@@ -1526,11 +1499,11 @@
 
                         }
                         // console.log("🚀 ~ user_2:", user_2);
-                        chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
+                        chat_tab_div = `<div class="chat_tab chat_` + response['chat_id'][i][
                                 'id'
                             ] +
                             `" id=` + response.сhats[i]['id'] + `>
-                                <div class="border_debug chat_foto"><img src=` + response.сhats[i][
+                                <div class="chat_foto"><img src=` + response.сhats[i][
                                 'avatar'
                             ] + `></div>
                                 <div class=" right_side_chat_tab">
@@ -1570,7 +1543,7 @@
                     } else {
                         // console.log(response['chat_id'][i])
                         this_user_id = response['chat_id'][i]['creator'];
-                        chat_tab_div = `<div class="border_debug chat_tab chat_` + response['chat_id'][i][
+                        chat_tab_div = `<div class="chat_tab chat_` + response['chat_id'][i][
                                 'id'
                             ] +
                             `" id=` + response.сhats[i]['id'] + `>

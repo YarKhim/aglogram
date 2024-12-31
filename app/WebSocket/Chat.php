@@ -7,6 +7,7 @@ namespace App\WebSocket;
 use App\Http\Controllers\SendMessage;
 use App\Models\Connection;
 use App\Models\Message;
+use App\Models\FriendRequest;
 // use App\Models\Chat;
 use App\Models\Chat as UserChat;
 
@@ -175,9 +176,12 @@ class Chat implements MessageComponentInterface
             $msg = json_decode($msg);
             $message_read = Message::where('message_id', $data->message_id)->update(['isRead' => true]);
             $user_addressee = Message::where('message_id', $data->message_id)->first()->sender_id;
-            if (User::where('id', $user_addressee)->first()->isOnline) {
+            $connection = Connection::where('user_id', $user_addressee)->first();
+            // if (User::where('id', $user_addressee)->first()->isOnline)
+            if ($connection != null) {
                 $msg->chat_id = Message::where('message_id', $data->message_id)->first()->chat_id;
-                $connection_addressee = intval(Connection::where('user_id', $user_addressee)->first()->connection);
+                // $connection_addressee = intval(Connection::where('user_id', $user_addressee)->first()->connection);
+                $connection_addressee = $connection->connection;
                 $targetResourceId = $connection_addressee;
                 $msg = json_encode($msg);
                 $this->all_clients[$targetResourceId]->send($msg);
@@ -250,6 +254,24 @@ class Chat implements MessageComponentInterface
                         $this->all_clients[$targetResourceId]->send($msg);
                     }
                 }
+            }
+        }
+        if ($msg_decode->type_message == 'send_friend_request') {
+            FriendRequest::create([
+                'addresee' => $msg_decode->addresee,
+                'sender' => $msg_decode->sender,
+            ]);
+            $connection = Connection::where('user_id', $msg_decode->addresee)->first();
+            // dump($msg);
+            $msg = json_decode($msg);
+            if($connection!=null){
+                echo 23;
+                $targetResourceId = $connection->connection;
+                $msg->type = 'new_friend_request';
+                $msg->user_sender = User::where('id', $msg_decode->sender)->first();
+                // dump('2342314_'.$targetResourceId);
+                $msg = json_encode($msg);
+                $this->all_clients[$targetResourceId]->send($msg);
             }
         }
     }

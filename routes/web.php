@@ -14,7 +14,12 @@ use App\Http\Controllers\GetKeys;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\SendMessage;
 use App\Http\Controllers\ReadMessage;
-
+use App\Http\Controllers\SearchUsers;
+use App\Http\Controllers\SearchUserController;
+use App\Http\Controllers\getFriends;
+use App\Http\Controllers\get_this_user;
+use App\Http\Controllers\isRequestSent;
+use App\Http\Controllers\getAllFriendsRequests;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -82,14 +87,16 @@ Route::middleware('auth')->group(function () {
 Route::get('/avatar/{user}', [ProfileController::class, 'avatar'])->name('profile.avatar');
 Route::post('/friends', [UserSearch::class, 'submit'])->name('contact.submit');
 Route::get('/get_chats', [GetUserChats::class, 'getChats']);
-
 Route::get('/get_user', [get_user::class, 'get_user']);
 Route::get('/send_message', [SendMessage::class, 'send_message']);
 Route::get('/get_keys', [GetKeys::class, 'get_keys']);
 Route::get('/get_messages_from_chat', [get_chat_messages::class, 'get_messages_from_chat']);
 Route::get('/unread_chats', [ChatReadController::class, 'get_unread_chats']);
-
 Route::get('/read_message', [ReadMessage::class, 'reading_message']);
-// Route::get('/read_message', [read_message::class, 'reading_message']);
-// Route::get('/get_all_messages_from_chat', [MessageController::class, 'get_all_messages_from_chat']);
+Route::post('/search', [SearchUserController::class, 'search_users']);
+Route::post('/getfriends', [getFriends::class, 'getUserFriends']);
+Route::post('/get_this_user', [get_this_user::class, 'getThisUser']);
+Route::post('/isRequestSent', [isRequestSent::class, 'isreqSent']);
+Route::post('/getFriendRequests', [getAllFriendsRequests::class, 'getFriendRequests']);
 require __DIR__ . '/auth.php';
+
