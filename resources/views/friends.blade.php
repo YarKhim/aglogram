@@ -183,7 +183,7 @@
                                                                                 <p>Принять заявку</p>
                                                                             </div>
                                                                             <div class="dismiss_request  user_actions_buttons" id="dismiss_request_` +
-                                            sender['id'] + `">
+                                            sender['id'] + `" uid="`+sender['id']+`">
                                                                                 <p>Отклонить заявку</p>
                                                                             </div>
                                                                         </div>
@@ -192,6 +192,30 @@
                                                                 </div>
                                                             </div>`;
                                         $('#list_friend_request').append(new_request_type);
+                                        document.getElementById("dismiss_request_" + sender['id']).addEventListener('click', function(e) {
+                                            user_id = sender['id']
+                                            data = {
+                                                'sender': this_user_id,
+                                                'addresee': user_id,
+                                                'type_message': 'dismiss_friend_request',
+                                            }
+                                            sendMessage(JSON.stringify(data));
+                                            button = $("#dismiss_request_" + user_id);
+                                            tab = $("#friends_requests"+user_id );
+                                            tab.remove();
+                                        });
+                                        document.getElementById("accept_request_" + sender['id']).addEventListener('click', function(e) {
+                                            user_id = sender['id']
+                                            data = {
+                                                'sender': this_user_id,
+                                                'addresee': user_id,
+                                                'type_message': 'accept_friend_request',
+                                            }
+                                            sendMessage(JSON.stringify(data));
+                                            button = $("#accept_request_" + user_id);
+                                            tab = $("#friends_requests"+user_id );
+                                            tab.remove();
+                                        });
                                     }
                                 };
                                 socket.onclose = function(event) {
@@ -207,8 +231,8 @@
                                 $(document).ready(function() {
                                     function send_request(user_id) {
                                         data = {
-                                            'sender': this_user_id,
                                             'addresee': user_id,
+                                            'sender': this_user_id,
                                             'type_message': 'send_friend_request',
                                         }
                                         sendMessage(JSON.stringify(data));
@@ -217,6 +241,28 @@
                                         button.text('Запрос отправлен');
                                         button.css('pointerEvents', 'none');
                                         button.css('opacity', '0.5');
+                                    }
+                                    function accept_request(user_id){
+                                        data = {
+                                            'sender': this_user_id,
+                                            'addresee': user_id,
+                                            'type_message': 'accept_friend_request',
+                                        }
+                                        sendMessage(JSON.stringify(data));
+                                        tab = $("#friends_requests"+user_id );
+                                        tab.remove();
+
+                                    }
+                                    function dismiss_request(user_id){
+                                        data = {
+                                            'sender': this_user_id,
+                                            'addresee': user_id,
+                                            'type_message': 'dismiss_friend_request',
+                                        }
+                                        sendMessage(JSON.stringify(data));
+                                        tab = $("#friends_requests"+user_id );
+                                        tab.remove();
+
                                     }
                                     all_friends_id = [];
                                     $.ajax({
@@ -302,13 +348,13 @@
                                                                                     class="user_link">Перейти на
                                                                                     страницу</a>
                                                                             </div>
-                                                                            <div class="accept_request  user_actions_buttons" id="accept_request_` +
+                                                                            <div uid="`+user['id']+`" class="accept_request  user_actions_buttons" id="accept_request_` +
                                                                             user['id'] +
                                             `">
                                                                                 <p>Принять заявку</p>
                                                                             </div>
                                                                             <div class="dismiss_request  user_actions_buttons" id="dismiss_request_` +
-                                                                            user['id'] + `">
+                                                                            user['id'] + `" uid="`+user['id']+`">
                                                                                 <p>Отклонить заявку</p>
                                                                             </div>
                                                                         </div>
@@ -317,6 +363,20 @@
                                                                 </div>
                                                             </div>`;
                                             $('#list_friend_request').append(new_request_type);
+                                            });
+                                            all_buttons_dismiss_request = document.querySelectorAll(
+                                                        '.dismiss_request');
+                                            all_buttons_dismiss_request.forEach(button => {
+                                                button.addEventListener('click', function(e) {
+                                                    dismiss_request($(this).attr("uid"));
+                                                });
+                                            });
+                                            all_buttons_accept_request = document.querySelectorAll(
+                                                        '.accept_request');
+                                            all_buttons_accept_request.forEach(button => {
+                                                button.addEventListener('click', function(e) {
+                                                    accept_request($(this).attr("uid"));
+                                                });
                                             });
                                             // console.log(users);
                                         },
@@ -488,9 +548,9 @@
                                                     all_buttons_friends_request = document.querySelectorAll(
                                                         '.friend_request');
                                                     all_buttons_friends_request.forEach(button => {
-                                                        id = button.id
-                                                        user_id = id.replace('send_friend_request', '');
-                                                        console.log(id);
+                                                        // id = button.id
+                                                        // user_id = id.replace('send_friend_request', '');
+                                                        // console.log(id);
 
                                                         // console.log("🚀 ~ serach_friends.addEventListener ~ user_id:", user_id)
                                                         // button.addEventListener('click', send_request.bind(
@@ -499,7 +559,7 @@
                                                             //lert(button);
                                                             // console.log($(this).attr("uid"));
                                                             send_request($(this).attr("uid"));
-                                                        })
+                                                        });
                                                     });
                                                 },
                                                 error: function(xhr) {

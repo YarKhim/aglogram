@@ -8,6 +8,7 @@ use App\Http\Controllers\SendMessage;
 use App\Models\Connection;
 use App\Models\Message;
 use App\Models\FriendRequest;
+use App\Models\FriendsPair;
 // use App\Models\Chat;
 use App\Models\Chat as UserChat;
 
@@ -17,6 +18,7 @@ use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Header;
 use Illuminate\Auth\SessionGuard;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -102,6 +104,8 @@ class Chat implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $msg_decode = json_decode($msg);
+        dump($msg_decode);
+        // echo "106 Строка type_message: ".$msg_decode->type_message;
         if ($msg_decode->type_message == 'message') {
             $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
             $sid = Crypt::decryptString($sessionId);
@@ -274,6 +278,27 @@ class Chat implements MessageComponentInterface
                 $this->all_clients[$targetResourceId]->send($msg);
             }
         }
+        if ($msg_decode->type_message == 'dismiss_friend_request') {
+            $request = FriendRequest::where('addresee', $msg_decode->sender )->where('sender', $msg_decode->addresee )->delete();
+        }
+
+        if ($msg_decode->type_message == 'accept_friend_request') {
+            FriendsPair::create([
+                'invited' => $msg_decode->sender,
+                'creator' => $msg_decode->addresee,
+            ]);
+            $request = FriendRequest::where('addresee', $msg_decode->sender )->where('sender', $msg_decode->addresee )->delete();
+            $connection = Connection::where('user_id', $msg_decode->addresee)->first();
+            $msg = json_decode($msg);
+            if($connection!=null){
+                echo 23;
+                $targetResourceId = $connection->connection;
+                $msg->type = 'aсcepted_friend_request';
+                $msg->user_sender = User::where('id', $msg_decode->sender)->first();
+                $msg = json_encode($msg);
+                $this->all_clients[$targetResourceId]->send($msg);
+            }
+        }
     }
 
     public function onClose(ConnectionInterface $conn)
@@ -295,8 +320,8 @@ class Chat implements MessageComponentInterface
         $users_for_online_state_update = [];
         foreach ($all_chats as $chat) {
             if ($chat->creator != $chat->invted) {
-                echo $chat->creator . PHP_EOL;
-                echo $chat->invted . PHP_EOL;
+                // echo $chat->creator . PHP_EOL;
+                // echo $chat->invted . PHP_EOL;
                 if ($chat->creator == $user_id && Connection::where('user_id', $chat->invted)->first() != null) {
                     $users_for_online_state_update[] = $chat->invted;
                 } else {
