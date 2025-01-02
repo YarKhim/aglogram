@@ -1,23 +1,33 @@
 <x-app-layout>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
     <script src="http://peterolson.github.com/BigInteger.js/BigInteger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
-    {{-- <script src="{{ asset('js/func.js') }}" defe></script> --}}
-
-    {{-- <script src="{{ mix('js/forge.js') }}"></script> --}}
+    <script src="{{ asset('js/func.js') }}" defe></script>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
             {{ __('Друзья') }}
         </h2>
     </x-slot>
-
+    {{-- <div id="toast" class="toast">Это всплывающее уведомление!</div> --}}
+    {{-- <div class="notification">
+        <div class="notif_info">
+            <div class="notif_data border_debug">
+                234
+            </div>
+        </div>
+    </div> --}}
     <div class="py-12">
+
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
                     <div class="search_friends_box border_debug">
+
                         <div class="search_form_div border_debug">
                             {{-- @csrf --}}
                             <div class="div_search_input">
@@ -65,14 +75,7 @@
                             </div>
 
                             <div class="list_user_friends" id="list_user_friends">
-                                {{-- {{$a = 1;
-                                e}} --}}
                                 <div class="friends" id="user_friends">
-                                    <script>
-                                        // a = 0;
-
-                                        // alert(a);
-                                    </script>
                                     {{-- #TODOнеобходимо что бы у каждого элемнта был id как у пользователся которум
                                     этот элемнт соответствует --}}
                                     {{--
@@ -102,33 +105,20 @@
 
                             </div>
                             <script>
-                                open_list_friends.style.pointerEvents = 'none'; // Отключает события мыши
-                                open_list_friends.style.opacity = '1';
-                                open_list_friends_requests.style.opacity = '0.5';
+                                count_notif = 0;
+                                // open_list_friends.style.pointerEvents = 'none'; // Отключает события мыши
+                                // open_list_friends.style.opacity = '1';
+                                // open_list_friends_requests.style.opacity = '0.5';
+
                                 open_list_friends = document.getElementById('open_list_friends');
                                 open_list_friends_requests = document.getElementById('open_list_friends_requests');
                                 list_friends = document.getElementById('list_user_friends');
-                                console.log("🚀 ~ list_friends:", list_friends)
+                                // console.log("🚀 ~ list_friends:", list_friends)
                                 list_friends_requests = document.getElementById('list_friend_request');
-                                console.log("🚀 ~ list_friends_requests:", list_friends_requests)
-                                open_list_friends.addEventListener('click', function() {
-                                    open_list_friends_requests.style.pointerEvents = 'all';
-                                    open_list_friends.style.pointerEvents = 'none'; // Отключает события мыши
-                                    open_list_friends.style.opacity = '1'; // Включает события мыши
-                                    open_list_friends.classList.add('select_friend_tab');
-                                    open_list_friends_requests.style.opacity = '0.5';
-                                    list_friends.style.display = 'block';
-                                    list_friends_requests.style.display = 'none';
-                                    // open_list_friends.classList.add('color-change');
-                                });
-                                open_list_friends_requests.addEventListener('click', function() {
-                                    open_list_friends.style.pointerEvents = 'all'; // Включает события мыши
-                                    open_list_friends_requests.style.pointerEvents = 'none'; // Отключает события мыши
-                                    open_list_friends_requests.style.opacity = '1';
-                                    open_list_friends.style.opacity = '0.5';
-                                    list_friends.style.display = 'none';
-                                    list_friends_requests.style.display = 'block';
-                                });
+                                // console.log("🚀 ~ list_friends_requests:", list_friends_requests)
+                                open_list_friends_func();
+                                open_list_friends.addEventListener('click',open_list_friends_func);
+                                open_list_friends_requests.addEventListener('click',open_list_friends_requests_func);
                                 this_user_id = null;
                                 $.ajax({
                                     url: '/get_this_user',
@@ -145,52 +135,59 @@
                                         alert('Произошла ошибка: ' + xhr.responseJSON.message);
                                     }
                                 });
-                                console.log(this_user_id)
                                 const socket = new WebSocket('ws://localhost:8888');
                                 socket.onopen = function(event) {
                                     console.log('Подключено к WebSocket серверу');
                                 };
                                 socket.onmessage = function(event) {
                                     event_data = JSON.parse(event.data)
+                                    if(event_data['type'] == 'accept_friend_request'){
+                                        console.log('Запрос на дружбу с ');
+                                    }
                                     if (event_data['type'] == 'new_friend_request') {
-                                        // alert('lj,fdk');
+                                        count_notif+=1;
+                                        if(count_notif>0){
+                                            document.getElementById('have_nt_notif').style.display = 'none';
+                                        }
                                         sender = event_data['user_sender'];
-                                        console.log(sender['avatar']);
-                                        new_request_type = `<div class="friends_requests" id="friends_requests` + sender['id'] + `">
-                                                                <div class="search_results_tab">
-                                                                    <div class="search_user_image">
-                                                                        <img class="result_user_search_img"
-                                                                            src="` + sender['avatar'] + `">
-                                                                    </div>
-                                                                    <div class="user_info_and_links  ">
-                                                                        <div class="user_name ">
-                                                                            <p>` + sender['name'] + " " + sender[
-                                                'lastname'] +
-                                            " @" + sender['username'] +
-                                            `</p>
-                                                                        </div>
-                                                                        <div class="user_actions request_actions">
-                                                                            <div class="user_links  user_actions_buttons">
-                                                                                <a target="blank" href="/user_profile?id=` +
-                                            sender['username'] +
-                                            `"
-                                                                                    class="user_link">Перейти на
-                                                                                    страницу</a>
-                                                                            </div>
-                                                                            <div class="accept_request  user_actions_buttons" id="accept_request_` +
-                                            sender['id'] +
-                                            `">
-                                                                                <p>Принять заявку</p>
-                                                                            </div>
-                                                                            <div class="dismiss_request  user_actions_buttons" id="dismiss_request_` +
-                                            sender['id'] + `" uid="`+sender['id']+`">
-                                                                                <p>Отклонить заявку</p>
-                                                                            </div>
-                                                                        </div>
+                                        tab =
+                                            `<div class="notification_tab" id='notif_new_friend_request_tab_`+sender['id']+`'>
+                                                <p>Вам поступил запрос на дружбу от: `+"@" + sender['username'] +`</p>
+                                            </div>`;
+                                        $("#list_notifications").append(tab);
+                                        document.getElementById('notif_new_friend_request_tab_' +sender['id']).addEventListener('click', open_list_friends_requests_func);
+                                        document.getElementById('notif_new_friend_request_tab_' +sender['id']).addEventListener('click', function(){
+                                            $('#notif_new_friend_request_tab_' +sender['id']).css('background-color: black');
+                                            count_notif -=1;
+                                            if(count_notif==0){
+                                                document.getElementById('have_nt_notif').style.display = 'block';
+                                            }
+                                        });
+                                        new_request_type =
+                                        `<div class="friends_requests" id="friends_requests` + sender['id'] + `">
+                                            <div class="search_results_tab">
+                                                <div class="search_user_image">
+                                                    <img class="result_user_search_img" src="` + sender['avatar'] + `">
+                                                </div>
+                                                <div class="user_info_and_links  ">
+                                                    <div class="user_name ">
+                                                        <p>` + sender['name'] + " " + sender['lastname'] +" @" + sender['username'] +`</p>
+                                                    </div>
+                                                    <div class="user_actions request_actions">
+                                                        <div class="user_links  user_actions_buttons">
+                                                            <a target="blank" href="/user_profile?id=` +sender['username'] +`"class="user_link">Перейти на страницу</a>
+                                                        </div>
+                                                        <div class="accept_request  user_actions_buttons" id="accept_request_` +sender['id'] +`">
+                                                            <p>Принять заявку</p>
+                                                        </div>
+                                                        <div class="dismiss_request  user_actions_buttons" id="dismiss_request_` +sender['id'] + `" uid="`+sender['id']+`">
+                                                            <p>Отклонить заявку</p>
+                                                        </div>
+                                                    </div>
 
-                                                                    </div>
-                                                                </div>
-                                                            </div>`;
+                                                </div>
+                                            </div>
+                                        </div>`;
                                         $('#list_friend_request').append(new_request_type);
                                         document.getElementById("dismiss_request_" + sender['id']).addEventListener('click', function(e) {
                                             user_id = sender['id']
@@ -220,9 +217,7 @@
                                 };
                                 socket.onclose = function(event) {
                                     console.log('Соединение закрыто');
-                                    // alert('Соединение закрыто');
                                 };
-
                                 function sendMessage(message) {
                                     socket.send(message);
                                 }
@@ -264,6 +259,16 @@
                                         tab.remove();
 
                                     }
+                                    function delete_friend(user_id){
+                                        data = {
+                                            'sender': this_user_id,
+                                            'addresee': user_id,
+                                            'type_message': 'delete_friend',
+                                        }
+                                        sendMessage(JSON.stringify(data));
+                                        tab = $("#friend_tab"+user_id );
+                                        tab.remove();
+                                    }
                                     all_friends_id = [];
                                     $.ajax({
                                         url: '/getfriends',
@@ -277,38 +282,35 @@
                                             all_friends = response['friends'];
                                             all_friends.forEach(friend => {
                                                 all_friends_id.push(friend['id']);
-                                                friend_div = `<div class="search_results_tab"  id="friend_tab` + friend[
-                                                        'id'] + `">
+                                                friend_div = `<div class="search_results_tab"  id="friend_tab` + friend['id'] + `">
                                                                 <div class="search_user_image">
-                                                                    <img class="result_user_search_img" src="` +
-                                                    friend[
-                                                        'avatar'] + `">
+                                                                    <img class="result_user_search_img" src="` +friend['avatar'] + `">
                                                                 </div>
                                                                 <div class="user_info_and_links ">
                                                                     <div class="user_name">
-                                                                        <p>` + friend['name'] + " " + friend[
-                                                        'lastname'] +
-                                                    " @" + friend['username'] +
-                                                    `</p>
+                                                                        <p>` + friend['name'] + " " + friend['lastname'] +" @" + friend['username'] +`</p>
                                                                     </div>
-                                                                     <div class="user_actions">
-                                                                        <div class="user_links  user_actions_buttons">
-                                                                            <a target="blank" href="/user_profile?id=` +
-                                                    friend['username'] +
-                                                    `"
-                                                                                class="user_link">Перейти на
-                                                                                страницу</a>
-                                                                        </div>
-                                                                        <div class="remove_friend  user_actions_buttons" id=remove_friend"` +
-                                                    friend[
-                                                        'id'] + `">
+                                                                        <div class="user_actions">
+                                                                            <div class="user_links  user_actions_buttons">
+                                                                                <a target="blank" href="/user_profile?id=` +friend['username'] +`"
+                                                                                    class="user_link">Перейти на
+                                                                                    страницу</a>
+                                                                            </div>
+                                                                        <div uid="`+friend['id']+`" class="remove_friend  user_actions_buttons" id=remove_friend_"` +friend['id'] + `">
                                                                             <p>Удалить из друзей</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>`;
                                                 $('#user_friends').append(friend_div);
-                                                console.log(friend);
+                                                // console.log(friend);
+                                            });
+                                            all_buttons_dismiss_request = document.querySelectorAll(
+                                                        '.remove_friend');
+                                            all_buttons_dismiss_request.forEach(button => {
+                                                button.addEventListener('click', function(e) {
+                                                    delete_friend($(this).attr("uid"));
+                                                });
                                             });
                                             // console.log(all_friends);
                                         },
@@ -327,41 +329,34 @@
                                             users = response['user_sender_requests'];
                                             users.forEach(user=>{
                                                 // console.log(user);
-                                                new_request_type = `<div class="friends_requests" id="friends_requests` + user['id'] + `">
-                                                                <div class="search_results_tab">
-                                                                    <div class="search_user_image">
-                                                                        <img class="result_user_search_img"
-                                                                            src="` + user['avatar'] + `">
-                                                                    </div>
-                                                                    <div class="user_info_and_links  ">
-                                                                        <div class="user_name ">
-                                                                            <p>` + user['name'] + " " + user[
-                                                'lastname'] +
-                                            " @" + user['username'] +
-                                            `</p>
-                                                                        </div>
-                                                                        <div class="user_actions request_actions">
-                                                                            <div class="user_links  user_actions_buttons">
-                                                                                <a target="blank" href="/user_profile?id=` +
-                                                                                user['username'] +
-                                            `"
-                                                                                    class="user_link">Перейти на
-                                                                                    страницу</a>
-                                                                            </div>
-                                                                            <div uid="`+user['id']+`" class="accept_request  user_actions_buttons" id="accept_request_` +
-                                                                            user['id'] +
-                                            `">
-                                                                                <p>Принять заявку</p>
-                                                                            </div>
-                                                                            <div class="dismiss_request  user_actions_buttons" id="dismiss_request_` +
-                                                                            user['id'] + `" uid="`+user['id']+`">
-                                                                                <p>Отклонить заявку</p>
-                                                                            </div>
-                                                                        </div>
-
-                                                                    </div>
+                                                new_request_type =
+                                                `<div class="friends_requests" id="friends_requests` + user['id'] + `">
+                                                    <div class="search_results_tab">
+                                                        <div class="search_user_image">
+                                                            <img class="result_user_search_img"
+                                                                src="` + user['avatar'] + `">
+                                                        </div>
+                                                        <div class="user_info_and_links  ">
+                                                            <div class="user_name ">
+                                                                <p>` + user['name'] + " " + user['lastname'] +
+                                                                    " @" + user['username'] +
+                                                                `</p>
+                                                            </div>
+                                                            <div class="user_actions request_actions">
+                                                                <div class="user_links  user_actions_buttons">
+                                                                    <a target="blank" href="/user_profile?id=` +user['username'] +`"class="user_link">Перейти на страницу</a>
                                                                 </div>
-                                                            </div>`;
+                                                                <div uid="`+user['id']+`" class="accept_request  user_actions_buttons" id="accept_request_` +user['id'] +`">
+                                                                    <p>Принять заявку</p>
+                                                                </div>
+                                                                <div class="dismiss_request  user_actions_buttons" id="dismiss_request_` +
+                                                                user['id'] + `" uid="`+user['id']+`">
+                                                                    <p>Отклонить заявку</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>`;
                                             $('#list_friend_request').append(new_request_type);
                                             });
                                             all_buttons_dismiss_request = document.querySelectorAll(
@@ -393,7 +388,7 @@
                                             $('#search_results').empty();
                                             var data_1 = serach_friends_input.value.split(' ');
                                             var data_for_search = data_1.filter(item => item !== '');
-                                            console.log(data_for_search);
+                                            // console.log(data_for_search);
                                             data_for_search = JSON.stringify(data_for_search);
 
 
@@ -432,8 +427,8 @@
                                                             success: function(req_state) {
                                                                 // console.log(req_state
                                                                 //     .request_state);
-                                                                is_req_sent = req_state
-                                                                    .request_state
+                                                                is_req_sent = req_state.request_state
+
                                                                 //
                                                             },
                                                             error: function(xhr) {
@@ -447,78 +442,49 @@
                                                         console.log(is_req_sent);
                                                         if (all_friends_id.includes(user['id'])) {
                                                             search_result_div =
-                                                                `<div class="search_results_tab"  id="friend_tab` +
-                                                                user[
-                                                                    'id'] + `">
+                                                            `<div class="search_results_tab"  id="friend_tab` +user['id'] + `">
                                                                 <div class="search_user_image">
-                                                                    <img class="result_user_search_img" src="` +
-                                                                user[
-                                                                    'avatar'] + `">
+                                                                    <img class="result_user_search_img" src="` +user['avatar'] + `">
                                                                 </div>
                                                                 <div class="user_info_and_links ">
                                                                     <div class="user_name">
-                                                                        <p>` + user['name'] + " " + user[
-                                                                    'lastname'] +
-                                                                " @" + user['username'] +
-                                                                `</p>
+                                                                        <p>` + user['name'] + " " + user['lastname'] + " @" + user['username'] +`</p>
                                                                     </div>
-                                                                     <div class="user_actions">
+                                                                    <div class="user_actions">
                                                                         <div class="user_links  user_actions_buttons">
-                                                                            <a target="blank" href="/user_profile?id=` +
-                                                                user['username'] +
-                                                                `"
+                                                                            <a target="blank" href="/user_profile?id=` +user['username'] +`"
                                                                                 class="user_link">Перейти на
                                                                                 страницу</a>
                                                                         </div>
-                                                                        <div class="remove_friend  user_actions_buttons" id=remove_friend"` +
-                                                                user[
-                                                                    'id'] + `">
+                                                                        <div class="remove_friend  user_actions_buttons" id=remove_friend"` +user['id'] + `">
                                                                             <p>Удалить из друзей</p>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>`;
                                                         } else {
-
-
                                                             search_result_div =
-                                                                `<div class="search_results_tab"  id="friend_tab` +
-                                                                user[
-                                                                    'id'] + `">
+                                                            `<div class="search_results_tab"  id="friend_tab` +user['id'] + `">
                                                                 <div class="search_user_image">
-                                                                    <img class="result_user_search_img" src="` +
-                                                                user[
-                                                                    'avatar'] + `">
+                                                                    <img class="result_user_search_img" src="` +user['avatar'] + `">
                                                                 </div>
                                                                 <div class="user_info_and_links ">
                                                                     <div class="user_name">
-                                                                        <p>` + user['name'] + " " + user[
-                                                                    'lastname'] +
-                                                                " @" + user['username'] +
-                                                                `</p>
+                                                                        <p>` + user['name'] + " " + user['lastname'] +" @" + user['username'] +`</p>
                                                                     </div>
-                                                                     <div class="user_actions">
+                                                                        <div class="user_actions">
                                                                         <div class="user_links  user_actions_buttons">
-                                                                            <a target="blank" href="/user_profile?id=` +
-                                                                user['username'] +
-                                                                `"
-                                                                                class="user_link">Перейти на
-                                                                                страницу</a>
+                                                                            <a target="blank" href="/user_profile?id=` +user['username'] +`"class="user_link">Перейти на страницу</a>
                                                                         </div>
-                                                                                <div class="friend_request  user_actions_buttons" id="send_friend_request` +
-                                                                user['id'] + `" uid="` + user['id'] + `">
-                                                                                    Добавить в друзья
-                                                                                </div>
-                                                                            </div>
+                                                                        <div class="friend_request  user_actions_buttons" id="send_friend_request` +user['id'] + `" uid="` + user['id'] + `">
+                                                                            Добавить в друзья
                                                                         </div>
-                                                                    </div>`;
+                                                                    </div>
+                                                                </div>
+                                                            </div>`;
                                                         }
-
                                                         $('#search_results').append(search_result_div);
-
-                                                        button_send_request = document.getElementById(
-                                                            'send_friend_request' + user['id']);
-                                                        console.log(button_send_request)
+                                                        button_send_request = document.getElementById('send_friend_request' + user['id']);
                                                         if (is_req_sent) {
                                                             button_send_request.style.transition =
                                                                 'none';
@@ -529,35 +495,19 @@
                                                             button_send_request.style.opacity =
                                                                 '0.5';
                                                         }
-                                                        // console.log(search_result_div);
-
                                                     });
                                                     if (all_users.length == 0) {
                                                         search_result_div =
                                                             `<div class="nothing_for_your_query border_debug" >
-                                                            <h2>По вашему запросу никого не найдено :( </h2>
-                                                            <p>Попробуйте что-нибудь другое</p>
+                                                                <h2>По вашему запросу никого не найдено :( </h2>
+                                                                <p>Попробуйте что-нибудь другое</p>
                                                             </div>`;
                                                         $('#search_results').append(search_result_div);
-                                                        // console.log("По вашему запросу ничего не найдено(");
                                                     }
                                                     serach_friends_input.value = '';
-
-
-
-                                                    all_buttons_friends_request = document.querySelectorAll(
-                                                        '.friend_request');
+                                                    all_buttons_friends_request = document.querySelectorAll('.friend_request');
                                                     all_buttons_friends_request.forEach(button => {
-                                                        // id = button.id
-                                                        // user_id = id.replace('send_friend_request', '');
-                                                        // console.log(id);
-
-                                                        // console.log("🚀 ~ serach_friends.addEventListener ~ user_id:", user_id)
-                                                        // button.addEventListener('click', send_request.bind(
-                                                        //     user_id));
                                                         button.addEventListener('click', function(e) {
-                                                            //lert(button);
-                                                            // console.log($(this).attr("uid"));
                                                             send_request($(this).attr("uid"));
                                                         });
                                                     });

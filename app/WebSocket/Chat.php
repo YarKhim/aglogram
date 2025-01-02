@@ -269,7 +269,7 @@ class Chat implements MessageComponentInterface
             // dump($msg);
             $msg = json_decode($msg);
             if($connection!=null){
-                echo 23;
+                //echo 23;
                 $targetResourceId = $connection->connection;
                 $msg->type = 'new_friend_request';
                 $msg->user_sender = User::where('id', $msg_decode->sender)->first();
@@ -281,7 +281,10 @@ class Chat implements MessageComponentInterface
         if ($msg_decode->type_message == 'dismiss_friend_request') {
             $request = FriendRequest::where('addresee', $msg_decode->sender )->where('sender', $msg_decode->addresee )->delete();
         }
-
+        if ($msg_decode->type_message == 'dismiss_friend_request') {
+            $request = FriendsPair::where('invited', $msg_decode->sender )->where('creator', $msg_decode->addresee )->delete();
+            $request = FriendsPair::where('invited', $msg_decode->addresee )->where('creator', $msg_decode->sender  )->delete();
+        }
         if ($msg_decode->type_message == 'accept_friend_request') {
             FriendsPair::create([
                 'invited' => $msg_decode->sender,
@@ -291,7 +294,7 @@ class Chat implements MessageComponentInterface
             $connection = Connection::where('user_id', $msg_decode->addresee)->first();
             $msg = json_decode($msg);
             if($connection!=null){
-                echo 23;
+                //echo 23;
                 $targetResourceId = $connection->connection;
                 $msg->type = 'aсcepted_friend_request';
                 $msg->user_sender = User::where('id', $msg_decode->sender)->first();
