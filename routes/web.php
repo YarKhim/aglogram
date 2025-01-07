@@ -20,6 +20,9 @@ use App\Http\Controllers\getFriends;
 use App\Http\Controllers\get_this_user;
 use App\Http\Controllers\isRequestSent;
 use App\Http\Controllers\getAllFriendsRequests;
+use App\Http\Controllers\send_post;
+use App\Http\Controllers\load_posts;
+// use App\Http\Controllers\getAllFriendsRequests;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -98,5 +101,7 @@ Route::post('/getfriends', [getFriends::class, 'getUserFriends']);
 Route::post('/get_this_user', [get_this_user::class, 'getThisUser']);
 Route::post('/isRequestSent', [isRequestSent::class, 'isreqSent']);
 Route::post('/getFriendRequests', [getAllFriendsRequests::class, 'getFriendRequests']);
+Route::post('/savepost', [send_post::class, 'save_post']);
+Route::post('/load_posts', [load_posts::class, 'load_post']);
 require __DIR__ . '/auth.php';
 

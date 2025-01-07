@@ -68,12 +68,23 @@
                         </button>
                     </x-slot>
 
-                    <x-slot name="content">
-                        <div class="notifications" id="list_notifications">
+                    <x-slot name="content" >
+                        <div id='notifications'>
+                            {{-- <x-dropdown-link id="havn_t_notif">
+                                {{ __('У вас нет уведомлений :)') }}
+                            </x-dropdown-link> --}}
+                            <div>
+                                <x-dropdown-link id="havn_t_notif">
+                                    {{ __('У вас нет уведомлений :)') }}
+                                </x-dropdown-link>
+                            </div>
+                        </div>
+
+                        {{-- <div class="notifications" id="list_notifications">
                             <div class="notification_tab have_nt_notif" id = 'have_nt_notif'>
                                 У вас нет уведомлений :)
                             </div>
-                        </div>
+                        </div> --}}
                         {{-- <x-dropdown-link :href="route('profile.edit')">
                             {{ __('Profile') }}
                         </x-dropdown-link>

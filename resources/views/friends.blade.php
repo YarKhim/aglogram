@@ -1,9 +1,11 @@
 <x-app-layout>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://raw.githubusercontent.com/benjaminBrownlee/RSA/master/RSA.min.js"></script>
-    <script src="http://peterolson.github.com/BigInteger.js/BigInteger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.0.0/jsencrypt.min.js"></script>
+    <script src="{{ asset('js/BigInteger.js') }}"></script>
+    <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('js/jsencrypt.min.js') }}"></script>
+    <script src="{{ asset('js/RSA.min.js') }}"></script>
+    <script src="{{ asset('js/forge.min.js') }}"></script>
+    <script src="{{ asset('js/crypto-js.min.js') }}"></script>
     <script src="{{ asset('js/func.js') }}" defe></script>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
@@ -19,7 +21,7 @@
         </div>
     </div> --}}
     <div class="py-12">
-
+        {{-- /getfriends --}}
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
@@ -106,10 +108,6 @@
                             </div>
                             <script>
                                 count_notif = 0;
-                                // open_list_friends.style.pointerEvents = 'none'; // Отключает события мыши
-                                // open_list_friends.style.opacity = '1';
-                                // open_list_friends_requests.style.opacity = '0.5';
-
                                 open_list_friends = document.getElementById('open_list_friends');
                                 open_list_friends_requests = document.getElementById('open_list_friends_requests');
                                 list_friends = document.getElementById('list_user_friends');
@@ -141,27 +139,46 @@
                                 };
                                 socket.onmessage = function(event) {
                                     event_data = JSON.parse(event.data)
-                                    if(event_data['type'] == 'accept_friend_request'){
-                                        console.log('Запрос на дружбу с ');
+                                    if(event_data['type'] == 'aсcepted_friend_request'){
+                                        // console.log('Запрос на дружбу с ');
+                                        sender = event_data['user_sender'];
+                                        // console.log(sender);
+                                        tab =
+                                        `<div id="notif_new_friend_tab_`+sender['id']+`" class="not_read">
+                                            <x-dropdown-link>
+                                                <div>Ваш запрос на дружбу к: @`+sender['username']+`, принят!</div>
+                                            </x-dropdown-link>
+                                        </div>`;
+                                        $("#notifications").append(tab);
+                                        document.getElementById('notif_new_friend_tab_' +sender['id']).addEventListener('click', open_list_friends);
+                                        document.getElementById('notif_new_friend_tab_' +sender['id']).addEventListener('click', function(){
+                                            count_notif -=1;
+                                            if(count_notif==0){
+                                                document.getElementById('havn_t_notif').style.display = 'block';
+                                            }
+                                            $('#notif_new_friend_tab_' +sender['id']).removeClass('not_read');
+                                        });
                                     }
                                     if (event_data['type'] == 'new_friend_request') {
                                         count_notif+=1;
                                         if(count_notif>0){
-                                            document.getElementById('have_nt_notif').style.display = 'none';
+                                            document.getElementById('havn_t_notif').style.display = 'none';
                                         }
                                         sender = event_data['user_sender'];
                                         tab =
-                                            `<div class="notification_tab" id='notif_new_friend_request_tab_`+sender['id']+`'>
-                                                <p>Вам поступил запрос на дружбу от: `+"@" + sender['username'] +`</p>
-                                            </div>`;
-                                        $("#list_notifications").append(tab);
+                                        `<div id="notif_new_friend_request_tab_`+sender['id']+`" class="not_read">
+                                            <x-dropdown-link>
+                                                <div>Вам поступил запрос на дружбу от: @`+sender['username']+`</div>
+                                            </x-dropdown-link>
+                                        </div>`;
+                                        $("#notifications").append(tab);
                                         document.getElementById('notif_new_friend_request_tab_' +sender['id']).addEventListener('click', open_list_friends_requests_func);
                                         document.getElementById('notif_new_friend_request_tab_' +sender['id']).addEventListener('click', function(){
-                                            $('#notif_new_friend_request_tab_' +sender['id']).css('background-color: black');
                                             count_notif -=1;
                                             if(count_notif==0){
-                                                document.getElementById('have_nt_notif').style.display = 'block';
+                                                document.getElementById('havn_t_notif').style.display = 'block';
                                             }
+                                            $('#notif_new_friend_request_tab_' +sender['id']).removeClass('not_read');
                                         });
                                         new_request_type =
                                         `<div class="friends_requests" id="friends_requests` + sender['id'] + `">
@@ -439,7 +456,7 @@
                                                                     .message);
                                                             }
                                                         });
-                                                        console.log(is_req_sent);
+                                                        // console.log(is_req_sent);
                                                         if (all_friends_id.includes(user['id'])) {
                                                             search_result_div =
                                                             `<div class="search_results_tab"  id="friend_tab` +user['id'] + `">
@@ -463,25 +480,30 @@
                                                                 </div>
                                                             </div>`;
                                                         } else {
-                                                            search_result_div =
-                                                            `<div class="search_results_tab"  id="friend_tab` +user['id'] + `">
-                                                                <div class="search_user_image">
-                                                                    <img class="result_user_search_img" src="` +user['avatar'] + `">
-                                                                </div>
-                                                                <div class="user_info_and_links ">
-                                                                    <div class="user_name">
-                                                                        <p>` + user['name'] + " " + user['lastname'] +" @" + user['username'] +`</p>
+                                                            if(user['id']!=this_user_id){
+                                                                search_result_div =
+                                                                `<div class="search_results_tab"  id="friend_tab` +user['id'] + `">
+                                                                    <div class="search_user_image">
+                                                                        <img class="result_user_search_img" src="` +user['avatar'] + `">
                                                                     </div>
-                                                                        <div class="user_actions">
-                                                                        <div class="user_links  user_actions_buttons">
-                                                                            <a target="blank" href="/user_profile?id=` +user['username'] +`"class="user_link">Перейти на страницу</a>
+                                                                    <div class="user_info_and_links ">
+                                                                        <div class="user_name">
+                                                                            <p>` + user['name'] + " " + user['lastname'] +" @" + user['username'] +`</p>
                                                                         </div>
-                                                                        <div class="friend_request  user_actions_buttons" id="send_friend_request` +user['id'] + `" uid="` + user['id'] + `">
-                                                                            Добавить в друзья
+                                                                            <div class="user_actions">
+                                                                            <div class="user_links  user_actions_buttons">
+                                                                                <a target="blank" href="/user_profile?id=` +user['username'] +`"class="user_link">Перейти на страницу</a>
+                                                                            </div>
+                                                                            <div class="friend_request  user_actions_buttons" id="send_friend_request` +user['id'] + `" uid="` + user['id'] + `">
+                                                                                Добавить в друзья
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                            </div>`;
+                                                                </div>`;
+                                                            }
+                                                            else{
+                                                                search_result_div  ='';
+                                                            }
                                                         }
                                                         $('#search_results').append(search_result_div);
                                                         button_send_request = document.getElementById('send_friend_request' + user['id']);

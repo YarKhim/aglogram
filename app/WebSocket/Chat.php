@@ -13,6 +13,7 @@ use App\Models\FriendsPair;
 use App\Models\Chat as UserChat;
 
 use App\Models\User;
+use App\Models\Post;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Header;
@@ -104,8 +105,6 @@ class Chat implements MessageComponentInterface
     public function onMessage(ConnectionInterface $from, $msg)
     {
         $msg_decode = json_decode($msg);
-        dump($msg_decode);
-        // echo "106 Строка type_message: ".$msg_decode->type_message;
         if ($msg_decode->type_message == 'message') {
             $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
             $sid = Crypt::decryptString($sessionId);
@@ -261,27 +260,38 @@ class Chat implements MessageComponentInterface
             }
         }
         if ($msg_decode->type_message == 'send_friend_request') {
-            FriendRequest::create([
-                'addresee' => $msg_decode->addresee,
-                'sender' => $msg_decode->sender,
-            ]);
-            $connection = Connection::where('user_id', $msg_decode->addresee)->first();
-            // dump($msg);
-            $msg = json_decode($msg);
-            if($connection!=null){
-                //echo 23;
-                $targetResourceId = $connection->connection;
-                $msg->type = 'new_friend_request';
-                $msg->user_sender = User::where('id', $msg_decode->sender)->first();
-                // dump('2342314_'.$targetResourceId);
-                $msg = json_encode($msg);
-                $this->all_clients[$targetResourceId]->send($msg);
+            try {
+                FriendRequest::create([
+                    'sender' => $msg_decode->sender,
+                    'addressee' => $msg_decode->addresee,
+                ]);
+                $connection = Connection::where('user_id', $msg_decode->addresee)->first();
+                // dump($msg);
+                $msg = json_decode($msg);
+                if($connection!=null){
+                    //echo 23;
+                    $targetResourceId = $connection->connection;
+                    $msg->type = 'new_friend_request';
+                    $msg->user_sender = User::where('id', $msg_decode->sender)->first();
+                    // dump('2342314_'.$targetResourceId);
+                    $msg = json_encode($msg);
+                    $this->all_clients[$targetResourceId]->send($msg);
+                }
+            } catch (Exception $e) {
+                echo 'запрос уже есть!';
+                FriendsPair::create([
+                    'invited' => $msg_decode->sender,
+                    'creator' => $msg_decode->addresee,
+                ]);
+                $request = FriendRequest::where('addresee', $msg_decode->sender )->where('sender', $msg_decode->addresee )->delete();
+                $request = FriendRequest::where('addresee', $msg_decode->addresee )->where('sender', $msg_decode->sender )->delete();
             }
+
         }
         if ($msg_decode->type_message == 'dismiss_friend_request') {
             $request = FriendRequest::where('addresee', $msg_decode->sender )->where('sender', $msg_decode->addresee )->delete();
         }
-        if ($msg_decode->type_message == 'dismiss_friend_request') {
+        if ($msg_decode->type_message == 'delete_friend') {
             $request = FriendsPair::where('invited', $msg_decode->sender )->where('creator', $msg_decode->addresee )->delete();
             $request = FriendsPair::where('invited', $msg_decode->addresee )->where('creator', $msg_decode->sender  )->delete();
         }
@@ -302,6 +312,42 @@ class Chat implements MessageComponentInterface
                 $this->all_clients[$targetResourceId]->send($msg);
             }
         }
+        if ($msg_decode->type_message == 'new_post'){
+            $images_links = [];
+            $text_link = '';
+            foreach ($msg_decode->post_photo as $photo) {
+                list($type, $data) = explode(';', $photo);
+                list(, $data) = explode(',', $data);
+                // Декодируем данные
+                $data = base64_decode($data);
+                $fileName = uniqid() . '.png';
+                $path = 'posts_media/' . $fileName;
+                $images_links[] = $path;
+                Storage::disk('public')->put($path , $data);
+            }
+            $author = $msg_decode->post_author;
+            $links = json_encode($images_links);
+            $text  = $msg_decode->post_text;
+            $fileName = uniqid() . '.txt';
+            $path = 'posts_text/' . $fileName;
+            $text_link =  json_encode($path);
+            Storage::disk('public')->put($path , $text);
+            Post::create([
+                'author_id' => $author,
+                'text' => $text_link,
+                'photos' => $links,
+            ]);
+            //#TODO надо бы сделать потом рассылку друзям этого пользоваетелся типо как в вк что типо он опубликовал что то
+        }
+        // switch ($msg_decode->type_message) {
+        //     case 'value':
+        //         # code...
+        //         break;
+
+        //     default:
+        //         # code...
+        //         break;
+        // }#TODO переделать потом на switch
     }
 
     public function onClose(ConnectionInterface $conn)
