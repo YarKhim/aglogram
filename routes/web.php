@@ -22,6 +22,7 @@ use App\Http\Controllers\isRequestSent;
 use App\Http\Controllers\getAllFriendsRequests;
 use App\Http\Controllers\send_post;
 use App\Http\Controllers\load_posts;
+use App\Http\Controllers\isLikeSent;
 // use App\Http\Controllers\getAllFriendsRequests;
 /*
 |--------------------------------------------------------------------------
@@ -103,5 +104,6 @@ Route::post('/isRequestSent', [isRequestSent::class, 'isreqSent']);
 Route::post('/getFriendRequests', [getAllFriendsRequests::class, 'getFriendRequests']);
 Route::post('/savepost', [send_post::class, 'save_post']);
 Route::post('/load_posts', [load_posts::class, 'load_post']);
+Route::post('/isLikeSent', [isLikeSent::class, 'islikesent']);
 require __DIR__ . '/auth.php';
 

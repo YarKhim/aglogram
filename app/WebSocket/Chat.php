@@ -9,6 +9,7 @@ use App\Models\Connection;
 use App\Models\Message;
 use App\Models\FriendRequest;
 use App\Models\FriendsPair;
+use App\Models\Like;
 // use App\Models\Chat;
 use App\Models\Chat as UserChat;
 
@@ -330,7 +331,7 @@ class Chat implements MessageComponentInterface
             $text  = $msg_decode->post_text;
             $fileName = uniqid() . '.txt';
             $path = 'posts_text/' . $fileName;
-            $text_link =  json_encode($path);
+            $text_link =  $path;
             Storage::disk('public')->put($path , $text);
             Post::create([
                 'author_id' => $author,
@@ -339,6 +340,35 @@ class Chat implements MessageComponentInterface
             ]);
             //#TODO надо бы сделать потом рассылку друзям этого пользоваетелся типо как в вк что типо он опубликовал что то
         }
+        if ($msg_decode->type_message == 'new_post_view') {
+            $post = Post::where('id', $msg_decode->post_id)->first();
+            $post->views = $post->views+1;
+            $post->save();
+            // $request = FriendsPair::where('invited', $msg_decode->sender )->where('creator', $msg_decode->addresee )->delete();
+            // $request = FriendsPair::where('invited', $msg_decode->addresee )->where('creator', $msg_decode->sender  )->delete();
+        }
+        if ($msg_decode->type_message == 'new_post_like') {
+            try {
+                $new_like = Like::create([
+                    'post_id' => $msg_decode->post_id,
+                    'sender_id' => $msg_decode->user_id,
+                    'type_like' => $msg_decode->type_like,
+                ]);
+                $post = Post::where('id', $msg_decode->post_id)->first();
+                $post->likes_count = $post->likes_count+1;
+                $post->save();
+            } catch (Exception $e) {
+                echo 'Лайк уже есть!';
+                //throw $th;
+            }
+
+            // $post = Post::where('id', $msg_decode->post_id)->first();
+            // $post->views = $post->views+1;
+            // $post->save();
+            // $request = FriendsPair::where('invited', $msg_decode->sender )->where('creator', $msg_decode->addresee )->delete();
+            // $request = FriendsPair::where('invited', $msg_decode->addresee )->where('creator', $msg_decode->sender  )->delete();
+        }
+        // new_post_view
         // switch ($msg_decode->type_message) {
         //     case 'value':
         //         # code...

@@ -15,8 +15,19 @@ class load_posts extends Controller
             $query->where('author_id', $request->input('user'));
             $author = User::where('id', $request->input('user'));
         }
-        $data = $query->paginate($perPage, ['*'], 'page', $page);
+        // $posts = $query->orderBy('created_at', 'desc')->get();
+
+        // foreach ($posts as $post) {
+        //     # code...
+        //     dump($post);
+        // }
+        $data = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        // foreach ($data as $value) {
+        //     dump($value);
+        //     # code...
+        // }
         // $data->author = $author;
-        return response()->json($data);
+        // return response()->json($data);
+        return response()->json(['message' => 'Данные успешно получены!', 'data' => $data]);
     }
 }

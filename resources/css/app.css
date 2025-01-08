@@ -1296,7 +1296,7 @@ input[type="file"] {
 }
 
 .post_author {
-    width: 65%;
+    width: 45%;
     font-size: 100%;
     /* text-align: left; */
 }
@@ -1322,21 +1322,21 @@ input[type="file"] {
 }
 
 .post_text {
-    height: auto;
-    /* border: 1px solid black; */
-    /* width: 95%; */
-    height: 90%;
+    /* height: auto; */
+    border: 1px solid black;
+    width: 90%;
+    /* height: 90%; */
     display: flex;
     justify-content: flex-start;
     /* padding: 10px; */
 }
 
 .post_text>p {
-    text-align: justify;
+    /* text-align: justify; */
     /* padding-top: 5%;
     padding-left: 5%;
     padding-right: 5%; */
-    padding: 5%;
+    /* padding: 5%; */
     /* word-wrap: break-word; */
 }
 
@@ -1378,6 +1378,7 @@ input[type="file"] {
 }
 
 .post_likes {
+    cursor: pointer;
     display: flex;
     flex-direction: row;
     background-color: gray;
@@ -1386,6 +1387,7 @@ input[type="file"] {
     min-width: 25%;
     width: min-content;
     transition: 0.5s;
+    border: 1px solid transparent;
 }
 
 .post_likes:hover {
@@ -1499,6 +1501,7 @@ input[type="file"] {
 }
 
 .make_post_plane {
+    /* transition: 0.5s; */
     position: absolute;
     z-index: 100;
     width: 100%;
@@ -1509,8 +1512,11 @@ input[type="file"] {
     visibility: hidden;
 }
 
-.make_post {
 
+.make_post {
+    /* transition: 0.5s; */
+    /* margin-left: 20%; */
+    /* align-self: center; */
     /* display: none; */
     border-radius: 20px;
     border: solid 1px white;
@@ -1783,4 +1789,16 @@ input[type="file"] {
 .make_post_button{
     display: none;
     /* visibility: hidden; */
+}
+.liked_post{
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    background-color: red;
+    border: 1px solid white;
+    pointer-events: none;
+}
+.liked_post:hover{
+    background-color: red;
+    border: 1px solid white;
 }

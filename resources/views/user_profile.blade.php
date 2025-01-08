@@ -1,71 +1,14 @@
 <x-app-layout>
     <script src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
-    {{-- <script src="{{ asset('js/BigInteger.js') }}"></script>
-
-    <script src="{{ asset('js/jsencrypt.min.js') }}"></script>
-    <script src="{{ asset('js/RSA.min.js') }}"></script>
-    <script src="{{ asset('js/forge.min.js') }}"></script>
-    <script src="{{ asset('js/crypto-js.min.js') }}"></script> --}}
     <script src="{{ asset('js/func.js') }}" defe></script>
-    <div class="make_post_plane">
-        <div class="make_post">
-            <div class="make_new_post">
-                Новый пост
-            </div>
-            <div class="new_post_inputs">
-                <div class="left_side_new_post_inputs">
-                    <div class="header_left_side_new_post_input">
-                        <h1>Текст поста <h1>
-                    </div>
+    <div class="make_post_plane" id="make_post_plane">
 
-                    <div class="input_post_text_div">
-                        <textarea class="input_post_text"></textarea>
-                    </div>
-                    <div class="publish_post">
-                        <div class="button_publish_post">
-                            Опубликовать
-                        </div>
-                        <div class="button_cancel_publish_post">
-                            Отмена
-                        </div>
-                    </div>
-                    {{-- <input type="file" id="fileInput" multiple accept="image/*"> --}}
-                    {{-- <div id="previewContainer"></div> --}}
-                </div>
-                <div class="right_side_new_post_inputs">
-                    <form id="form_upload">
-                        <input id="upload_images" type="file" multiple accept="image/*">
-                    </form>
-
-                    <div class="div_label_for_upload_images">
-                        <label class="label_for_upload_images" for="upload_images">Добавить фото к посту</label>
-                    </div>
-                    <div class="all_uploaded_images_post" id="all_uploaded_images_post">
-                    </div>
-                    <div class="container">
-                        <ul class="image-gallery" id="image_gallery">
-                            {{-- <li>
-                                <img class="photo_list" src="/storage/qoHQxweYhM5Mxap4ftcKuZVEhsJ1ErgxwiVem9rp.png">
-                                <div class="overlay">
-                                    <span>
-                                        Удалить
-                                    </span>
-                                </div>
-                            </li> --}}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
 
             @if (isset($user))
             {{ __('Страница пользователся @') . $user->username }}
-            {{-- <script>
-                user = {{$user;}}
-            </script> --}}
             @endif
         </h2>
     </x-slot>
@@ -74,10 +17,6 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{-- <script>
-                        console.log(`{{$user->name}}, {{$user->username}}, {{$user->lastname}}, {{$user->avatar}} `)
-                        user = `{{$user}}`;
-                    </script> --}}
                     <div class="border_debug user_page_plane">
                         <div class="left_side_plane border_debug" id="left_side_plane">
                             <div class="user_avatar">
@@ -93,6 +32,7 @@
                                     Новый пост
                                 </div>
                                 <script>
+
                                     all_files= [];
                                     all_files_links = {};
                                     function copy(){
@@ -106,10 +46,6 @@
                                     }
                                     var page = 1;
                                     var loading = false; // флаг загрузки
-
-
-
-
                                     this_user_id = null;
                                     $.ajax({
                                         url: '/get_this_user',
@@ -144,57 +80,149 @@
                                         // console.log('Это ваша страница');
                                         $(document.querySelector('.make_post_button')).css('display', 'block');
                                         document.querySelector('.make_post_button').addEventListener('click', function(){
-                                            $(document.querySelector('.make_post_plane')).css('visibility', 'visible');
-                                        });
-                                        $('#upload_images').on('change', function() {
-                                            var files = this.files;
-                                            function del_photo_tab(event){
-                                                $('#li_'+this.guid).remove();
-                                                delete all_files[this.guid];
-                                                delete all_files_links[this.guid];
-                                            }
-                                            for (var i = 0; i < files.length; i++) {
-                                                var file = files[i];
-                                                var reader = new FileReader();
-                                                new_guid = generateGUID();
-                                                all_files[new_guid] = file;
-                                                reader.onload = function(e) {
-                                                    // console.log(e.target.result);
-                                                    // all_files_links.push(e.target.result);
-                                                    all_files_links[new_guid] = e.target.result;
-                                                    var li =
-                                                    `<li id="li_`+new_guid+`">
-                                                        <img  class="photo_list" src="`+e.target.result+`" id="img_`+new_guid+`">
-                                                        <div class="overlay" id="del_`+new_guid+`">
-                                                            <span>
-                                                                Удалить
-                                                            </span>
+                                            post_plane =
+                                            `<div class="make_post" id="make_post">
+                                                <div class="make_new_post">
+                                                    Новый пост
+                                                </div>
+                                                <div class="new_post_inputs">
+                                                    <div class="left_side_new_post_inputs">
+                                                        <div class="header_left_side_new_post_input">
+                                                            <h1>Текст поста <h1>
                                                         </div>
-                                                    </li>`;
-                                                    $('#image_gallery').append(li);
-                                                    document.getElementById('del_'+new_guid).addEventListener('click', {handleEvent: del_photo_tab, guid: new_guid})
+                                                        <div class="input_post_text_div">
+                                                            <textarea class="input_post_text"></textarea>
+                                                        </div>
+                                                        <div class="publish_post">
+                                                            <div class="button_publish_post">
+                                                                Опубликовать
+                                                            </div>
+                                                            <div class="button_cancel_publish_post">
+                                                                Отмена
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="right_side_new_post_inputs">
+                                                        <form id="form_upload">
+                                                            <input id="upload_images" type="file" multiple accept="image/*">
+                                                        </form>
 
-                                                };
+                                                        <div class="div_label_for_upload_images">
+                                                            <label class="label_for_upload_images" for="upload_images">Добавить фото к посту</label>
+                                                        </div>
+                                                        <div class="all_uploaded_images_post" id="all_uploaded_images_post">
+                                                        </div>
+                                                        <div class="container">
+                                                            <ul class="image-gallery" id="image_gallery">
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                                            $(document.querySelector('.make_post_plane')).append(post_plane);
+                                            $(document.querySelector('.make_post_plane')).css('visibility','visible');
+                                            $('#upload_images').on('change', function() {
+                                                var files = this.files;
+                                                function del_photo_tab(event){
+                                                    $('#li_'+this.guid).remove();
+                                                    delete all_files[this.guid];
+                                                    delete all_files_links[this.guid];
+                                                }
+                                                for (var i = 0; i < files.length; i++) {
+                                                    var file = files[i];
+                                                    var reader = new FileReader();
+                                                    new_guid = generateGUID();
+                                                    all_files[new_guid] = file;
+                                                    reader.onload = function(e) {
+                                                        // console.log(e.target.result);
+                                                        // all_files_links.push(e.target.result);
+                                                        all_files_links[new_guid] = e.target.result;
+                                                        var li =
+                                                        `<li id="li_`+new_guid+`">
+                                                            <img  class="photo_list" src="`+e.target.result+`" id="img_`+new_guid+`">
+                                                            <div class="overlay" id="del_`+new_guid+`">
+                                                                <span>
+                                                                    Удалить
+                                                                </span>
+                                                            </div>
+                                                        </li>`;
+                                                        $('#image_gallery').append(li);
+                                                        document.getElementById('del_'+new_guid).addEventListener('click', {handleEvent: del_photo_tab, guid: new_guid})
 
-                                                reader.readAsDataURL(file);
-                                            }
-                                            this.value = null;
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                                this.value = null;
+                                            });
+                                            console.log(document.querySelector('.button_publish_post'));
+                                            document.querySelector('.button_cancel_publish_post').addEventListener('click', function(){
+                                                $(document.querySelector('.make_post')).remove();
+                                                $(document.querySelector('.make_post_plane')).css('visibility','hidden');
+                                            });
+                                            document.querySelector('.button_publish_post').addEventListener('click', function(){
+                                                if(Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0 ){
+                                                    // console.log(all_files_links);
+                                                    data = {
+                                                            'type_message': 'new_post',
+                                                            'post_author': this_user_id,
+                                                            'post_text': document.querySelector('.input_post_text').value,
+                                                            'post_photo': all_files_links,
+                                                    };
+                                                    sendMessage(JSON.stringify(data));
+                                                }
+                                                else{
+                                                    alert('Вы не ввели данные, без них не получится опубликовать ваш пост :(');
+                                                }
+                                            });
                                         });
-                                        document.querySelector('.button_publish_post').addEventListener('click', function(){
-                                            if(Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0 ){
-                                                // console.log(all_files_links);
-                                                data = {
-                                                        'type_message': 'new_post',
-                                                        'post_author': this_user_id,
-                                                        'post_text': document.querySelector('.input_post_text').value,
-                                                        'post_photo': all_files_links,
-                                                };
-                                                sendMessage(JSON.stringify(data));
-                                            }
-                                            else{
-                                                alert('Вы не ввели данные, без них не получится опубликовать ваш пост :(');
-                                            }
-                                        });
+                                        // $('#upload_images').on('change', function() {
+                                        //     var files = this.files;
+                                        //     function del_photo_tab(event){
+                                        //         $('#li_'+this.guid).remove();
+                                        //         delete all_files[this.guid];
+                                        //         delete all_files_links[this.guid];
+                                        //     }
+                                        //     for (var i = 0; i < files.length; i++) {
+                                        //         var file = files[i];
+                                        //         var reader = new FileReader();
+                                        //         new_guid = generateGUID();
+                                        //         all_files[new_guid] = file;
+                                        //         reader.onload = function(e) {
+                                        //             // console.log(e.target.result);
+                                        //             // all_files_links.push(e.target.result);
+                                        //             all_files_links[new_guid] = e.target.result;
+                                        //             var li =
+                                        //             `<li id="li_`+new_guid+`">
+                                        //                 <img  class="photo_list" src="`+e.target.result+`" id="img_`+new_guid+`">
+                                        //                 <div class="overlay" id="del_`+new_guid+`">
+                                        //                     <span>
+                                        //                         Удалить
+                                        //                     </span>
+                                        //                 </div>
+                                        //             </li>`;
+                                        //             $('#image_gallery').append(li);
+                                        //             document.getElementById('del_'+new_guid).addEventListener('click', {handleEvent: del_photo_tab, guid: new_guid})
+
+                                        //         };
+                                        //         reader.readAsDataURL(file);
+                                        //     }
+                                        //     this.value = null;
+                                        // });
+                                        // document.querySelector('.button_publish_post').addEventListener('click', function(){
+                                        //     if(Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0 ){
+                                        //         // console.log(all_files_links);
+                                        //         data = {
+                                        //                 'type_message': 'new_post',
+                                        //                 'post_author': this_user_id,
+                                        //                 'post_text': document.querySelector('.input_post_text').value,
+                                        //                 'post_photo': all_files_links,
+                                        //         };
+                                        //         sendMessage(JSON.stringify(data));
+                                        //     }
+                                        //     else{
+                                        //         alert('Вы не ввели данные, без них не получится опубликовать ваш пост :(');
+                                        //     }
+                                        // });
                                     }
                                     $.ajax({
                                         url: '/getfriends',
@@ -256,87 +284,6 @@
                                             alert('Произошла ошибка: ' + xhr.responseJSON.message);
                                         }
                                     });
-
-
-
-
-
-
-                                    // $.ajax({
-                                    //     url: '/get_user_posts',
-                                    //     type: 'post',
-                                    //     data: {
-                                    //         _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты
-                                    //     },
-                                    //     success: function(response) {
-                                    //         this_user_id = response['this_user_id'];
-                                    //     },
-                                    //     error: function(xhr) {
-                                    //         console.error('Error:', xhr);
-                                    //         alert('Произошла ошибка: ' + xhr.responseJSON.message);
-                                    //     }
-                                    // });
-                                    // alert("Скопированно в буфер обмена");
-
-
-
-
-
-
-
-
-
-
-
-                                    // function swap_image(new_imgae_id, image_id){
-                                    //     // console.log('Меняем '+image_id+' на '+new_imgae_id);
-                                    //     $('#post_data_image_carousel_'+image_id).css('display', 'none');
-                                    //     $('#post_data_image_carousel_'+new_imgae_id).css('display', 'block');
-                                    // }
-                                    // const elements = document.querySelectorAll('.post_data_image_carousel');
-                                    // current_image = 0;
-                                    // last_image = 0;
-                                    // max_image = elements.length - 1;
-                                    // for(let i =1; i<elements.length; i++){
-                                    //     id= elements[i].id;
-                                    //     $("#"+id).css('display','none');
-                                    // }
-                                    // function handleLeftClick(id_elem) {
-                                    //     if(current_image == 0){
-                                    //         last_image = current_image;
-                                    //         current_image = max_image;
-                                    //     }
-                                    //     else{
-                                    //         last_image = current_image;
-                                    //         current_image --;
-                                    //     }
-                                    //     swap_image(current_image, last_image);
-                                    // }
-                                    // function handleRightClick(id_elem) {
-                                    //     if(current_image == max_image){
-                                    //         last_image = current_image;
-                                    //         current_image = 0;
-                                    //     }
-                                    //     else{
-                                    //         last_image = current_image;
-                                    //         current_image++;
-                                    //     }
-                                    //     swap_image(current_image, last_image);
-                                    // }
-                                    // elements.forEach(element => {
-                                    //     element.addEventListener('click', (event) => {
-                                    //         const rect = element.getBoundingClientRect(); // Получаем размеры и позицию блока
-                                    //         const clickX = event.clientX - rect.left; // Координата X клика относительно блока
-                                    //         const halfWidth = rect.width / 2; // Половина ширины блока
-
-                                    //         if (clickX < halfWidth/2) {
-                                    //             handleLeftClick(element.id); // Если клик был на левой половине
-                                    //         }
-                                    //         if(clickX> (3*halfWidth)/2){
-                                    //             handleRightClick(element.id); // Если клик был на правой половине
-                                    //         }
-                                    //     });
-                                    // });
                                 </script>
                             </div>
                         </div>
@@ -515,6 +462,7 @@
                         </div>
                         <script>
                             all_photos_tab ={};
+                            viewed_posts_id = []
                             function loadData() {
                                 if (loading) return; // если данные уже загружаются, не выполнять запрос
                                 loading = true; // устанавливаем флаг загрузки
@@ -525,25 +473,31 @@
                                         _token: '{{ csrf_token() }}',
                                         page: page,
                                         user: '{{$user->id}}',
+                                        this_user_id: this_user_id,
                                     },
                                     success: function(data) {
+                                        console.log(data['data'])
+                                        data = data['data'];
                                         if (data.data.length > 0) {
-                                            console.log(data['data']);
+                                            // console.log(data['data']);
                                             data['data'].forEach(post => {
                                                 photos = JSON.parse(post['photos']);
+                                                // console.log(post['text'])
                                                 const url ='/storage/'+post['text'];
                                                 post_text = '';
+                                                const date = new Date(post['created_at']);
+                                                create_at =date.getDate()+'.'+(date.getMonth()+1)+'.'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes();;
                                                 new_post_tab =
-                                                `<div class="user_post_tab border_debug" id="user_post_tab_`+post['id']+`">
+                                                `<div class="user_post_tab " id="user_post_tab_`+post['id']+`">
                                                     <div class="user_post_rect">
                                                         <div class="post_header ">
-                                                            <img class="post_image border_debug"
+                                                            <img class="post_image "
                                                                 src="{{$user->avatar}}">
-                                                            <div class="post_author border_debug">
+                                                            <div class="post_author ">
                                                                 {{$user->name}} {{$user->lastname}}
                                                             </div>
-                                                            <div class="post_date border_debug" id="post_date_`+post['id']+`">
-                                                                `+post['created_at']+`
+                                                            <div class="post_date " id="post_date_`+post['id']+`">
+                                                                `+create_at+`
                                                             </div>
                                                         </div>
                                                         <div class="post_data_rect">
@@ -564,10 +518,10 @@
                                                                 Мне нравится
                                                             </div>
                                                             <div class="post_likes_counter" id="post_likes_counter_`+post['id']+`">
-                                                                `+post['likes_count']+`
+                                                                Лайки: `+post['likes_count']+`
                                                             </div>
                                                             <div class="post_watchers" id="post_watchers_`+post['id']+`">
-                                                               `+post['views']+`
+                                                               Просмотры: `+post['views']+`
                                                             </div>
                                                         </div>
                                                         <div class="post_comments">
@@ -591,12 +545,15 @@
                                                 fetch(url)
                                                     .then(response => {
                                                         if (!response.ok) {
+                                                            post_text = '<p>Произошла ошибка загрузки :(</p>';
+                                                            $('#post_text_'+post['id']).append(post_text);
                                                             throw new Error('Сеть ответила с ошибкой: ' + response.status);
                                                         }
+
                                                         return response.text(); // Получаем текст из ответа
                                                     })
                                                     .then(text => {
-                                                        console.log(data);
+                                                        // console.log(data);
                                                         post_text = '<p>'+ text+'</p>';
                                                         $('#post_text_'+post['id']).append(post_text);
                                                         // document.getElementById('output').textContent = data; // Выводим текст на страницу
@@ -604,7 +561,7 @@
                                                     .catch(error => {
                                                         console.error('Произошла ошибка:', error);
                                                     });
-                                                console.log(photos);
+                                                // console.log(photos);
                                                 counter = 0;
                                                 photos.forEach(photo => {
                                                     img = `<img class='post_data_image_carousel post_`+post['id']+`_data_image_carousel'
@@ -613,60 +570,40 @@
                                                     $('#post_data_image_'+post['id']).append(img);
                                                     counter++;
                                                 });
-                                                function swap_image(new_imgae_id, image_id,post_id){
-                                                    console.log('Меняем '+image_id+' на '+new_imgae_id);
-                                                    console.log(post_id);
-                                                    console.log(all_photos_tab)
-                                                    $('#post_'+post_id+'_data_image_carousel_'+image_id).css('display', 'none');
-                                                    $('#post_'+post_id+'_data_image_carousel_'+new_imgae_id).css('display', 'block');
-                                                }
+                                                all_new_photos = document.querySelectorAll('.post_'+post["id"]+'_data_image_carousel');
+                                                all_photos_tab[post['id']] = {'current_img': 0, 'last_img': 0,'max_img': all_new_photos.length -1};
                                                 const elements = document.querySelectorAll('.post_'+post['id']+'_data_image_carousel');
-                                                console.log('214321   ',elements);
-                                                all_photos_tab[post['id']] =
-                                                {
-                                                    'current_image': 0,
-                                                    'last_image': 0,
-                                                    'max_image':elements.length - 1
-                                                };
-                                                console.log(all_photos_tab)
-                                                // current_image = 0;
-                                                // last_image = 0;
-                                                // max_image = elements.length - 1;
                                                 for(let i =1; i<elements.length; i++){
                                                     id= elements[i].id;
                                                     $("#"+id).css('display','none');
                                                 }
-                                                photos_tab = all_photos_tab[post['id']];
+                                                function swap_image(new_imgae_id, image_id,post_id){
+                                                    $('#post_'+post_id+'_data_image_carousel_'+image_id).css('display', 'none');
+                                                    $('#post_'+post_id+'_data_image_carousel_'+new_imgae_id).css('display', 'block');
+                                                }
                                                 function handleLeftClick(id_elem) {
-                                                    console.log(id_elem);
-                                                    if(photos_tab['current_image'] == 0){
-                                                        photos_tab['last_image'] = photos_tab['current_image'];
-                                                        photos_tab['current_image'] = photos_tab['max_image'];
+                                                    // console.log(id_elem);
+                                                    if(all_photos_tab[post['id']]['current_img'] == 0){
+                                                        all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                        all_photos_tab[post['id']]['current_img'] = all_photos_tab[post['id']]['max_img'];
                                                     }
                                                     else{
-                                                        photos_tab['last_image'] = photos_tab['current_image'];
-                                                        photos_tab['current_image'] --;
+                                                        all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                        all_photos_tab[post['id']]['current_img'] --;
                                                     }
-                                                    console.log(all_photos_tab)
-                                                    // console.log(photos_tab['current_image'], ' ', photos_tab['last_image'],' ' ,post['id']);
-                                                    swap_image(photos_tab['current_image'], photos_tab['last_image'], post['id']);
+                                                    swap_image(all_photos_tab[post['id']]['current_img'], all_photos_tab[post['id']]['last_img'], post['id']);
                                                 }
                                                 function handleRightClick(id_elem) {
-                                                    console.log(id_elem);
-                                                    if(photos_tab['current_image'] == photos_tab['max_image']){
-                                                        photos_tab['last_image'] = photos_tab['current_image'];
-                                                        photos_tab['current_image'] = 0;
+                                                    // console.log(id_elem);
+                                                    if(all_photos_tab[post['id']]['current_img'] == all_photos_tab[post['id']]['max_img']){
+                                                        all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                        all_photos_tab[post['id']]['current_img'] = 0;
                                                     }
                                                     else{
-                                                        photos_tab['last_image'] = photos_tab['current_image'];
-                                                        photos_tab['current_image']++;
+                                                        all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                        all_photos_tab[post['id']]['current_img']++;
                                                     }
-                                                    console.log(all_photos_tab)
-                                                    // if( photos_tab['current_image'] > photos_tab['max_image']){
-                                                    //     photos_tab['current_image'] = 0;
-                                                    // }
-                                                    // console.log(photos_tab['current_image'], ' ', photos_tab['last_image'],' ' ,post['id']);
-                                                    swap_image( photos_tab['current_image'], photos_tab['last_image'], post['id']);
+                                                    swap_image( all_photos_tab[post['id']]['current_img'], all_photos_tab[post['id']]['last_img'], post['id']);
                                                 }
                                                 elements.forEach(element => {
                                                     element.addEventListener('click', (event) => {
@@ -682,20 +619,78 @@
                                                         }
                                                     });
                                                 });
-                                                // <img class='post_data_image_carousel'
-                                                //                             id='post_data_image_carousel_0'
-                                                //                             src="/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg">
-                                                //                         <img class='post_data_image_carousel'
-                                                //                             id='post_data_image_carousel_1'
-                                                //                             src="/storage/qoHQxweYhM5Mxap4ftcKuZVEhsJ1ErgxwiVem9rp.png">
-                                                //                         <img class='post_data_image_carousel'
-                                                //                             id='post_data_image_carousel_2'
-                                                //                             src="/storage/photo_2025-01-03_12-05-26.jpg">
 
-                                                // console.log( post['photos']);
+                                                const all_posts_div = document.getElementById('user_posts');
+                                                const posts_divs = document.querySelectorAll('.user_post_tab');
 
+
+
+                                                // console.log("🚀 ~ loadData ~ posts_divs:", posts_divs)
+                                                function checkVisibility() {
+                                                    posts_divs.forEach(post_div => {
+                                                        const childRect = post_div.getBoundingClientRect();
+                                                        const parentRect = all_posts_div.getBoundingClientRect();
+                                                        const childVisibleHeight = Math.max(0, Math.min(childRect.bottom, parentRect.bottom) - Math.max(childRect.top, parentRect.top));
+                                                        const halfChildHeight = post_div.offsetHeight / 2;
+                                                        if (childVisibleHeight >= halfChildHeight  && !viewed_posts_id.includes(post_div.id)) {
+                                                            viewed_posts_id.push(post_div.id);
+                                                            yourFunction(post_div);
+                                                        }
+                                                    });
+                                                }
+                                                function yourFunction(post_div) {
+
+                                                    post_id = post_div.id.replace('user_post_tab_', '');
+                                                    data = {
+                                                        'post_id': post_id,
+                                                        'type_message': 'new_post_view',
+                                                    }
+                                                    sendMessage(JSON.stringify(data));
+                                                }
+                                                all_posts_div.addEventListener('scroll', checkVisibility);
                                             });
+                                            // function like_post(post_id){
 
+                                            // }
+                                            const like_buttons = document.querySelectorAll('.post_likes');
+                                            like_buttons.forEach(like_button => {
+                                                post_id = like_button.id.replace('post_likes_','');
+                                                $.ajax({
+                                                    url: '/isLikeSent',
+                                                    type: 'POST',
+                                                    // async: false,
+                                                    data: {
+                                                        _token: '{{ csrf_token() }}',
+                                                        user_id: this_user_id,
+                                                        post_id: post_id,
+                                                        type_like: 'post_like',
+                                                    },
+                                                    success: function(response){
+                                                        // console.log(response);
+                                                        if(response['request_state']){
+                                                            like_button.innerText = 'Вы лайкнули';
+                                                            like_button.classList.add('liked_post');
+                                                        }
+                                                    },
+                                                    error: function(xhr) {
+                                                        console.error('Error:', xhr);
+                                                        alert('Произошла ошибка: ' + xhr.responseJSON.message);
+                                                    }
+                                                });
+                                                like_button.addEventListener('click', function(){
+                                                    post_id = like_button.id.replace('post_likes_','');
+                                                    data = {
+                                                        'user_id': this_user_id,
+                                                        'post_id': post_id,
+                                                        'type_like': 'post_like',
+                                                        'type_message': 'new_post_like',
+                                                    }
+                                                    sendMessage(JSON.stringify(data));
+                                                    like_button.innerText = 'Вы лайкнули';
+                                                    like_button.classList.add('liked_post');
+                                                })
+                                                // console.log(like_button);
+                                            });
                                             page++;
                                         } else {
                                             $('#user_posts').off('scroll');
@@ -707,7 +702,7 @@
                                 });
                             }
                             $('#user_posts').on('scroll', function() {
-                                if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight -10) {
+                                if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight -350) {
                                     loadData(); // загружаем данные при достижении конца контейнера
                                 }
                             });
