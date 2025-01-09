@@ -11,6 +11,7 @@ class isLikeSent extends Controller
         if($like==1){
             return response()->json(['message' => 'Данные успешно получены!', 'request_state' => true]);
         }
+        // Like::where()
         return response()->json(['message' => 'Данные успешно получены!', 'request_state' => false]);
         // echo 1;
     }

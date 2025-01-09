@@ -77,7 +77,6 @@
                                     }
                                     document.getElementById('user_username').addEventListener('click',copy);
                                     if('{{$user->id}}' == this_user_id){
-                                        // console.log('Это ваша страница');
                                         $(document.querySelector('.make_post_button')).css('display', 'block');
                                         document.querySelector('.make_post_button').addEventListener('click', function(){
                                             post_plane =
@@ -134,8 +133,6 @@
                                                     new_guid = generateGUID();
                                                     all_files[new_guid] = file;
                                                     reader.onload = function(e) {
-                                                        // console.log(e.target.result);
-                                                        // all_files_links.push(e.target.result);
                                                         all_files_links[new_guid] = e.target.result;
                                                         var li =
                                                         `<li id="li_`+new_guid+`">
@@ -154,14 +151,13 @@
                                                 }
                                                 this.value = null;
                                             });
-                                            console.log(document.querySelector('.button_publish_post'));
+                                            // console.log(document.querySelector('.button_publish_post'));
                                             document.querySelector('.button_cancel_publish_post').addEventListener('click', function(){
                                                 $(document.querySelector('.make_post')).remove();
                                                 $(document.querySelector('.make_post_plane')).css('visibility','hidden');
                                             });
                                             document.querySelector('.button_publish_post').addEventListener('click', function(){
                                                 if(Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0 ){
-                                                    // console.log(all_files_links);
                                                     data = {
                                                             'type_message': 'new_post',
                                                             'post_author': this_user_id,
@@ -169,66 +165,20 @@
                                                             'post_photo': all_files_links,
                                                     };
                                                     sendMessage(JSON.stringify(data));
+                                                    $(document.querySelector('.make_post')).remove();
+                                                    $(document.querySelector('.make_post_plane')).css('visibility','hidden');
                                                 }
                                                 else{
                                                     alert('Вы не ввели данные, без них не получится опубликовать ваш пост :(');
                                                 }
                                             });
                                         });
-                                        // $('#upload_images').on('change', function() {
-                                        //     var files = this.files;
-                                        //     function del_photo_tab(event){
-                                        //         $('#li_'+this.guid).remove();
-                                        //         delete all_files[this.guid];
-                                        //         delete all_files_links[this.guid];
-                                        //     }
-                                        //     for (var i = 0; i < files.length; i++) {
-                                        //         var file = files[i];
-                                        //         var reader = new FileReader();
-                                        //         new_guid = generateGUID();
-                                        //         all_files[new_guid] = file;
-                                        //         reader.onload = function(e) {
-                                        //             // console.log(e.target.result);
-                                        //             // all_files_links.push(e.target.result);
-                                        //             all_files_links[new_guid] = e.target.result;
-                                        //             var li =
-                                        //             `<li id="li_`+new_guid+`">
-                                        //                 <img  class="photo_list" src="`+e.target.result+`" id="img_`+new_guid+`">
-                                        //                 <div class="overlay" id="del_`+new_guid+`">
-                                        //                     <span>
-                                        //                         Удалить
-                                        //                     </span>
-                                        //                 </div>
-                                        //             </li>`;
-                                        //             $('#image_gallery').append(li);
-                                        //             document.getElementById('del_'+new_guid).addEventListener('click', {handleEvent: del_photo_tab, guid: new_guid})
-
-                                        //         };
-                                        //         reader.readAsDataURL(file);
-                                        //     }
-                                        //     this.value = null;
-                                        // });
-                                        // document.querySelector('.button_publish_post').addEventListener('click', function(){
-                                        //     if(Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0 ){
-                                        //         // console.log(all_files_links);
-                                        //         data = {
-                                        //                 'type_message': 'new_post',
-                                        //                 'post_author': this_user_id,
-                                        //                 'post_text': document.querySelector('.input_post_text').value,
-                                        //                 'post_photo': all_files_links,
-                                        //         };
-                                        //         sendMessage(JSON.stringify(data));
-                                        //     }
-                                        //     else{
-                                        //         alert('Вы не ввели данные, без них не получится опубликовать ваш пост :(');
-                                        //     }
-                                        // });
                                     }
                                     $.ajax({
                                         url: '/getfriends',
                                         type:'post',
                                         data: {
-                                        _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты
+                                            _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты
                                         },
                                         success: function(response) {
                                             needs_user = `{{$user->id}}`;
@@ -257,26 +207,28 @@
                                                 });
                                             }
                                             else{
-                                                add_friend_div  =
-                                                `<div uid="{{$user->id}}" class="add_friend_userpage  left_user_actions_buttons_userpage" id="add_friend">
-                                                    <p>Добавить в друзья</p>
-                                                </div>`;
-                                                $('#left_side_plane').append(add_friend_div);
-                                                // console.log(document.getElementById("add_friend"))
-                                                document.getElementById("add_friend").addEventListener('click', function(){
-                                                    data = {
-                                                        'addresee': needs_user,
-                                                        'sender': this_user_id,
-                                                        'type_message': 'send_friend_request',
-                                                    }
-                                                    // console.log(data);
-                                                    sendMessage(JSON.stringify(data));
-                                                    button = $("#" + 'add_friend');
-                                                    // console.log(user_id);
-                                                    button.text('Запрос отправлен');
-                                                    button.css('pointerEvents', 'none');
-                                                    button.css('opacity', '0.5');
-                                                });
+                                                if ('{{$user->id}}' != this_user_id){
+                                                    add_friend_div  =
+                                                    `<div uid="{{$user->id}}" class="add_friend_userpage  left_user_actions_buttons_userpage" id="add_friend">
+                                                        <p>Добавить в друзья</p>
+                                                    </div>`;
+                                                    $('#left_side_plane').append(add_friend_div);
+                                                    document.getElementById("add_friend").addEventListener('click', function(){
+                                                        data = {
+                                                            'addresee': needs_user,
+                                                            'sender': this_user_id,
+                                                            'type_message': 'send_friend_request',
+                                                        }
+                                                        // console.log(data);
+                                                        sendMessage(JSON.stringify(data));
+                                                        button = $("#" + 'add_friend');
+                                                        // console.log(user_id);
+                                                        button.text('Запрос отправлен');
+                                                        button.css('pointerEvents', 'none');
+                                                        button.css('opacity', '0.5');
+                                                    });
+                                                }
+
                                             }
                                         },
                                         error: function(xhr) {
@@ -295,7 +247,7 @@
                                         {{$user->username}}
                                     </p>
                                 </div>
-                                {{-- <div class="user_post_tab border_debug">
+                                <!-- {{-- <div class="user_post_tab border_debug">
 
                                     <div class="user_post_rect">
                                         <div class="post_header ">
@@ -375,89 +327,7 @@
                                         </div>
                                     </div>
 
-                                </div> --}}
-                                {{-- <div class="user_post_tab border_debug">
-
-                                    <div class="user_post_rect">
-                                        <div class="post_header ">
-                                            <img class="post_image border_debug"
-                                                src="/storage/s1zRSztpcLz2cdhjChIZ46ibEMOMgmJLimDoQTgY.png">
-                                            <div class="post_author border_debug">
-                                                Ярослав Хаймусов
-                                            </div>
-                                            <div class="post_date border_debug">
-                                                12.12.2024
-                                            </div>
-                                        </div>
-                                        <div class="post_data_rect">
-                                            <div class="post_data">
-                                                <div class="post_data_images">
-                                                    <div class="post_data_image">
-                                                        <img class='post_data_image_carousel'
-                                                            id='post_data_image_carousel_0'
-                                                            src="/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg">
-                                                        <img class='post_data_image_carousel'
-                                                            id='post_data_image_carousel_1'
-                                                            src="/storage/qoHQxweYhM5Mxap4ftcKuZVEhsJ1ErgxwiVem9rp.png">
-                                                        <img class='post_data_image_carousel'
-                                                            id='post_data_image_carousel_2'
-                                                            src="/storage/photo_2025-01-03_12-05-26.jpg">
-                                                        <img class='post_data_image_carousel'
-                                                            id='post_data_image_carousel_3'
-                                                            src="/storage/photo_2025-01-03_14-08-48.jpg">
-                                                        <script>
-                                                        </script>
-                                                    </div>
-                                                </div>
-                                                <div class="post_text">
-                                                    <p>
-                                                        Привет, это пост на странице пользователя @2 пока что это просто
-                                                        тестовый пост для того что бы понять как поведёт вёрстка если в
-                                                        ней окажеться достаточно большой текст как этот, можешь не
-                                                        дочитывать до конца это просто ессмысленный набор слов 3453534
-                                                        532452345234
-                                                        233245234
-                                                        ку
-                                                        куцк
-                                                        йцукеумумекмуему
-                                                        ке цук е
-
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="post_footer">
-                                            <div class="post_likes">
-
-                                                Мне нравится
-
-
-                                            </div>
-                                            <div class="post_likes_counter">
-                                                Понравилось 1234 раз
-                                            </div>
-                                            <div class="post_watchers">
-                                                11234 Просмотров
-                                            </div>
-                                        </div>
-                                        <div class="post_comments">
-                                            <div class="post_comments_input">
-                                                <textarea class="text_input_comment" name="text"
-                                                    oninput='this.style.height = "";this.style.height = this.scrollHeight + "px";'></textarea>
-
-                                                <div class="div_send_comment">
-                                                    <div class="send_comment">
-                                                        Отправить
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                        </div>
-                                    </div>
-
-                                </div> --}}
-
+                                </div> --}} -->
                             </div>
                         </div>
                         <script>
@@ -476,7 +346,7 @@
                                         this_user_id: this_user_id,
                                     },
                                     success: function(data) {
-                                        console.log(data['data'])
+                                        liked_post = data['liked_posts'];
                                         data = data['data'];
                                         if (data.data.length > 0) {
                                             // console.log(data['data']);
@@ -539,9 +409,11 @@
 
                                                         </div>
                                                     </div>
-
                                                 </div>`;
                                                 $('#user_posts').append(new_post_tab);
+                                                if (liked_post[post['id']]){
+                                                    document.getElementById('post_likes_'+post['id']).classList.add('liked_post');
+                                                }
                                                 fetch(url)
                                                     .then(response => {
                                                         if (!response.ok) {
@@ -549,19 +421,15 @@
                                                             $('#post_text_'+post['id']).append(post_text);
                                                             throw new Error('Сеть ответила с ошибкой: ' + response.status);
                                                         }
-
                                                         return response.text(); // Получаем текст из ответа
                                                     })
                                                     .then(text => {
-                                                        // console.log(data);
                                                         post_text = '<p>'+ text+'</p>';
                                                         $('#post_text_'+post['id']).append(post_text);
-                                                        // document.getElementById('output').textContent = data; // Выводим текст на страницу
                                                     })
                                                     .catch(error => {
                                                         console.error('Произошла ошибка:', error);
                                                     });
-                                                // console.log(photos);
                                                 counter = 0;
                                                 photos.forEach(photo => {
                                                     img = `<img class='post_data_image_carousel post_`+post['id']+`_data_image_carousel'
@@ -649,34 +517,9 @@
                                                 }
                                                 all_posts_div.addEventListener('scroll', checkVisibility);
                                             });
-                                            // function like_post(post_id){
-
-                                            // }
                                             const like_buttons = document.querySelectorAll('.post_likes');
                                             like_buttons.forEach(like_button => {
                                                 post_id = like_button.id.replace('post_likes_','');
-                                                $.ajax({
-                                                    url: '/isLikeSent',
-                                                    type: 'POST',
-                                                    // async: false,
-                                                    data: {
-                                                        _token: '{{ csrf_token() }}',
-                                                        user_id: this_user_id,
-                                                        post_id: post_id,
-                                                        type_like: 'post_like',
-                                                    },
-                                                    success: function(response){
-                                                        // console.log(response);
-                                                        if(response['request_state']){
-                                                            like_button.innerText = 'Вы лайкнули';
-                                                            like_button.classList.add('liked_post');
-                                                        }
-                                                    },
-                                                    error: function(xhr) {
-                                                        console.error('Error:', xhr);
-                                                        alert('Произошла ошибка: ' + xhr.responseJSON.message);
-                                                    }
-                                                });
                                                 like_button.addEventListener('click', function(){
                                                     post_id = like_button.id.replace('post_likes_','');
                                                     data = {
@@ -687,9 +530,10 @@
                                                     }
                                                     sendMessage(JSON.stringify(data));
                                                     like_button.innerText = 'Вы лайкнули';
+                                                    likes_count_current = Number(document.getElementById('post_likes_counter_'+post_id).innerText.replace('Лайки: ',''))+1;
+                                                    document.getElementById('post_likes_counter_'+post_id).innerText = 'Лайки: '+likes_count_current;
                                                     like_button.classList.add('liked_post');
                                                 })
-                                                // console.log(like_button);
                                             });
                                             page++;
                                         } else {

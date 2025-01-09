@@ -1305,16 +1305,10 @@ input[type="file"] {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* min-height: 15vh; */
-    /* height: auto; */
 }
 
 .post_data {
-    /* height: auto; */
     border-radius: 20px;
-    /* background-color: rgb(32, 39, 59); */
-    /* height: 80%; */
-    /* width: 90%; */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1322,22 +1316,9 @@ input[type="file"] {
 }
 
 .post_text {
-    /* height: auto; */
-    border: 1px solid black;
     width: 90%;
-    /* height: 90%; */
     display: flex;
     justify-content: flex-start;
-    /* padding: 10px; */
-}
-
-.post_text>p {
-    /* text-align: justify; */
-    /* padding-top: 5%;
-    padding-left: 5%;
-    padding-right: 5%; */
-    /* padding: 5%; */
-    /* word-wrap: break-word; */
 }
 
 .post_data_image {
@@ -1510,14 +1491,11 @@ input[type="file"] {
     justify-content: center;
     align-items: center;
     visibility: hidden;
+    background-color: rgba(255, 255, 255, 0.219);
 }
 
 
 .make_post {
-    /* transition: 0.5s; */
-    /* margin-left: 20%; */
-    /* align-self: center; */
-    /* display: none; */
     border-radius: 20px;
     border: solid 1px white;
     width: 60%;
