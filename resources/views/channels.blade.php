@@ -65,24 +65,72 @@
                                 <div class="create_channel border_debug">
                                     <h1 class="my_channels_options_header">Создать новый канал</h1>
                                     <div class="new_channel_form">
-                                        <input id="channel_name" class="new_channel_inputs channel_name" type="text"
-                                            placeholder="Название вашего канала">
-                                        <label for="channel_name">Имя вашего нового канала</label>
-                                        <input id="channel_unique_name" class="new_channel_inputs channel_unique_name"
+                                        <!-- <input id="channel_name" class="new_channel_inputs channel_name" type="text"
+                                            placeholder="Название вашего канала"> -->
+                                        <input
+                                            class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                                            id="channel_name" type="text" required="required" autofocus="autofocus"
+                                            autocomplete="name" placeholder="Название вашего канала">
+                                        <!-- <label for="channel_name">Имя вашего нового канала</label> -->
+                                        <input
+                                            class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                                            id="channel_unique_name" type="text" required="required"
+                                            autofocus="autofocus" autocomplete="name"
+                                            placeholder="Уникальное имя канала из латинских букв">
+                                        <!-- <input id="channel_unique_name" class="new_channel_inputs channel_unique_name"
                                             type="text" placeholder="Уникальное имя канала из латинских букв"
-                                            maxlength="15">
-                                        <label for="channel_unique_name"> Уникальное имя вашего канала из латинских букв
-                                        </label>
+                                            maxlength="15"> -->
+                                        <!-- <label for="channel_unique_name"> Уникальное имя вашего канала из латинских букв
+                                        </label> -->
                                         <input type="file" accept=".png, .jpg, .jpeg" id="channel_avatar_upload">
-                                        <label for="channel_avatar_upload">Загрузить аватар</label>
+                                        <label id="label_for_channel_avatar_upload"
+                                            for="channel_avatar_upload">Загрузить аватар</label>
                                         <div id="preview">
                                             <img id="preview-img" src="" alt="Предпросмотр">
-                                            <button type="button" class="remove-button" id="remove-button">Удалить</button>
+                                            <!-- <div class="">
+                                                <span>
+                                                    Удалить
+                                                </span>
+                                            </div> -->
+                                            <button type="button" class="remove_channel_avatar_button"
+                                                id="remove-button">Удалить</button>
                                         </div>
                                     </div>
+                                    <div class="send_req">
+                                        <div class="create_channel_button" id="create_channel_button">
+                                            Создать
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <div class="my_channels border_debug">
                                     <h1 class="my_channels_options_header">Мои каналы</h1>
+                                    <div class="subscriptions_list my_channels_list">
+
+                                    </div>
+                                    <!-- <div class="subscriptions_list"> -->
+                                    <!-- <div class="subscription_tab">
+
+                                        <div class="left_side_subscription_tab">
+                                            <img src="storage/channels_avatars/aglogram.png">
+                                        </div>
+                                        <div class="right_side_subscription_tab">
+                                            <div class="channel_name">
+                                                <p>Aglogram</p>
+                                            </div>
+                                            <div class="last_post">
+                                                <div class="last_post_text">
+                                                    <p>Это последний пост в этом шикарном канале</p>
+                                                </div>
+                                                <div class="last_post_time">
+                                                    <p>12.12.1212</p>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div> -->
+                                    <!-- </div> -->
                                 </div>
                                 <div class="statistic border_debug">
                                     <h1 class="my_channels_options_header">Статистика по моим каналам</h1>

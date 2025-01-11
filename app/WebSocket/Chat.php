@@ -10,6 +10,7 @@ use App\Models\Chat as UserChat;
 use App\Models\User;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\Channel;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Header;
@@ -381,6 +382,34 @@ class Chat implements MessageComponentInterface
                 // echo 1;
             }
         }
+        if ($msg_decode->type_message == 'new_channel'){
+            $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
+            $sid = Crypt::decryptString($sessionId);
+            $parts = explode('|', $sid);
+            $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
+            $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
+            // dump($user_id);
+
+
+            foreach ($msg_decode->file_avatar_channel as $photo) {
+                list($type, $data) = explode(';', $photo);
+                list(, $data) = explode(',', $data);
+                // Декодируем данные
+                $data = base64_decode($data);
+                $fileName = uniqid() . '.png';
+                $path = 'channels_avatars/' . $fileName;
+                $images_links[] = $path;
+                Storage::disk('public')->put($path , $data);
+            }
+
+            Channel::create([
+                'admins'=> $user_id,
+                'name' => $msg_decode->channel_name,
+                'channel_name' => $msg_decode->channel_name,
+                'channel_avatar'=> 'storage/'.$path,
+            ]);
+        }
+        // new_channel
         // new_post_view
         // switch ($msg_decode->type_message) {
         //     case 'value':

@@ -25,6 +25,7 @@ use App\Http\Controllers\load_posts;
 use App\Http\Controllers\isLikeSent;
 use App\Http\Controllers\load_post_comments;
 use App\Http\Controllers\start_chat;
+use App\Http\Controllers\create_channel;
 // use App\Http\Controllers\getAllFriendsRequests;
 /*
 |--------------------------------------------------------------------------
@@ -115,5 +116,6 @@ Route::post('/load_posts', [load_posts::class, 'load_post']);
 Route::post('/isLikeSent', [isLikeSent::class, 'islikesent']);
 Route::post('/load_post_comments', [load_post_comments::class, 'load_comments']);
 Route::post('/start_chat', [start_chat::class, 'start_users_chat']);
+Route::get('/get_channels', [create_channel::class, 'get_channels']);
 require __DIR__ . '/auth.php';
 
