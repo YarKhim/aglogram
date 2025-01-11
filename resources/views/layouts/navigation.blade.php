@@ -17,6 +17,11 @@
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('channels')" :active="request()->routeIs('channels')">
+                        {{ __('Сообщества') }}
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('chats')" :active="request()->routeIs('chats')">
                         {{ __('Чаты') }}
                     </x-nav-link>
@@ -31,6 +36,7 @@
                         {{ __('Видео') }}
                     </x-nav-link>
                 </div>
+
                 {{-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('video')" :active="request()->routeIs('video')">
                         {{ __('Уведомления') }}

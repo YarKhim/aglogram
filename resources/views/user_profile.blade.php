@@ -32,21 +32,22 @@
                                     Новый пост
                                 </div>
                                 <script>
-
-                                    all_files= [];
+                                    all_files = [];
                                     all_files_links = {};
-                                    function copy(){
-                                        navigator.clipboard.writeText(`@`+`{{$user->username}}`)
-                                        .then(() => {
-                                            alert('Имя пользователя скопировано');
-                                        })
-                                        .catch(err => {
-                                            console.error('Произошла ошибка');
-                                        });
+                                    function copy() {
+                                        navigator.clipboard.writeText(`@` + `{{$user->username}}`)
+                                            .then(() => {
+                                                alert('Имя пользователя скопировано');
+                                            })
+                                            .catch(err => {
+                                                console.error('Произошла ошибка');
+                                            });
                                     }
                                     var page = 1;
                                     var loading = false; // флаг загрузки
                                     this_user_id = null;
+                                    this_user = null;
+
                                     $.ajax({
                                         url: '/get_this_user',
                                         type: 'post',
@@ -54,33 +55,66 @@
                                         data: {
                                             _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты
                                         },
-                                        success: function(response) {
+                                        success: function (response) {
+                                            this_user = response['this_user'];
                                             this_user_id = response['this_user_id'];
                                         },
-                                        error: function(xhr) {
+                                        error: function (xhr) {
                                             console.error('Error:', xhr);
                                             alert('Произошла ошибка: ' + xhr.responseJSON.message);
                                         }
                                     });
+                                    $('.write_user').on('click', function () {
+                                        $.ajax({
+                                            url: '/start_chat',
+                                            type: 'post',
+                                            // async: false,
+                                            data: {
+                                                _token: '{{ csrf_token() }}',
+                                                user_id: '{{$user->id}}',
+                                                this_user_id: this_user_id, // Добавляем CSRF-токен для защиты
+                                            },
+                                            success: function (response) {
+                                                const url = '/chats?new_chat_user_id={{$user->id}}';
+                                                window.open(url);
+                                                // console.log(response);
+                                                // this_user = response['this_user'];
+                                                // this_user_id = response['this_user_id'];
+                                            },
+                                            error: function (xhr) {
+                                                console.error('Error:', xhr);
+                                                alert('Произошла ошибка: ' + xhr.responseJSON.message);
+                                            }
+                                        });
+
+                                    });
                                     const socket = new WebSocket('ws://localhost:8888');
-                                    socket.onopen = function(event) {
+                                    socket.onopen = function (event) {
                                         console.log('Подключено к WebSocket серверу');
                                     };
-                                    socket.onmessage = function(event) {
-                                        event_data = JSON.parse(event.data)
+                                    socket.onmessage = function (event) {
+                                        event_data = JSON.parse(event.data);
+                                        if (event_data['type'] == "update_comment_from_guid_to_id") {
+
+                                            document.querySelector(".comment_tab_" + event_data['comment_guid']).classList.add("comment_tab_" + event_data['new_comment_id']);
+                                            document.querySelector(".comment_tab_" + event_data['comment_guid']).classList.remove("comment_tab_" + event_data['comment_guid']);
+
+                                            document.querySelector(".comment_" + event_data['comment_guid']).classList.add("comment_" + event_data['new_comment_id']);
+                                            document.querySelector(".comment_" + event_data['comment_guid']).classList.remove("comment_" + event_data['comment_guid']);
+                                        }
                                     };
-                                    socket.onclose = function(event) {
+                                    socket.onclose = function (event) {
                                         console.log('Соединение закрыто');
                                     };
                                     function sendMessage(message) {
                                         socket.send(message);
                                     }
-                                    document.getElementById('user_username').addEventListener('click',copy);
-                                    if('{{$user->id}}' == this_user_id){
+                                    document.getElementById('user_username').addEventListener('click', copy);
+                                    if ('{{$user->id}}' == this_user_id) {
                                         $(document.querySelector('.make_post_button')).css('display', 'block');
-                                        document.querySelector('.make_post_button').addEventListener('click', function(){
+                                        document.querySelector('.make_post_button').addEventListener('click', function () {
                                             post_plane =
-                                            `<div class="make_post" id="make_post">
+                                                `<div class="make_post" id="make_post">
                                                 <div class="make_new_post">
                                                     Новый пост
                                                 </div>
@@ -119,11 +153,11 @@
                                                 </div>
                                             </div>`;
                                             $(document.querySelector('.make_post_plane')).append(post_plane);
-                                            $(document.querySelector('.make_post_plane')).css('visibility','visible');
-                                            $('#upload_images').on('change', function() {
+                                            $(document.querySelector('.make_post_plane')).css('visibility', 'visible');
+                                            $('#upload_images').on('change', function () {
                                                 var files = this.files;
-                                                function del_photo_tab(event){
-                                                    $('#li_'+this.guid).remove();
+                                                function del_photo_tab(event) {
+                                                    $('#li_' + this.guid).remove();
                                                     delete all_files[this.guid];
                                                     delete all_files_links[this.guid];
                                                 }
@@ -132,19 +166,19 @@
                                                     var reader = new FileReader();
                                                     new_guid = generateGUID();
                                                     all_files[new_guid] = file;
-                                                    reader.onload = function(e) {
+                                                    reader.onload = function (e) {
                                                         all_files_links[new_guid] = e.target.result;
                                                         var li =
-                                                        `<li id="li_`+new_guid+`">
-                                                            <img  class="photo_list" src="`+e.target.result+`" id="img_`+new_guid+`">
-                                                            <div class="overlay" id="del_`+new_guid+`">
+                                                            `<li id="li_` + new_guid + `">
+                                                            <img  class="photo_list" src="`+ e.target.result + `" id="img_` + new_guid + `">
+                                                            <div class="overlay" id="del_`+ new_guid + `">
                                                                 <span>
                                                                     Удалить
                                                                 </span>
                                                             </div>
                                                         </li>`;
                                                         $('#image_gallery').append(li);
-                                                        document.getElementById('del_'+new_guid).addEventListener('click', {handleEvent: del_photo_tab, guid: new_guid})
+                                                        document.getElementById('del_' + new_guid).addEventListener('click', { handleEvent: del_photo_tab, guid: new_guid })
 
                                                     };
                                                     reader.readAsDataURL(file);
@@ -152,23 +186,24 @@
                                                 this.value = null;
                                             });
                                             // console.log(document.querySelector('.button_publish_post'));
-                                            document.querySelector('.button_cancel_publish_post').addEventListener('click', function(){
+                                            document.querySelector('.button_cancel_publish_post').addEventListener('click', function () {
                                                 $(document.querySelector('.make_post')).remove();
-                                                $(document.querySelector('.make_post_plane')).css('visibility','hidden');
+                                                $(document.querySelector('.make_post_plane')).css('visibility', 'hidden');
                                             });
-                                            document.querySelector('.button_publish_post').addEventListener('click', function(){
-                                                if(Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0 ){
+                                            document.querySelector('.button_publish_post').addEventListener('click', function () {
+                                                if (Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0) {
                                                     data = {
-                                                            'type_message': 'new_post',
-                                                            'post_author': this_user_id,
-                                                            'post_text': document.querySelector('.input_post_text').value,
-                                                            'post_photo': all_files_links,
+                                                        'type_message': 'new_post',
+                                                        'post_author': this_user_id,
+                                                        'post_text': document.querySelector('.input_post_text').value,
+                                                        'post_photo': all_files_links,
                                                     };
                                                     sendMessage(JSON.stringify(data));
                                                     $(document.querySelector('.make_post')).remove();
-                                                    $(document.querySelector('.make_post_plane')).css('visibility','hidden');
+                                                    $(document.querySelector('.make_post_plane')).css('visibility', 'hidden');
+                                                    location.reload();
                                                 }
-                                                else{
+                                                else {
                                                     alert('Вы не ввели данные, без них не получится опубликовать ваш пост :(');
                                                 }
                                             });
@@ -176,44 +211,44 @@
                                     }
                                     $.ajax({
                                         url: '/getfriends',
-                                        type:'post',
+                                        type: 'post',
                                         data: {
                                             _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты
                                         },
-                                        success: function(response) {
+                                        success: function (response) {
                                             needs_user = `{{$user->id}}`;
                                             flag = false;
                                             friends = response['friends'];
                                             friends.forEach(user => {
-                                                if(user['id'] == needs_user){
+                                                if (user['id'] == needs_user) {
                                                     flag = true;
                                                 }
                                             });
-                                            if(flag){
-                                                delete_friend_div  =
-                                                `<div uid="{{$user->id}}" class="remove_friend_userpage  left_user_actions_buttons_userpage" id="remove_friend_{{$user->id}}">
+                                            if (flag) {
+                                                delete_friend_div =
+                                                    `<div uid="{{$user->id}}" class="remove_friend_userpage  left_user_actions_buttons_userpage" id="remove_friend_{{$user->id}}">
                                                     <p>Удалить из друзей</p>
                                                 </div>`;
                                                 $('#left_side_plane').append(delete_friend_div);
-                                                document.getElementById("remove_friend_{{$user->id}}").addEventListener('click', function(){
+                                                document.getElementById("remove_friend_{{$user->id}}").addEventListener('click', function () {
                                                     data = {
                                                         'sender': this_user_id,
                                                         'addresee': '{{$user->id}}',
                                                         'type_message': 'delete_friend',
                                                     }
                                                     sendMessage(JSON.stringify(data));
-                                                    tab = $("#remove_friend_{{$user->id}}" );
+                                                    tab = $("#remove_friend_{{$user->id}}");
                                                     tab.remove();
                                                 });
                                             }
-                                            else{
-                                                if ('{{$user->id}}' != this_user_id){
-                                                    add_friend_div  =
-                                                    `<div uid="{{$user->id}}" class="add_friend_userpage  left_user_actions_buttons_userpage" id="add_friend">
+                                            else {
+                                                if ('{{$user->id}}' != this_user_id) {
+                                                    add_friend_div =
+                                                        `<div uid="{{$user->id}}" class="add_friend_userpage  left_user_actions_buttons_userpage" id="add_friend">
                                                         <p>Добавить в друзья</p>
                                                     </div>`;
                                                     $('#left_side_plane').append(add_friend_div);
-                                                    document.getElementById("add_friend").addEventListener('click', function(){
+                                                    document.getElementById("add_friend").addEventListener('click', function () {
                                                         data = {
                                                             'addresee': needs_user,
                                                             'sender': this_user_id,
@@ -231,7 +266,7 @@
 
                                             }
                                         },
-                                        error: function(xhr) {
+                                        error: function (xhr) {
                                             console.error('Error:', xhr);
                                             alert('Произошла ошибка: ' + xhr.responseJSON.message);
                                         }
@@ -243,11 +278,11 @@
                             <div class="user_posts border_debug" id="user_posts">
                                 <div class="head_posts">
                                     <p>
-                                        Посты пользователя @
+                                        Посты @
                                         {{$user->username}}
                                     </p>
                                 </div>
-                                <!-- {{-- <div class="user_post_tab border_debug">
+                                <!-- <div class="user_post_tab border_debug">
 
                                     <div class="user_post_rect">
                                         <div class="post_header ">
@@ -267,17 +302,6 @@
                                                         <img class='post_data_image_carousel'
                                                             id='post_data_image_carousel_0'
                                                             src="/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg">
-                                                        <img class='post_data_image_carousel'
-                                                            id='post_data_image_carousel_1'
-                                                            src="/storage/qoHQxweYhM5Mxap4ftcKuZVEhsJ1ErgxwiVem9rp.png">
-                                                        <img class='post_data_image_carousel'
-                                                            id='post_data_image_carousel_2'
-                                                            src="/storage/photo_2025-01-03_12-05-26.jpg">
-                                                        <img class='post_data_image_carousel'
-                                                            id='post_data_image_carousel_3'
-                                                            src="/storage/photo_2025-01-03_14-08-48.jpg">
-                                                        <script>
-                                                        </script>
                                                     </div>
                                                 </div>
                                                 <div class="post_text">
@@ -299,16 +323,52 @@
                                         </div>
                                         <div class="post_footer">
                                             <div class="post_likes">
-
                                                 Мне нравится
-
-
                                             </div>
                                             <div class="post_likes_counter">
                                                 Понравилось 1234 раз
                                             </div>
                                             <div class="post_watchers">
                                                 11234 Просмотров
+                                            </div>
+                                        </div>
+                                        <div class="open_comments">
+                                            Открыть комментарии
+                                        </div>
+                                        <div class="comments_plane">
+
+                                            <div class="comment_tab">
+                                                <div class="comment border_debug">
+                                                    <div class="comentatr_avatar">
+                                                        <img
+                                                            src="/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg">
+                                                    </div>
+                                                    <div class="commentor_name_comment_text border_debug">
+                                                        <div class="commentator_name">
+                                                            Ярослав Хаймусов
+                                                        </div>
+                                                        <div class="comment_text">
+                                                            <p>
+                                                                Привет, это Комментарий на странице пользователя @2 пока
+                                                                что это просто
+                                                                тестовый Комментарий для того что бы понять как поведёт
+                                                                вёрстка если в
+                                                                ней окажеться достаточно большой текст как этот, можешь
+                                                                не
+                                                                дочитывать до конца это просто ессмысленный набор слов
+                                                                3453534
+                                                                532452345234
+                                                                233245234
+                                                                ку
+                                                                куцк
+                                                                йцукеумумекмуему
+                                                                ке цук е
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="post_comments">
@@ -327,12 +387,15 @@
                                         </div>
                                     </div>
 
-                                </div> --}} -->
+                                </div> -->
                             </div>
                         </div>
                         <script>
-                            all_photos_tab ={};
-                            viewed_posts_id = []
+                            all_comments_is_open = {};
+                            all_photos_tab = {};
+                            viewed_posts_id = [];
+                            last_posts_comments = {};
+                            comments_loading_flags = {};
                             function loadData() {
                                 if (loading) return; // если данные уже загружаются, не выполнять запрос
                                 loading = true; // устанавливаем флаг загрузки
@@ -345,20 +408,21 @@
                                         user: '{{$user->id}}',
                                         this_user_id: this_user_id,
                                     },
-                                    success: function(data) {
+                                    success: function (data) {
                                         liked_post = data['liked_posts'];
                                         data = data['data'];
                                         if (data.data.length > 0) {
                                             // console.log(data['data']);
                                             data['data'].forEach(post => {
                                                 photos = JSON.parse(post['photos']);
+                                                postId = post['id'];
                                                 // console.log(post['text'])
-                                                const url ='/storage/'+post['text'];
+                                                const url = '/storage/' + post['text'];
                                                 post_text = '';
                                                 const date = new Date(post['created_at']);
-                                                create_at =date.getDate()+'.'+(date.getMonth()+1)+'.'+date.getFullYear()+' '+date.getHours()+':'+date.getMinutes();;
+                                                create_at = String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getFullYear()).padStart(2, '0') + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
                                                 new_post_tab =
-                                                `<div class="user_post_tab " id="user_post_tab_`+post['id']+`">
+                                                    `<div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
                                                     <div class="user_post_rect">
                                                         <div class="post_header ">
                                                             <img class="post_image "
@@ -366,41 +430,47 @@
                                                             <div class="post_author ">
                                                                 {{$user->name}} {{$user->lastname}}
                                                             </div>
-                                                            <div class="post_date " id="post_date_`+post['id']+`">
-                                                                `+create_at+`
+                                                            <div class="post_date " id="post_date_`+ post['id'] + `">
+                                                                `+ create_at + `
                                                             </div>
                                                         </div>
                                                         <div class="post_data_rect">
                                                             <div class="post_data">
                                                                 <div class="post_data_images">
-                                                                    <div class="post_data_image" id="post_data_image_`+post['id']+`">
+                                                                    <div class="post_data_image" id="post_data_image_`+ post['id'] + `">
 
 
                                                                     </div>
                                                                 </div>
-                                                                <div class="post_text" id="post_text_`+post['id']+`">
+                                                                <div class="post_text" id="post_text_`+ post['id'] + `">
 
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div class="post_footer">
-                                                            <div class="post_likes" id="post_likes_`+post['id']+`">
+                                                            <div class="post_likes" id="post_likes_`+ post['id'] + `">
                                                                 Мне нравится
                                                             </div>
-                                                            <div class="post_likes_counter" id="post_likes_counter_`+post['id']+`">
-                                                                Лайки: `+post['likes_count']+`
+                                                            <div class="post_likes_counter" id="post_likes_counter_`+ post['id'] + `">
+                                                                Лайки: `+ post['likes_count'] + `
                                                             </div>
-                                                            <div class="post_watchers" id="post_watchers_`+post['id']+`">
-                                                               Просмотры: `+post['views']+`
+                                                            <div class="post_watchers" id="post_watchers_`+ post['id'] + `">
+                                                               Просмотры: `+ post['views'] + `
                                                             </div>
+                                                        </div>
+                                                        <div class="open_comments open_comments_`+ post['id'] + `"  >
+                                                            Открыть комментарии
+                                                        </div>
+                                                        <div class="comments_plane comments_plane_`+ post['id'] + `">
+
                                                         </div>
                                                         <div class="post_comments">
                                                             <div class="post_comments_input">
-                                                                <textarea id="input_comment_`+post['id']+`"  class="text_input_comment" name="text"
+                                                                <textarea id="input_comment_`+ post['id'] + `"  class="text_input_comment" name="text"
                                                                     oninput='this.style.height = "";this.style.height = this.scrollHeight + "px";'></textarea>
 
                                                                 <div class="div_send_comment">
-                                                                    <div class="send_comment" id="send_comment_`+post['id']+`">
+                                                                    <div class="send_comment" id="send_comment_`+ post['id'] + `">
                                                                         Отправить
                                                                     </div>
                                                                 </div>
@@ -411,67 +481,70 @@
                                                     </div>
                                                 </div>`;
                                                 $('#user_posts').append(new_post_tab);
-                                                if (liked_post[post['id']]){
-                                                    document.getElementById('post_likes_'+post['id']).classList.add('liked_post');
+                                                // console.log(liked_post);
+                                                if (liked_post[post['id']]) {
+                                                    document.getElementById('post_likes_' + post['id']).classList.add('liked_post');
                                                 }
                                                 fetch(url)
                                                     .then(response => {
                                                         if (!response.ok) {
                                                             post_text = '<p>Произошла ошибка загрузки :(</p>';
-                                                            $('#post_text_'+post['id']).append(post_text);
+                                                            $('#post_text_' + post['id']).append(post_text);
                                                             throw new Error('Сеть ответила с ошибкой: ' + response.status);
                                                         }
                                                         return response.text(); // Получаем текст из ответа
                                                     })
                                                     .then(text => {
-                                                        post_text = '<p>'+ text+'</p>';
-                                                        $('#post_text_'+post['id']).append(post_text);
+                                                        post_text = '<p>' + text + '</p>';
+                                                        $('#post_text_' + post['id']).append(post_text);
                                                     })
                                                     .catch(error => {
                                                         console.error('Произошла ошибка:', error);
                                                     });
                                                 counter = 0;
                                                 photos.forEach(photo => {
-                                                    img = `<img class='post_data_image_carousel post_`+post['id']+`_data_image_carousel'
-                                                            id='post_`+post['id']+`_data_image_carousel_`+counter+`'
-                                                            src="/storage/`+photo+`">`;
-                                                    $('#post_data_image_'+post['id']).append(img);
+                                                    img = `<img class='post_data_image_carousel post_` + post['id'] + `_data_image_carousel'
+                                                            id='post_`+ post['id'] + `_data_image_carousel_` + counter + `'
+                                                            src="/storage/`+ photo + `">`;
+                                                    $('#post_data_image_' + post['id']).append(img);
                                                     counter++;
                                                 });
-                                                all_new_photos = document.querySelectorAll('.post_'+post["id"]+'_data_image_carousel');
-                                                all_photos_tab[post['id']] = {'current_img': 0, 'last_img': 0,'max_img': all_new_photos.length -1};
-                                                const elements = document.querySelectorAll('.post_'+post['id']+'_data_image_carousel');
-                                                for(let i =1; i<elements.length; i++){
-                                                    id= elements[i].id;
-                                                    $("#"+id).css('display','none');
+                                                all_new_photos = document.querySelectorAll('.post_' + post["id"] + '_data_image_carousel');
+                                                all_photos_tab[post['id']] = { 'current_img': 0, 'last_img': 0, 'max_img': all_new_photos.length - 1 };
+                                                last_posts_comments[post['id']] = 1;
+                                                comments_loading_flags[post['id']] = false;
+                                                const elements = document.querySelectorAll('.post_' + post['id'] + '_data_image_carousel');
+                                                for (let i = 1; i < elements.length; i++) {
+                                                    id = elements[i].id;
+                                                    $("#" + id).css('display', 'none');
                                                 }
-                                                function swap_image(new_imgae_id, image_id,post_id){
-                                                    $('#post_'+post_id+'_data_image_carousel_'+image_id).css('display', 'none');
-                                                    $('#post_'+post_id+'_data_image_carousel_'+new_imgae_id).css('display', 'block');
+                                                function swap_image(new_imgae_id, image_id, post_id) {
+                                                    $('#post_' + post_id + '_data_image_carousel_' + image_id).css('display', 'none');
+                                                    $('#post_' + post_id + '_data_image_carousel_' + new_imgae_id).css('display', 'block');
                                                 }
                                                 function handleLeftClick(id_elem) {
                                                     // console.log(id_elem);
-                                                    if(all_photos_tab[post['id']]['current_img'] == 0){
+                                                    if (all_photos_tab[post['id']]['current_img'] == 0) {
                                                         all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
                                                         all_photos_tab[post['id']]['current_img'] = all_photos_tab[post['id']]['max_img'];
                                                     }
-                                                    else{
+                                                    else {
                                                         all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
-                                                        all_photos_tab[post['id']]['current_img'] --;
+                                                        all_photos_tab[post['id']]['current_img']--;
                                                     }
                                                     swap_image(all_photos_tab[post['id']]['current_img'], all_photos_tab[post['id']]['last_img'], post['id']);
                                                 }
                                                 function handleRightClick(id_elem) {
                                                     // console.log(id_elem);
-                                                    if(all_photos_tab[post['id']]['current_img'] == all_photos_tab[post['id']]['max_img']){
+                                                    if (all_photos_tab[post['id']]['current_img'] == all_photos_tab[post['id']]['max_img']) {
                                                         all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
                                                         all_photos_tab[post['id']]['current_img'] = 0;
                                                     }
-                                                    else{
+                                                    else {
                                                         all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
                                                         all_photos_tab[post['id']]['current_img']++;
                                                     }
-                                                    swap_image( all_photos_tab[post['id']]['current_img'], all_photos_tab[post['id']]['last_img'], post['id']);
+                                                    swap_image(all_photos_tab[post['id']]['current_img'], all_photos_tab[post['id']]['last_img'], post['id']);
                                                 }
                                                 elements.forEach(element => {
                                                     element.addEventListener('click', (event) => {
@@ -479,28 +552,159 @@
                                                         const clickX = event.clientX - rect.left; // Координата X клика относительно блока
                                                         const halfWidth = rect.width / 2; // Половина ширины блока
 
-                                                        if (clickX < halfWidth/2) {
+                                                        if (clickX < halfWidth / 2) {
                                                             handleLeftClick(element.id); // Если клик был на левой половине
                                                         }
-                                                        if(clickX> (3*halfWidth)/2){
+                                                        if (clickX > (3 * halfWidth) / 2) {
                                                             handleRightClick(element.id); // Если клик был на правой половине
                                                         }
                                                     });
                                                 });
+                                                const open_comments = document.querySelector('.open_comments_' + post['id']);
+                                                all_comments_is_open[post['id']] = false;
 
+                                                function load_post_comments(isFirst = false) {
+                                                    if (load_post_comments[post['id']]) return;
+                                                    load_post_comments[post['id']] = true;
+                                                    $.ajax({
+                                                        url: '/load_post_comments',
+                                                        type: 'post',
+                                                        data: {
+                                                            _token: '{{ csrf_token() }}',
+                                                            post_id: post['id'],
+                                                            page: last_posts_comments[post['id']],
+                                                        },
+                                                        success: function (comment_load_result) {
+                                                            res = comment_load_result['data']['data'];
+                                                            users = comment_load_result['users'];
+                                                            if (res.length > 0) {
+                                                                $('#not_comments_' + post['id']).remove();
+                                                                res.forEach(comment => {
+                                                                    current_post_author = users[comment['author_id']];
+                                                                    post_created_at = new Date(comment['created_at']);
+                                                                    comment_tab =
+                                                                        `<div class="comment_tab comment_tab_` + comment['id'] + `">
+                                                                        <div class="comment comment_`+ comment['id'] + `">
+                                                                            <div class="comentatr_avatar">
+                                                                                <img
+                                                                                    src="`+ current_post_author['avatar'] + `">
+                                                                            </div>
+                                                                            <div class="commentor_name_comment_text">
+                                                                                <div class='about_post'>
+                                                                                    <div class="commentator_name">
+                                                                                        `+ current_post_author['name'] + ` ` + current_post_author['lastname'] + `
+                                                                                    </div>
+                                                                                <div class='post_time'>`+ String(post_created_at.getDate()).padStart(2, '0') + `.` + String(post_created_at.getMonth() + 1).padStart(2, '0') + `.` + post_created_at.getFullYear() + ` ` + String(post_created_at.getHours()).padStart(2, '0') + `:` + String(post_created_at.getMinutes()).padStart(2, '0') + `</div>
+                                                                                </div>
+
+                                                                                <div class="comment_text">
+                                                                                    <p>
+                                                                                        `+ comment['text'] + `
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+
+
+                                                                        </div>
+                                                                    </div>`;
+                                                                    $('.comments_plane_' + post['id']).append(comment_tab);
+                                                                });
+                                                                last_posts_comments[post['id']] = last_posts_comments[post['id']] + 1;
+                                                            }
+                                                            else {
+                                                                if (isFirst) {
+                                                                    $('.not_comments_' + post['id']).remove();
+                                                                    not_comments_tab =
+                                                                        ` <div class='not_comments not_comments_` + post['id'] + `' id="not_comments_` + post['id'] + `" >
+                                                                        Под этим постом ещё нет комметрариев :)
+                                                                    </div>`;
+                                                                    $('.comments_plane_' + post['id']).append(not_comments_tab);
+                                                                }
+                                                            }
+                                                        },
+                                                        error: function (xhr) {
+                                                            console.error('Error:', xhr);
+                                                            alert('Произошла ошибка: ' + xhr.responseJSON.message);
+                                                        },
+                                                        complete: function () {
+                                                            load_post_comments[post['id']] = false;
+                                                        }
+                                                    })
+                                                }
+                                                $(document.querySelector('.comments_plane_' + post['id'])).on('scroll', function () {
+                                                    if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight - 20) { // добавляем небольшой отступ
+                                                        load_post_comments(); // загружаем данные при достижении конца контейнера
+                                                    }
+                                                });
+
+                                                // send_comment_
+                                                $('#send_comment_' + post['id']).on('click', function () {
+                                                    value_text = $('#input_comment_' + post['id']).val();
+                                                    datenow = new Date();
+                                                    comment_guid = generateGUID();
+                                                    comment_tab =
+                                                        `<div class="comment_tab comment_tab_` + comment_guid + `">
+                                                            <div class="comment comment_`+ comment_guid + `">
+                                                                <div class="comentatr_avatar">
+                                                                    <img
+                                                                        src="`+ this_user['avatar'] + `">
+                                                                </div>
+                                                                <div class="commentor_name_comment_text">
+                                                                    <div class='about_post'>
+                                                                        <div class="commentator_name">
+                                                                            `+ this_user['name'] + ` ` + this_user['lastname'] + `
+                                                                        </div>
+                                                                    <div class='post_time'>`+ String(datenow.getDate()).padStart(2, '0') + `.` + String(datenow.getMonth() + 1).padStart(2, '0') + `.` + datenow.getFullYear() + ` ` + String(datenow.getHours()).padStart(2, '0') + `:` + String(datenow.getMinutes()).padStart(2, '0') + `</div>
+                                                                    </div>
+
+                                                                    <div class="comment_text">
+                                                                        <p>
+                                                                            `+ value_text + `
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>`;
+                                                    $('.comments_plane_' + post['id']).prepend(comment_tab);
+                                                    // $(document.querySelector('.comments_plane_' + post['id']))
+                                                    // post_id = post_div.id.replace('user_post_tab_', '');
+                                                    data = {
+                                                        'post_id': post['id'],
+                                                        'comment_guid': comment_guid,
+                                                        'comment_text': value_text,
+                                                        'author_id': this_user_id,
+                                                        'type_message': 'new_comment_post',
+                                                    }
+                                                    sendMessage(JSON.stringify(data));
+
+                                                    $('#input_comment_' + post['id']).val('');
+                                                })
+
+
+                                                open_comments.addEventListener('click', function () {
+                                                    if (all_comments_is_open[post['id']]) {
+                                                        document.querySelector('.open_comments_' + post['id']).classList.remove('close_comments');
+                                                        document.querySelector('.open_comments_' + post['id']).innerText = 'Показать комментарии';
+                                                        $(document.querySelector('.comments_plane_' + post['id'])).css('display', 'none');
+                                                        all_comments_is_open[post['id']] = false;
+                                                    }
+                                                    else {
+                                                        document.querySelector('.open_comments_' + post['id']).classList.add('close_comments');
+                                                        document.querySelector('.open_comments_' + post['id']).innerText = 'Скрыть комметарии';
+                                                        $(document.querySelector('.comments_plane_' + post['id'])).css('display', 'flex');
+                                                        all_comments_is_open[post['id']] = true;
+                                                        load_post_comments(true)
+                                                    }
+                                                });
                                                 const all_posts_div = document.getElementById('user_posts');
                                                 const posts_divs = document.querySelectorAll('.user_post_tab');
-
-
-
-                                                // console.log("🚀 ~ loadData ~ posts_divs:", posts_divs)
                                                 function checkVisibility() {
                                                     posts_divs.forEach(post_div => {
                                                         const childRect = post_div.getBoundingClientRect();
                                                         const parentRect = all_posts_div.getBoundingClientRect();
                                                         const childVisibleHeight = Math.max(0, Math.min(childRect.bottom, parentRect.bottom) - Math.max(childRect.top, parentRect.top));
                                                         const halfChildHeight = post_div.offsetHeight / 2;
-                                                        if (childVisibleHeight >= halfChildHeight  && !viewed_posts_id.includes(post_div.id)) {
+                                                        if (childVisibleHeight >= halfChildHeight && !viewed_posts_id.includes(post_div.id)) {
                                                             viewed_posts_id.push(post_div.id);
                                                             yourFunction(post_div);
                                                         }
@@ -519,9 +723,9 @@
                                             });
                                             const like_buttons = document.querySelectorAll('.post_likes');
                                             like_buttons.forEach(like_button => {
-                                                post_id = like_button.id.replace('post_likes_','');
-                                                like_button.addEventListener('click', function(){
-                                                    post_id = like_button.id.replace('post_likes_','');
+                                                post_id = like_button.id.replace('post_likes_', '');
+                                                like_button.addEventListener('click', function () {
+                                                    post_id = like_button.id.replace('post_likes_', '');
                                                     data = {
                                                         'user_id': this_user_id,
                                                         'post_id': post_id,
@@ -530,8 +734,8 @@
                                                     }
                                                     sendMessage(JSON.stringify(data));
                                                     like_button.innerText = 'Вы лайкнули';
-                                                    likes_count_current = Number(document.getElementById('post_likes_counter_'+post_id).innerText.replace('Лайки: ',''))+1;
-                                                    document.getElementById('post_likes_counter_'+post_id).innerText = 'Лайки: '+likes_count_current;
+                                                    likes_count_current = Number(document.getElementById('post_likes_counter_' + post_id).innerText.replace('Лайки: ', '')) + 1;
+                                                    document.getElementById('post_likes_counter_' + post_id).innerText = 'Лайки: ' + likes_count_current;
                                                     like_button.classList.add('liked_post');
                                                 })
                                             });
@@ -540,13 +744,13 @@
                                             $('#user_posts').off('scroll');
                                         }
                                     },
-                                    complete: function() {
+                                    complete: function () {
                                         loading = false; // сбрасываем флаг загрузки после завершения запроса
                                     }
                                 });
                             }
-                            $('#user_posts').on('scroll', function() {
-                                if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight -350) {
+                            $('#user_posts').on('scroll', function () {
+                                if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight - 350) {
                                     loadData(); // загружаем данные при достижении конца контейнера
                                 }
                             });
@@ -559,21 +763,4 @@
             </div>
         </div>
     </div>
-
-    {{-- .post_header_img{
-    border: 1px solid black;
-    /* float: left;
-    */
-    right: 0;
-    display: flex;
-    /* justify-content: center; */
-    align-items: center;
-    }
-    .post_image{
-    border-radius: 50%;
-    max-width: 10%;
-    /* Ограничение ширины изображения */
-    height: auto;
-    /* Поддержка пропорций */
-    } --}}
 </x-app-layout>

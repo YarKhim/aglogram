@@ -23,6 +23,8 @@ use App\Http\Controllers\getAllFriendsRequests;
 use App\Http\Controllers\send_post;
 use App\Http\Controllers\load_posts;
 use App\Http\Controllers\isLikeSent;
+use App\Http\Controllers\load_post_comments;
+use App\Http\Controllers\start_chat;
 // use App\Http\Controllers\getAllFriendsRequests;
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +65,12 @@ Route::get('/user_profile', function () {
 })
     ->middleware(['auth', 'verified'])
     ->name('user_profile');
+
+Route::get('/channels', function () {
+    return view('channels');
+})
+    ->middleware(['auth', 'verified'])
+    ->name('channels');
 
 Route::get('/user_profile', [ProfileUserShow::class, 'getUserName']);
 // Route::get('/test', [ProfileUserShow::class, 'getUserName']);
@@ -105,5 +113,7 @@ Route::post('/getFriendRequests', [getAllFriendsRequests::class, 'getFriendReque
 Route::post('/savepost', [send_post::class, 'save_post']);
 Route::post('/load_posts', [load_posts::class, 'load_post']);
 Route::post('/isLikeSent', [isLikeSent::class, 'islikesent']);
+Route::post('/load_post_comments', [load_post_comments::class, 'load_comments']);
+Route::post('/start_chat', [start_chat::class, 'start_users_chat']);
 require __DIR__ . '/auth.php';
 

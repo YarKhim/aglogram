@@ -29,7 +29,22 @@
         //     event.preventDefault();
         // });
 
+        // function getQueryParams() {
+        //     const params = {};
+        //     const queryString = window.location.search.substring(1);
+        //     const regex = /([^&=]+)=([^&]*)/g;
+        //     let m;
 
+        //     while (m = regex.exec(queryString)) {
+        //         params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+        //     }
+
+        //     return params;
+        // }
+
+        // // Использование функции
+        // const queryParams = getQueryParams();
+        // console.log(queryParams);
 
         function send_message() {
             data = {
@@ -1474,6 +1489,7 @@
 
     </div>
     <script>
+        get_chat_flag_finished = false;
         $.ajax({
             url: '/get_chats', // URL вашего маршрута
             method: 'GET', // Метод запроса (GET или POST)
@@ -1570,6 +1586,8 @@
                     }
 
                 }
+                // #TODO
+
                 $.ajax({
                     url: '/unread_chats', // URL вашего маршрута
                     method: 'GET', // Метод запроса (GET или POST)
@@ -1667,10 +1685,32 @@
                         });
                     }
                 });
+
+                user_open_id  = window.location.search.replace('?new_chat_user_id=','');
+                    console.log("🚀 ~ user_open_id:", user_open_id)
+                    $(document).ready(function(){
+                        if(user_open_id != ''){
+                        console.log(String( user_open_id));
+                        // console.log($('#'+String( user_open_id)));
+                        new_chat_tab = document.getElementById(user_open_id);
+                        // console.log("🚀 ~ $ ~ new_chat_tab:", new_chat_tab)
+                        // $('#'+user_open_id).classList.add();
+                        // setTimeout(() => {
+                        //     console.log();
+                        // }, 1000);
+                        new_chat_tab.classList.add('new_post');
+                        setTimeout(() => {
+                            new_chat_tab.classList.remove('new_post');
+                        }, 5000);
+                    }
+                })
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText); // Обработка ошибки
-            }
+            },
+            // complete: function(){
+
+            // }
         });
 
         function splitString(input) {
@@ -1691,5 +1731,22 @@
                 send_message(); // Выполняем определенное действие
             }
         });
+        // console.log(window.location.search.replace('?new_chat_user_id=',''));
+
+        // console.log(document.getElementById('57'));
+        // $(document).ready(function() {
+        //     user_open_id  = window.location.search.replace('?new_chat_user_id=','');
+        //     if(user_open_id != ''){
+        //         console.log(String( user_open_id));
+        //         console.log($('#'+String( user_open_id)));
+        //         // new_chat_tab = document.getElementById(toString( user_open_id));
+        //         // console.log("🚀 ~ $ ~ new_chat_tab:", new_chat_tab)
+        //         // $('#'+user_open_id).classList.add();
+        //         // new_chat_tab.classList.add('blink-background');
+        //         // setTimeout(() => {
+        //         //     new_chat_tab.classList.remove('blink-background');
+        //         // }, 1000);
+        //     }
+        // });
     </script>
 </x-app-layout>

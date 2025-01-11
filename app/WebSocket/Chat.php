@@ -1,19 +1,14 @@
 <?php
-
 namespace App\WebSocket;
-// namespace App\Models;
-// use App\Auth;
-// use App\WebSocket\stdClass
 use App\Http\Controllers\SendMessage;
 use App\Models\Connection;
 use App\Models\Message;
 use App\Models\FriendRequest;
 use App\Models\FriendsPair;
 use App\Models\Like;
-// use App\Models\Chat;
 use App\Models\Chat as UserChat;
-
 use App\Models\User;
+use App\Models\Comment;
 use App\Models\Post;
 use Exception;
 use GuzzleHttp\Promise\Create;
@@ -24,12 +19,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
-
 use Ratchet\ConnectionInterface;
 use Ratchet\MessageComponentInterface;
-
 use Illuminate\Support\Facades\Log;
-
 class Chat implements MessageComponentInterface
 {
     protected $clients;
@@ -367,6 +359,27 @@ class Chat implements MessageComponentInterface
             // $post->save();
             // $request = FriendsPair::where('invited', $msg_decode->sender )->where('creator', $msg_decode->addresee )->delete();
             // $request = FriendsPair::where('invited', $msg_decode->addresee )->where('creator', $msg_decode->sender  )->delete();
+        }
+        if ($msg_decode->type_message == 'new_comment_post'){
+            $new_comment = Comment::create([
+                'post_id'=> $msg_decode->post_id,
+                'author_id'=> $msg_decode->author_id,
+                'type_comment'=> 'post_comment',
+                'text'=> $msg_decode->comment_text,
+            ]);
+            $new_comment_id = $new_comment->id;
+            $user_id = $msg_decode->author_id;
+            $connection = Connection::where('user_id', $user_id)->first();
+            if($connection != null){
+                $connection_addresee = $connection->connection;
+                $msg = json_decode($msg);
+                $msg->new_comment_id = $new_comment_id;
+                $msg->type = 'update_comment_from_guid_to_id';
+                $msg = json_encode($msg);
+                dump($msg);
+                $this->all_clients[$connection_addresee]->send($msg);
+                // echo 1;
+            }
         }
         // new_post_view
         // switch ($msg_decode->type_message) {

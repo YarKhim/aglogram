@@ -465,8 +465,9 @@ input[type="file"] {
 }
 
 .chat_foto {
+    margin-left: 1%;
     border-radius: 50%;
-    width: 20%;
+    width: 15%;
     height: 100%;
     border: solid 1px rgba(0, 0, 0, 0);
 }
@@ -476,8 +477,9 @@ input[type="file"] {
 }
 
 .right_side_chat_tab {
+    margin-left: 5%;
     display: flex;
-    width: 80%;
+    width: 75%;
     flex-direction: column;
 }
 
@@ -1351,6 +1353,7 @@ input[type="file"] {
 
 .post_footer {
     border-top: 1px solid black;
+    border-bottom: 1px solid black;
     display: flex;
     /* border: 1px solid red; */
     /* border-radius: 20px; */
@@ -1779,4 +1782,298 @@ input[type="file"] {
 .liked_post:hover{
     background-color: red;
     border: 1px solid white;
+}
+.comments_plane{
+    overflow-y: auto;
+    display: none;
+    max-height: 250px;
+    flex-direction: column;
+    width: 100%;
+}
+.comment_tab{
+    margin-top: 5%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    border: 1px black solid;
+}
+.comment{
+    border: 1px solid black;
+    border-radius: 20px;
+    display: flex;
+    width: 90%;
+}
+.comentatr_avatar{
+    margin-left: 2%;
+    margin-right: 2%;
+    margin-top: 2%;
+    width: 12%;
+}
+.comentatr_avatar>img{
+    height: auto;
+    width: 100%;
+    border-radius: 50%;
+}
+.commentator_name{
+    margin-top: 2%;
+    width: 40%;
+    /* margin-: 2%; */
+    /* margin-left: 5%; */
+}
+.commentor_name_comment_text{
+    font-weight: 300;
+    width: 90%;
+}
+.comment_text>p{
+    padding: 2%;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+.comment_text{
+    width: 90%;
+    border: 1px solid white;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    /* font-family: Arial, Helvetica, sans-serif; */
+    border-radius: 15px;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    /* margin-left: 5%; */
+    color: #fff;
+}
+
+.open_comments{
+    transition: 0.5s;
+    border: 1px solid red;
+    width: 40%;
+    cursor: pointer;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    margin-left: 5%;
+    text-decoration: none;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    border-radius: 20px;
+    border: 1px solid white;
+}
+.open_comments:hover{
+    background-color: #0056b3;
+    border: 1px solid transparent;
+}
+.close_comments:hover{
+    background-color: red;
+    border: 1px solid transparent;
+}
+.not_comments{
+    /* vertical-align: center; */
+    border: 1px solid red;
+    height: 100%;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    /* padding: 10%; */
+    /* margin-top: 5%;
+    margin-bottom: 5%; */
+    font-size: 125%;
+    /* text-align: center; */
+}
+.post_time{
+    margin-top: 3.5%;
+    width: 50%;
+    font-size: 70%;
+    /* width: 40%;W */
+}
+.about_post{
+    display: flex;
+}
+.new_post{
+    background-color: rgba(255, 255, 255, 0.3);
+}
+.channels_main_plane{
+    border: 1px solid red;
+    height: 100%;
+}
+.select_tabs_channels{
+    /* float: right; */
+    color: #fff;
+    display: flex;
+    /* justify-content: space-around; */
+}
+.select_tab{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    /* text-align: center; */
+    width: 10%;
+    border-radius: 20px;
+    border: 1px solid white;
+    padding: 10px;
+    margin-left: 5%;
+    transition: 0.5s;
+    background-color: rgba(0, 0, 0, 0);
+}
+.select_tab:hover{
+    background-color: #0056b3;
+    border: 1px solid transparent;
+
+}
+.selected_channel_tab{
+    background-color: #0056b3;
+    border: 1px solid transparent;
+}
+.opened_tab{
+    height: 100%;
+    display: none;
+}
+.opened_tab_plane{
+    height: 60vh;
+}
+.your_subscriptions{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* background-color: aqua; */
+    /* float: right; */
+    width: 40%;
+}
+.your_subscriptions>h1{
+    text-align: center;
+    font-size: 150%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    /* margin-top: ; */
+}
+.subscriptions_list{
+    overflow-y: auto;
+    height: 100%;
+    /* background-color: #0056b3; */
+    display: flex;
+    flex-direction: column;
+}
+.subscription_tab{
+    border: 1px solid white;
+    border-radius: 20px;
+    margin-top: 5%;
+    height: 20%;
+    display: flex;
+    /* align-items: center; */
+}
+.subscription_tab:hover{
+    background-color: rgba(41, 65, 151, 0.829);
+}
+.img_container_subscription_tab{
+    border: 1px solid red;
+    margin-left: 2%;
+    /* width: 15%; */
+}
+.img_container_subscription_tab>img{
+    height: auto;
+    /* ma */
+    /* width: 100%; */
+    border-radius: 50%;
+    /* width: 100%; */
+    /* height: auto; */
+    /* height: 100%; */
+}
+.left_side_subscription_tab{
+    /* display: flex; */
+    /* text-align: center; */
+    /* vertical-align: baseline; */
+    /* align-items: center; */
+    margin-top: 0.4%;
+    width: 15%;
+    margin-left: 1%;
+    margin-right: 1%;
+}
+.left_side_subscription_tab>img{
+    /* height: auto; */
+    /* width: 100%; */
+    border-radius: 50%;
+}
+.right_side_subscription_tab{
+    width: 85%;
+}
+.last_post_time{
+    font-size: 75%;
+    width: 30%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    /* margin-top: 2%; */
+    /* vertical-align: bottom; */
+}
+.last_post_time>p{
+    padding: 5%;
+    /* margin-top: ; */
+}
+.last_post{
+    height: 60%;
+    display: flex;
+    /* text-align: center; */
+}
+.channel_name{
+    height: 40%;
+}
+.last_post_text{
+    width: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* text-align: center; */
+}
+.last_post_text>p{
+    margin-left: 5%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.create_channel{
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    width: 33.33%;
+}
+.my_channels{
+    width: 33.33%;
+}
+.statistic{
+    width: 33.33%;
+}
+.my_channels_options_header{
+    margin-top: 2%;
+    font-size: 150%;
+    text-align: center;
+}
+.new_channel_form{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+.new_channel_inputs{
+    width: 90%;
+    margin-top: 5%;
+    height: 5vh;
+    /* height: 110%; */
+    color: black;
+    border-radius: 20px;
+}
+#preview {
+    border: 1px solid red;
+    display: none;
+    position: relative;
+    margin-top: 5%;
+}
+#preview img {
+    margin-left: 10%;
+    width: 80%;
+}
+.remove-button {
+
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
