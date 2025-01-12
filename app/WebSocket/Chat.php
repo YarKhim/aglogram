@@ -326,11 +326,25 @@ class Chat implements MessageComponentInterface
             $path = 'posts_text/' . $fileName;
             $text_link =  $path;
             Storage::disk('public')->put($path , $text);
-            Post::create([
-                'author_id' => $author,
-                'text' => $text_link,
-                'photos' => $links,
-            ]);
+            dump($msg_decode->type_post);
+            if($msg_decode->type_post == 'channel_post'){
+                echo 123;
+                $new_channel_post = Post::create([
+                    'author_id' => $author,
+                    'text' => $text_link,
+                    'photos' => $links,
+                    'type_post' => 'channel_post',
+                ]);
+                dump($new_channel_post);
+            }
+            else {
+                Post::create([
+                    'author_id' => $author,
+                    'text' => $text_link,
+                    'photos' => $links,
+                    'type_post' => 'user_post',
+                ]);
+            }
             //#TODO надо бы сделать потом рассылку друзям этого пользоваетелся типо как в вк что типо он опубликовал что то
         }
         if ($msg_decode->type_message == 'new_post_view') {
@@ -408,6 +422,36 @@ class Chat implements MessageComponentInterface
                 'channel_name' => $msg_decode->channel_name,
                 'channel_avatar'=> 'storage/'.$path,
             ]);
+        }
+        if ($msg_decode->type_message == 'update_channel'){
+            $channel = Channel::where('id', $msg_decode->id_channel)->first();
+            if($msg_decode->channel_unique_name != ''){
+                $channel->channel_name = $msg_decode->channel_unique_name;
+            }
+            if($msg_decode->channel_name != ''){
+                $channel->name = $msg_decode->channel_name;
+            }
+            if($msg_decode->file_avatar_channel[0] !=''){
+                foreach ($msg_decode->file_avatar_channel as $photo) {
+                    list($type, $data) = explode(';', $photo);
+                    list(, $data) = explode(',', $data);
+                    // Декодируем данные
+                    $data = base64_decode($data);
+                    $fileName = uniqid() . '.png';
+                    $path = 'channels_avatars/' . $fileName;
+                    $images_links[] = $path;
+                    Storage::disk('public')->put($path , $data);
+                    $channel->channel_avatar = 'storage/'.$path;
+                }
+            }
+            $channel->save();
+            // dump($msg_decode->channel_name);
+            // dump($msg_decode->channel_unique_name);
+            // dump($msg_decode->file_avatar_channel);
+            // dump(count($msg_decode->file_avatar_channel));
+            // if($msg_decode->file_avatar_channel->count() > 0){
+
+            // }
         }
         // new_channel
         // new_post_view

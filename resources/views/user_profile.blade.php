@@ -422,7 +422,7 @@
                                                 const date = new Date(post['created_at']);
                                                 create_at = String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getFullYear()).padStart(2, '0') + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
                                                 new_post_tab =
-                                                    `<div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
+                                                `<div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
                                                     <div class="user_post_rect">
                                                         <div class="post_header ">
                                                             <img class="post_image "

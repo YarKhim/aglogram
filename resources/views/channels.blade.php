@@ -14,6 +14,9 @@
             <div class="select_tab" id="select_tab_2">
                 Мои каналы
             </div>
+            <div class="select_tab" id="select_tab_3">
+                Сделать пост
+            </div>
         </div>
     </x-slot>
 
@@ -63,8 +66,8 @@
                             </div>
                             <div class="opened_tab border_debug" id="opened_tab_2">
                                 <div class="create_channel border_debug">
-                                    <h1 class="my_channels_options_header">Создать новый канал</h1>
-                                    <div class="new_channel_form">
+                                    <h1 class="my_channels_options_header border_debug">Создать новый канал</h1>
+                                    <div class="new_channel_form border_debug">
                                         <!-- <input id="channel_name" class="new_channel_inputs channel_name" type="text"
                                             placeholder="Название вашего канала"> -->
                                         <input
@@ -133,7 +136,121 @@
                                     <!-- </div> -->
                                 </div>
                                 <div class="statistic border_debug">
-                                    <h1 class="my_channels_options_header">Статистика по моим каналам</h1>
+                                    <h1 class="my_channels_options_header border_debug" id="third_plane"></h1>
+                                    <div class="channel_settings_inputs_tab new_channel_form border_debug">
+                                        <div class="new_params_channel_input">
+                                            <input
+                                                class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                                                id="new_channel_name" type="text" required="required"
+                                                autofocus="autofocus" autocomplete="name"
+                                                placeholder="новое название вашего канала">
+                                            <!-- <label for="channel_name">Имя вашего нового канала</label> -->
+                                            <input
+                                                class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                                                id="new_channel_unique_name" type="text" required="required"
+                                                autofocus="autofocus" autocomplete="name"
+                                                placeholder="Новое уникальное имя канала из латинских букв">
+                                            <input type="file" accept=".png, .jpg, .jpeg"
+                                                id="new_channel_avatar_upload">
+                                            <label id="new_label_for_channel_avatar_upload"
+                                                for="new_channel_avatar_upload">Загрузить новый аватар</label>
+                                            <div id="new_preview">
+                                                <img id="new_preview-img" src="" alt="Предпросмотр">
+                                                <button type="button" class="remove_channel_avatar_button"
+                                                    id="new_remove-button">Удалить</button>
+                                            </div>
+                                        </div>
+                                        <div class="send_updt_req">
+                                            <div class="update_channel_button" id="update_channel_button">
+                                                Сохранить изменения
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="opened_tab border_debug" id="opened_tab_3">
+
+                                <div class="select_channel_tab border_debug">
+                                    <h1 class="my_channels_options_header">Выбрать канал</h1>
+                                    <select id="select_channel"
+                                        class="select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full">
+                                    </select>
+                                </div>
+                                <div class="create_channel_post">
+                                    <div class="create_channel_post_tab border_debug">
+                                        <div class="create_channel_post_rect border_debug">
+                                            <div class="create_channel_post_header">
+                                                <img class="" src="storage/channels_avatars/67839a292455d.png">
+                                                <div class="post_channel_author ">
+
+                                                </div>
+                                                <div class="post_channel_date ">
+                                                    12.12.2025
+                                                </div>
+                                            </div>
+                                            <div class="post_data_rect border_debug">
+                                                <div class="channel_post_data border_debug">
+                                                    <div class="all_uploaded_images_post" id="all_uploaded_images_post">
+                                                    </div>
+                                                    <div class="container">
+                                                        <ul class="image-gallery" id="image_gallery">
+                                                        </ul>
+                                                    </div>
+
+                                                    <div class="input_channel_post_text">
+                                                        <textarea
+                                                            placeholder="Введите текст вашего поста здесь"
+                                                            oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'";
+                                                            class="select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900
+                                                            dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500
+                                                             dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full textarea_input_channel_post_text"></textarea>
+                                                    </div>
+                                                    <form id="form_upload">
+                                                        <input id="upload_images" type="file" multiple accept="image/*">
+                                                    </form>
+                                                    <div class="div_label_for_upload_images">
+                                                        <label class="label_for_upload_images" id="label_for_upload_images_new_post_channel" for="upload_images">Добавить фото к посту</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="publish_channel_post">
+                                                <div class="publish_channel_post_button">
+                                                    Опубликовать пост
+                                                </div>
+                                            </div>
+                                            <!-- <div class="post_footer">
+                                                <div class="post_likes">
+                                                    Мне нравится
+                                                </div>
+                                                <div class="post_likes_counter">
+                                                    Лайки:
+                                                </div>
+                                                <div class="post_watchers">
+                                                    Просмотры:
+                                                </div>
+                                            </div> -->
+                                            <!-- <div class="open_comments open_comments_`+ post['id'] + `">
+                                                Открыть комментарии
+                                            </div>
+                                            <div class="comments_plane comments_plane_`+ post['id'] + `">
+
+                                            </div> -->
+                                            <!-- <div class="post_comments">
+                                                <div class="post_comments_input">
+                                                    <textarea class="text_input_comment" name="text"
+                                                        oninput='this.style.height = "";this.style.height = this.scrollHeight + "px";'></textarea>
+
+                                                    <div class="div_send_comment">
+                                                        <div class="send_comment">
+                                                            Отправить
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+
+                                            </div> -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

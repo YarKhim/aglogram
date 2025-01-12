@@ -2072,6 +2072,7 @@ input[type="file"] {
 }
 
 .statistic {
+    overflow-y: auto;
     width: 33.33%;
 }
 
@@ -2079,6 +2080,7 @@ input[type="file"] {
     margin-top: 2%;
     font-size: 150%;
     text-align: center;
+    user-select: none;
 }
 
 .new_channel_form {
@@ -2097,7 +2099,7 @@ input[type="file"] {
     border-radius: 20px;
 }
 
-#preview {
+#preview , #new_preview{
     border: 1px solid red;
     display: none;
     position: relative;
@@ -2129,6 +2131,7 @@ input[type="file"] {
     padding: 1%;
     border-radius: 20px;
     transition: 0.5s;
+    user-select: none;
 }
 
 .remove_channel_avatar_button:hover {
@@ -2137,14 +2140,17 @@ input[type="file"] {
 }
 
 #channel_name,
-#channel_unique_name {
+#channel_unique_name,
+#new_channel_name,
+#new_channel_unique_name {
     width: 90%;
     margin-top: 5%;
 }
 
-#label_for_channel_avatar_upload {
+#label_for_channel_avatar_upload, #new_label_for_channel_avatar_upload {
     font-style: oblique;
     margin-top: 5%;
+    user-select: none;
 }
 
 .create_channel_button {
@@ -2156,6 +2162,7 @@ input[type="file"] {
     padding: 1%;
     text-align: center;
     transition: 0.5s;
+    user-select: none;
 }
 
 .create_channel_button:hover {
@@ -2181,6 +2188,7 @@ input[type="file"] {
     padding: 1%;
     transition: 0.5s;
     cursor: pointer;
+    user-select: none;
 }
 
 .channel_settings:hover {
@@ -2191,24 +2199,14 @@ input[type="file"] {
 .my_channel_tab {
     border: 1px solid white;
     border-radius: 20px;
-    margin-top: 5%;
-    height: 20%;
+    margin-top: 6%;
+    height: 23%;
     display: flex;
     /* align-items: center; */
 }
 
 .left_side_my_channel_tab {
 
-    /* border: 1px solid red; */
-    /* vertical-align: auto; */
-    /* display: flex; */
-    /* display: flex; */
-    /* text-align: center; */
-    /* vertical-align: baseline; */
-    /* align-items: center; */
-    /* margin-top: 0.4%; */
-    /* border: 1px solid red; */
-    /* display: flex; */
     display: grid;
     place-items: center;
     width: 15%;
@@ -2235,7 +2233,7 @@ input[type="file"] {
 }
 
 .channel_settings_tab {
-    margin-top: 2.5%;
+    margin-top: 5%;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -2244,4 +2242,177 @@ input[type="file"] {
 .unique_channel_name{
     font-style: italic;
     cursor: pointer;
+}
+
+.channel_settings_tab{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.new_params_channel_input{
+    /* overflow-y: auto; */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#new_preview-img{
+    border-radius: 50%;
+}
+.channel_settings_inputs_tab{
+    display: none;
+}
+.send_updt_req{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.update_channel_button{
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1%;
+    border-radius: 20px;
+    border: 1px solid white;
+    margin-top: 5%;
+    user-select: none;
+    transition: 0.5s;
+}
+.update_channel_button:hover{
+    background-color: #0056b3;
+    border: 1px solid transparent;
+
+}
+#select_tab_3{
+    display: none;
+}
+/* #opened_tab_3{
+    display: flex;
+} */
+.select_your_channel{
+    margin-top: 5%;
+    width: 90%;
+    height: 10%;
+}
+.select_channel_tab{
+    flex-direction: column;
+    width: 35%;
+    display: flex;
+    align-items: center;
+    /* justify-content: cenwter; */
+}
+/* option{
+    border-radius: 20px;
+} */
+.create_channel_post_tab{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    overflow-y: auto;
+    /* background-color: #fff; */
+}
+.create_channel_post{
+    width: 65%;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: center; */
+}
+.create_channel_post_rect{
+    border: 1px solid #fff;
+    border-radius: 20px;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    width: 60%;
+    /* height: 100%; */
+    /* height: 100%; */
+    overflow-y: auto;
+}
+.input_channel_post_text{
+    /* border-radius: 20px; */
+    width: 100%;
+    /* height: 100%; */
+    /* overflow-y: auto; */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* justify-content: center; */
+    /* border: 1px solid red; */
+}
+.channel_post_data{
+    /* margin-top: 1%; */
+    width: 100%;
+    /* height: min-content; */
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.textarea_input_channel_post_text{
+    width: 90%;
+    height: 20vh;
+    padding: 5%;
+    /* height: 30%; */
+    resize: none;
+    margin-top: 5%;
+    /* margin-bottom: 2%; */
+}
+.textarea_input_channel_post_text::placeholder{
+    font-style: italic;
+    color: gainsboro;
+}
+.create_channel_post_header>img{
+    width: 10%;
+    border-radius: 50%;
+    /* border: 1px solid red; */
+}
+.create_channel_post_header{
+    display: flex;
+    justify-content: space-around;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+.post_channel_author{
+   /* border: 1px solid red; */
+   display: flex;
+   flex-direction: column;
+   justify-content: flex-end;
+   user-select: none;
+   /* align-items: center; */
+   /* height: 100%; */
+}
+.post_channel_date{
+    user-select: none;
+    /* border: 1px solid red; */
+    font-size: 75%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+.publish_channel_post{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.publish_channel_post_button{
+    width: 40%;
+    display: flex;
+    justify-content: center;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    border: 1px solid white;
+    padding: 1%;
+    border-radius: 20px;
+    user-select: none;
+    transition: 0.5s;
+}
+
+.publish_channel_post_button:hover{
+    background-color: #0056b3;
+    border: 1px solid transparent;
+}
+#label_for_upload_images_new_post_channel{
+    margin-bottom: 2%;
 }
