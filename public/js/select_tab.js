@@ -121,6 +121,43 @@ $('#update_channel_button').on('click', function () {
     new_preview.style.display = 'none'; // Скрытие предпросмотра
     new_previewImg.src = ''; // Очистка src изображения
 });
+// '/get_all_subscriptions'
+$.ajax({
+    url: '/get_all_subscriptions',
+    type: 'get',
+    success: function (response) {
+        console.log(response);
+        response['channels'].forEach(element => {
+
+            // String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getFullYear()).padStart(2, '0') + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
+            tab =
+            `<div class="subscription_tab" id="subscription_tab_`+element['id']+`">
+                <div class="left_side_subscription_tab">
+                    <img src="`+element['channel_avatar']+`">
+                </div>
+                <div class="right_side_subscription_tab">
+                    <div class="channel_name">
+                        <p>`+element['name']+`</p>
+                    </div>
+                    <div class="last_post">
+                        <div class="last_post_text">
+                            <p>Это последний пост в этом шикарном канале</p>
+                        </div>
+                        <div class="last_post_time">
+                            <p>12.12.1212</p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            $('.subscriptions_list').append(tab);
+        });
+    },
+    error: function (xhr) {
+        console.error('Error:', xhr);
+        alert('Произошла ошибка: ' + xhr.responseJSON.message);
+    }
+});
 $.ajax({
     url: '/get_channels',
     type: 'get',
@@ -132,10 +169,10 @@ $.ajax({
         if (channels.length != 0) {
             $('#select_tab_3').css('display', 'block')
         }
-        // console.log("🚀 ~ channels:", channels);
         channels.forEach(channel => {
+            console.log(all_chanels);
             all_chanels_id.push(channel['id']);
-            all_chanels[channel['id']] = { 'name': channel['name'], 'unique_name': channel['channel_name'] }
+            all_chanels[channel['id']] = { 'name': channel['name'], 'unique_name': channel['channel_name'], 'avatar': channel['channel_avatar'] }
             channel_select_tab = ` <option class="select_your_channel_tab " value="` + channel['id'] + `" >` + channel['name'] + `</option>`;
             $(select_channel).append(channel_select_tab);
             channel_tab =
@@ -166,14 +203,11 @@ $.ajax({
                         console.error('Произошла ошибка');
                     });
             });
-            // console.log(document.getElementById('channel_settings_'+channel['id']))
             $('#channel_settings_' + channel['id']).on('click', function () {
-                // console.log(('#third_plane'));
                 $('#third_plane').text('Настройки канала @' + channel['channel_name']);
                 $('.channel_settings_inputs_tab').css('display', 'block');
                 current_update_channel_id = channel['id'];
                 console.log("🚀 ~ current_update_channel_id:", current_update_channel_id);
-                // document.getElementById('third_plane').innerText = 'Настройки канала @'+channel['channel_name'];
             })
         });
         select_channel.value = all_chanels_id[0];
@@ -181,6 +215,7 @@ $.ajax({
         selected_channal_for_post = all_chanels_id[0];
         select_channel.addEventListener('change', function () {
             $('.post_channel_author').text(all_chanels[select_channel.value]['name']);
+            $('.create_channel_post_header_image').attr('src', all_chanels[select_channel.value]['avatar']);
             selected_channal_for_post = select_channel.value;
         });
     },
@@ -233,7 +268,7 @@ $('#upload_images').on('change', function () {
     this.value = null;
 });
 $('.publish_channel_post_button').on('click', function () {
-    if (Object.keys(all_files).length > 0 || document.querySelector('.input_post_text').value.length > 0) {
+    if (Object.keys(all_files).length > 0 || $('.input_post_text').val().trim() != '') {
         data = {
             'type_message': 'new_post',
             'post_author': selected_channal_for_post,
@@ -252,3 +287,177 @@ $('.publish_channel_post_button').on('click', function () {
         alert('Вы не ввели данные, без них не получится опубликовать ваш пост :(');
     }
 });
+$('.serarch_channel_button').on('click', function () {
+    value = $('#searched_channel_name').val().trim();
+    if (value != '') {
+        function redirect_to_subscriptions() {
+            $('#select_tab_0').css('background', 'rgba(0,0,0,0)');
+            $('#select_tab_0').css('color', '#fff');
+        }
+        // console.log(value);
+        $('#searched_channel_name').val('');
+        $.ajax({
+            url: '/search_channels',
+            type: 'get',
+            data: { 'data': value },
+            success: function (response) {
+                searched_channels = {};
+                channel_id = new Set();
+                console.log(response);
+                is_subscribe = [];
+                response['data'].forEach(element => {
+                    element.forEach(channel => {
+                        console.log(channel);
+                        console.log(channel['id']);
+                        channel_id.add(channel['id']);
+                        searched_channels[channel['id']] = channel;
+                    });
+                });
+                channel_id = [...channel_id];
+                if (channel_id.length > 0) {
+                    $.ajax({
+                        url: '/is_subscribe',
+                        type: 'get',
+                        data: { 'data': channel_id },
+                        async: false,
+                        success: function (is_sub) {
+                            // console.log(is_sub);
+                            is_subscribe = is_sub['data'];
+                        },
+                        error: function (xhr1) {
+                            console.error('Error:', xhr1);
+                            alert('Произошла ошибка: ' + xhr1.responseJSON.message);
+                        }
+                    });
+                }
+
+                channel_id.forEach(channel => {
+                    if (is_subscribe[channel] == false) {
+                        tab =
+                            `<div class="search_channel_result_tab border_debug" id="search_channel_result_tab_` + channel + `">
+                            <div class="search_channel_result_photo">
+                                <img src="`+ searched_channels[channel]['channel_avatar'] + `">
+                            </div>
+                            <div class="search_channel_result_right_side">
+                                <div class="search_channel_result_name">`+ searched_channels[channel]['name'] + `</div>
+                                <div class="search_channel_result_options">
+                                    <div class="subscibe_channel" id="subscibe_channel_`+ searched_channels[channel]['id'] + `">Подписаться</div>
+                                    <div class="open_channel">Открыть</div>
+                                </div>
+                            </div>
+                        </div>`;
+                        $('.search_channel_results').append(tab);
+                        $('#subscibe_channel_' + channel).on('click', function () {
+                            data = {
+                                'type_message': 'subscribe_channel',
+                                'channel_id': channel,
+                            };
+                            sendMessage(JSON.stringify(data));
+                            $('#search_channel_result_tab_' + channel).remove();
+                            var originalColor = $('#select_tab_0').css('background-color');
+                            $('#select_tab_0').css('background-color', '#fff');
+                            setTimeout(function () {
+                                $('#select_tab_0').css('background-color', originalColor);
+                            }, 500);
+                            $('#select_tab_0').hover(
+                                function () {
+                                    // При наведении
+                                    $(this).css({
+                                        'background-color': '#0056b3',
+                                        'border': '1px solid transparent' // Увеличиваем элемент
+                                    });
+                                },
+                                function () {
+                                    // При уходе мыши
+                                    $(this).css({
+                                        'background-color': 'transparent',
+                                        'border': '1px solid white' // Возвращаем размер
+                                    });
+                                }
+                            );
+                            new_subscription_tab =
+                                `<div class="subscription_tab" id="subscription_tab_` + channel + `">
+                                <div class="left_side_subscription_tab">
+                                    <!-- <div class="img_container_subscription_tab"> -->
+                                    <img src="`+ searched_channels[channel]['channel_avatar'] + `">
+                                    <!-- </div> -->
+                                </div>
+                                <div class="right_side_subscription_tab">
+                                    <div class="channel_name">
+                                        <p>`+ searched_channels[channel]['name'] + `</p>
+                                    </div>
+                                    <div class="last_post">
+                                        <div class="last_post_text">
+
+                                        </div>
+                                        <div class="last_post_time">
+                                            <p>12.12.1212</p>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>`;
+                            $('.subscriptions_list').prepend(new_subscription_tab);
+                        });
+                    }
+                    else {
+                        tab =
+                            `<div class="search_channel_result_tab border_debug" id="search_channel_result_tab_` + channel + `">
+                            <div class="search_channel_result_photo">
+                                <img src="`+ searched_channels[channel]['channel_avatar'] + `">
+                            </div>
+                            <div class="search_channel_result_right_side">
+                                <div class="search_channel_result_name">`+ searched_channels[channel]['name'] + `</div>
+                                <div class="search_channel_result_options">
+                                    <div class="unsubscibe_channel" id="unsubscibe_channel_`+ searched_channels[channel]['id'] + `">Отписаться</div>
+                                    <div class="open_channel">Открыть</div>
+                                </div>
+                            </div>
+                        </div>`;
+                        $('.search_channel_results').append(tab);
+                        $('#unsubscibe_channel_' + channel).on('click', function () {
+                            data = {
+                                'type_message': 'unsubscribe_channel',
+                                'channel_id': channel,
+                            };
+                            sendMessage(JSON.stringify(data));
+                            $('#search_channel_result_tab_' + channel).remove();
+                            var originalColor = $('#select_tab_0').css('background-color');
+                            $('#select_tab_0').css('background-color', '#fff');
+                            setTimeout(function () {
+                                $('#select_tab_0').css('background-color', originalColor);
+                            }, 500);
+                            $('#select_tab_0').hover(
+                                function () {
+                                    // При наведении
+                                    $(this).css({
+                                        'background-color': '#0056b3',
+                                        'border': '1px solid transparent' // Увеличиваем элемент
+                                    });
+                                },
+                                function () {
+                                    // При уходе мыши
+                                    $(this).css({
+                                        'background-color': 'transparent',
+                                        'border': '1px solid white' // Возвращаем размер
+                                    });
+                                }
+                            );
+                            if ($(`subscription_tab_` + channel)) {
+                                $(`subscription_tab_` + channel).remove();
+                            }
+
+                        });
+                    }
+
+                });
+            },
+            error: function (xhr) {
+                console.error('Error:', xhr);
+                alert('Произошла ошибка: ' + xhr.responseJSON.message);
+            }
+        });
+    }
+})
+

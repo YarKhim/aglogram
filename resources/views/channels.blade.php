@@ -35,7 +35,8 @@
                                 <div class="your_subscriptions border_debug">
                                     <h1 class="border_debug"> Мои подписки</h1>
                                     <div class="subscriptions_list">
-                                        <div class="subscription_tab">
+
+                                        {{-- <div class="subscription_tab">
 
                                             <div class="left_side_subscription_tab">
                                                 <!-- <div class="img_container_subscription_tab"> -->
@@ -57,12 +58,51 @@
                                                 </div>
 
                                             </div>
+                                        </div> --}}
+
+
+                                    </div>
+                                </div>
+                                <div class="opened_channel_subscription">
+                                    <div class="opened_channel_subscription_header">
+                                        <div class="opened_channel_subscription_header_avatar">
+                                            <img src="storage/channels_avatars/aglogram.png">
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="opened_tab border_debug" id="opened_tab_1">
-                                456
+                            <div class="search_channel_tab opened_tab border_debug" id="opened_tab_1">
+                                <div class="search_channel_tab_left_side border_debug">
+                                    <h1  class="my_channels_options_header border_debug" > Найти канал</h1>
+                                    <div class="serarch_channel_input_box">
+                                        <input
+                                            class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                                            id="searched_channel_name" type="text" required="required" autofocus="autofocus"
+                                            autocomplete="name" placeholder="Название канала">
+                                        <div class="serarch_channel_button">Поиск</div>
+                                    </div>
+                                    <div class="search_channel_results">
+
+
+                                        <!-- <div class="search_channel_result_tab border_debug">
+                                            <div class="search_channel_result_photo">
+                                                <img src="storage/channels_avatars/67839a292455d.png">
+                                            </div>
+                                            <div class="search_channel_result_right_side">
+                                                <div class="search_channel_result_name">aglogram</div>
+                                                <div class="search_channel_result_options">
+                                                    <div class="subscibe_channel">Подписаться</div>
+                                                    <div class="open_channel">Открыть</div>
+                                                </div>
+                                            </div>
+                                        </div> -->
+
+
+                                    </div>
+                                </div>
+                                <div class="search_channel_tab_right_side border_debug" >
+
+                                </div>
                             </div>
                             <div class="opened_tab border_debug" id="opened_tab_2">
                                 <div class="create_channel border_debug">
@@ -86,7 +126,7 @@
                                         <!-- <label for="channel_unique_name"> Уникальное имя вашего канала из латинских букв
                                         </label> -->
                                         <input type="file" accept=".png, .jpg, .jpeg" id="channel_avatar_upload">
-                                        <label id="label_for_channel_avatar_upload"
+                                        <label id="label_for_channel_avatar_upload" class="label_for_channel_avatar_upload"
                                             for="channel_avatar_upload">Загрузить аватар</label>
                                         <div id="preview">
                                             <img id="preview-img" src="" alt="Предпросмотр">
@@ -165,6 +205,11 @@
                                                 Сохранить изменения
                                             </div>
                                         </div>
+                                        <div class="delete_channel">
+                                            <div class="delete_channel_button" id="delete_channel_button">
+                                                Удалить канал
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -180,7 +225,7 @@
                                     <div class="create_channel_post_tab border_debug">
                                         <div class="create_channel_post_rect border_debug">
                                             <div class="create_channel_post_header">
-                                                <img class="" src="storage/channels_avatars/67839a292455d.png">
+                                                <img class="create_channel_post_header_image" src="storage/channels_avatars/67839a292455d.png">
                                                 <div class="post_channel_author ">
 
                                                 </div>

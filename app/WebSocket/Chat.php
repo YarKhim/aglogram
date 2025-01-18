@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\Channel;
+use App\Models\Subscription;
 use Exception;
 use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Psr7\Header;
@@ -445,13 +446,25 @@ class Chat implements MessageComponentInterface
                 }
             }
             $channel->save();
-            // dump($msg_decode->channel_name);
-            // dump($msg_decode->channel_unique_name);
-            // dump($msg_decode->file_avatar_channel);
-            // dump(count($msg_decode->file_avatar_channel));
-            // if($msg_decode->file_avatar_channel->count() > 0){
-
-            // }
+        }
+        if ($msg_decode->type_message == 'subscribe_channel'){
+            $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
+            $sid = Crypt::decryptString($sessionId);
+            $parts = explode('|', $sid);
+            $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
+            $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
+            Subscription::create([
+                'user_id'=> $user_id,
+                'channel_id'=> $msg_decode->channel_id,
+            ]);
+        }
+        if ($msg_decode->type_message == 'unsubscribe_channel'){
+            $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
+            $sid = Crypt::decryptString($sessionId);
+            $parts = explode('|', $sid);
+            $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
+            $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
+            Subscription::where('user_id', $user_id)->where('channel_id', $msg_decode->channel_id )->delete();
         }
         // new_channel
         // new_post_view
