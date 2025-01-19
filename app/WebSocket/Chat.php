@@ -457,6 +457,8 @@ class Chat implements MessageComponentInterface
                 'user_id'=> $user_id,
                 'channel_id'=> $msg_decode->channel_id,
             ]);
+            $channel = Channel::where('id', $msg_decode->channel_id)->increment('subscribes_count');
+
         }
         if ($msg_decode->type_message == 'unsubscribe_channel'){
             $sessionId = str_replace('%3D', '', Header::parse($from->httpRequest->getHeader('Cookie'))[0]['laravel_session']);
@@ -465,6 +467,8 @@ class Chat implements MessageComponentInterface
             $dd = unserialize(file_get_contents(config('session.files') . '/' . $parts[1]));
             $user_id = $dd['login_web_' . sha1(SessionGuard::class)];
             Subscription::where('user_id', $user_id)->where('channel_id', $msg_decode->channel_id )->delete();
+            $channel = Channel::where('id', $msg_decode->channel_id)->decrement('subscribes_count');
+
         }
         // new_channel
         // new_post_view

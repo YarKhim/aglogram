@@ -50,7 +50,7 @@
 
                                     $.ajax({
                                         url: '/get_this_user',
-                                        type: 'post',
+                                        type: 'get',
                                         async: false,
                                         data: {
                                             _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты
@@ -568,7 +568,7 @@
                                                     load_post_comments[post['id']] = true;
                                                     $.ajax({
                                                         url: '/load_post_comments',
-                                                        type: 'post',
+                                                        type: 'get',
                                                         data: {
                                                             _token: '{{ csrf_token() }}',
                                                             post_id: post['id'],

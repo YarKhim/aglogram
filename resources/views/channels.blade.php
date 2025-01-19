@@ -34,7 +34,7 @@
                             <div class="opened_tab border_debug" id="opened_tab_0">
                                 <div class="your_subscriptions border_debug">
                                     <h1 class="border_debug"> Мои подписки</h1>
-                                    <div class="subscriptions_list">
+                                    <div class="subscriptions_list" id="my_subscriptions_list">
 
                                         {{-- <div class="subscription_tab">
 
@@ -66,19 +66,97 @@
                                 <div class="opened_channel_subscription">
                                     <div class="opened_channel_subscription_header">
                                         <div class="opened_channel_subscription_header_avatar">
-                                            <img src="storage/channels_avatars/aglogram.png">
+                                            <img class="opened_channel_subscription_header_avatar_img"
+                                                src="storage/channels_avatars/aglogram.png">
                                         </div>
+                                        <div class="text_channel_info border_debug">
+                                            <div class="text_channel_info_name">
+                                                aglogram
+                                            </div>
+                                            <div class="text_channel_count_subscribers">
+                                                1234 Подписчиков
+                                            </div>
+                                        </div>
+                                        <div class="unsubscribe_channel">
+                                            <div class="unsubscribe_channel_button">
+                                                Отписаться
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="opened_channel_subscription_posts">
+
+                                        {{-- <div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
+                                            <div class="user_post_rect">
+                                                <div class="post_header ">
+                                                    <img class="post_image " src="/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg">
+                                                    <div class="post_author ">
+                                                        aglogram
+                                                    </div>
+                                                    <div class="post_date ">
+                                                    </div>
+                                                </div>
+                                                <div class="post_data_rect">
+                                                    <div class="post_data">
+                                                        <div class="post_data_images">
+                                                            <div class="post_data_image"
+                                                                >
+
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="post_text">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="post_footer">
+                                                    <div class="post_likes">
+                                                        Мне нравится
+                                                    </div>
+                                                    <div class="post_likes_counter"
+                                                        >
+                                                        Лайки: `+ post['likes_count'] + `
+                                                    </div>
+                                                    <div class="post_watchers">
+                                                        Просмотры: `+ post['views'] + `
+                                                    </div>
+                                                </div>
+                                                <div class="open_comments open_comments_`+ post['id'] + `">
+                                                    Открыть комментарии
+                                                </div>
+                                                <div class="comments_plane comments_plane_`+ post['id'] + `">
+
+                                                </div>
+                                                <div class="post_comments">
+                                                    <div class="post_comments_input">
+                                                        <textarea id="input_comment_`+ post['id'] + `"
+                                                            class="text_input_comment" name="text"
+                                                            oninput='this.style.height = "";this.style.height = this.scrollHeight + "px";'></textarea>
+
+                                                        <div class="div_send_comment">
+                                                            <div class="send_comment"
+                                                                id="send_comment_`+ post['id'] + `">
+                                                                Отправить
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div> --}}
                                     </div>
                                 </div>
                             </div>
                             <div class="search_channel_tab opened_tab border_debug" id="opened_tab_1">
                                 <div class="search_channel_tab_left_side border_debug">
-                                    <h1  class="my_channels_options_header border_debug" > Найти канал</h1>
+                                    <h1 class="my_channels_options_header border_debug"> Найти канал</h1>
                                     <div class="serarch_channel_input_box">
                                         <input
                                             class="border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
-                                            id="searched_channel_name" type="text" required="required" autofocus="autofocus"
-                                            autocomplete="name" placeholder="Название канала">
+                                            id="searched_channel_name" type="text" required="required"
+                                            autofocus="autofocus" autocomplete="name" placeholder="Название канала">
                                         <div class="serarch_channel_button">Поиск</div>
                                     </div>
                                     <div class="search_channel_results">
@@ -100,7 +178,7 @@
 
                                     </div>
                                 </div>
-                                <div class="search_channel_tab_right_side border_debug" >
+                                <div class="search_channel_tab_right_side border_debug">
 
                                 </div>
                             </div>
@@ -126,7 +204,8 @@
                                         <!-- <label for="channel_unique_name"> Уникальное имя вашего канала из латинских букв
                                         </label> -->
                                         <input type="file" accept=".png, .jpg, .jpeg" id="channel_avatar_upload">
-                                        <label id="label_for_channel_avatar_upload" class="label_for_channel_avatar_upload"
+                                        <label id="label_for_channel_avatar_upload"
+                                            class="label_for_channel_avatar_upload"
                                             for="channel_avatar_upload">Загрузить аватар</label>
                                         <div id="preview">
                                             <img id="preview-img" src="" alt="Предпросмотр">
@@ -225,7 +304,8 @@
                                     <div class="create_channel_post_tab border_debug">
                                         <div class="create_channel_post_rect border_debug">
                                             <div class="create_channel_post_header">
-                                                <img class="create_channel_post_header_image" src="storage/channels_avatars/67839a292455d.png">
+                                                <img class="create_channel_post_header_image"
+                                                    src="storage/channels_avatars/67839a292455d.png">
                                                 <div class="post_channel_author ">
 
                                                 </div>
@@ -243,10 +323,10 @@
                                                     </div>
 
                                                     <div class="input_channel_post_text">
-                                                        <textarea
-                                                            placeholder="Введите текст вашего поста здесь"
-                                                            oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'";
-                                                            class="select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900
+                                                        <textarea placeholder="Введите текст вашего поста здесь"
+                                                            oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"
+                                                            ;
+                                                            class="input_post_text select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900
                                                             dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500
                                                              dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full textarea_input_channel_post_text"></textarea>
                                                     </div>
@@ -254,7 +334,9 @@
                                                         <input id="upload_images" type="file" multiple accept="image/*">
                                                     </form>
                                                     <div class="div_label_for_upload_images">
-                                                        <label class="label_for_upload_images" id="label_for_upload_images_new_post_channel" for="upload_images">Добавить фото к посту</label>
+                                                        <label class="label_for_upload_images"
+                                                            id="label_for_upload_images_new_post_channel"
+                                                            for="upload_images">Добавить фото к посту</label>
                                                     </div>
                                                 </div>
                                             </div>

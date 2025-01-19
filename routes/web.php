@@ -28,6 +28,7 @@ use App\Http\Controllers\start_chat;
 use App\Http\Controllers\create_channel;
 use App\Http\Controllers\search_channels;
 use App\Http\Controllers\is_subscribe;
+use App\Http\Controllers\get_channels_posts;
 // use App\Http\Controllers\getAllFriendsRequests;
 /*
 |--------------------------------------------------------------------------
@@ -110,18 +111,19 @@ Route::get('/unread_chats', [ChatReadController::class, 'get_unread_chats']);
 Route::get('/read_message', [ReadMessage::class, 'reading_message']);
 Route::post('/search', [SearchUserController::class, 'search_users']);
 Route::post('/getfriends', [getFriends::class, 'getUserFriends']);
-Route::post('/get_this_user', [get_this_user::class, 'getThisUser']);
+Route::get('/get_this_user', [get_this_user::class, 'getThisUser']);
 Route::post('/isRequestSent', [isRequestSent::class, 'isreqSent']);
 Route::post('/getFriendRequests', [getAllFriendsRequests::class, 'getFriendRequests']);
 Route::post('/savepost', [send_post::class, 'save_post']);
 Route::post('/load_posts', [load_posts::class, 'load_post']);
 Route::post('/isLikeSent', [isLikeSent::class, 'islikesent']);
-Route::post('/load_post_comments', [load_post_comments::class, 'load_comments']);
+Route::get('/load_post_comments', [load_post_comments::class, 'load_comments']);
 Route::post('/start_chat', [start_chat::class, 'start_users_chat']);
 Route::get('/get_channels', [create_channel::class, 'get_channels']);
 Route::get('/search_channels', [search_channels::class, 'search']);
 Route::get('/get_all_subscriptions', [search_channels::class, 'get_all_subscriptions']);
 Route::get('/is_subscribe', [is_subscribe::class, 'check_subscribe']);
+Route::get('/get_channels_posts', [get_channels_posts::class, 'load']);
 // Route::get('/is_subscribe', [search_channels::class, 'is_subscribe']);
 require __DIR__ . '/auth.php';
 

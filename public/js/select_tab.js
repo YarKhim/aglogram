@@ -7,6 +7,9 @@ const new_preview = document.getElementById('new_preview');
 const new_previewImg = document.getElementById('new_preview-img');
 const new_removeButton = document.getElementById('new_remove-button');
 const select_channel = document.getElementById('select_channel');
+let page = 1; // Начальная страница
+const limit = 3; // Количество постов на страницу
+var loading = false;
 console.log("🚀 ~ select_channel:", select_channel)
 file_avatar_channel = '';
 new_file_avatar_channel = '';
@@ -15,6 +18,34 @@ current_tab = null;
 isFirst = true;
 current_update_channel_id = null;
 selected_channal_for_post = null;
+opened_channel_id = null;
+$('.opened_channel_subscription').css('display', 'none');
+$(document).on('keydown', function (event) {
+    if (event.key === 'Escape' || event.keyCode === 27) {
+        // Действия при нажатии клавиши Esc
+        $('.opened_channel_subscription').css('display', 'none');
+        opened_channel_id = null;
+    }
+});
+this_user_id = null;
+this_user = null;
+
+$.ajax({
+    url: '/get_this_user',
+    type: 'get',
+    async: false,
+    data: {
+        _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты
+    },
+    success: function (response) {
+        this_user = response['this_user'];
+        this_user_id = response['this_user_id'];
+    },
+    error: function (xhr) {
+        console.error('Error:', xhr);
+        alert('Произошла ошибка: ' + xhr.responseJSON.message);
+    }
+});
 all_tabs_channels_select.forEach(tab => {
     console.log($(tab));
     $(tab).on('click', function () {
@@ -128,29 +159,431 @@ $.ajax({
     success: function (response) {
         console.log(response);
         response['channels'].forEach(element => {
+            if (element != null) {
+                tab =
+                    `<div class="subscription_tab" id="subscription_tab_` + element['id'] + `">
+                    <div class="left_side_subscription_tab">
+                        <img src="`+ element['channel_avatar'] + `">
+                    </div>
+                    <div class="right_side_subscription_tab">
+                        <div class="channel_name">
+                            <p>`+ element['name'] + `</p>
+                        </div>
+                        <div class="last_post">
+                            <div class="last_post_text">
+                                <p>Это последний пост в этом шикарном канале</p>
+                            </div>
+                            <div class="last_post_time">
+                                <p>12.12.1212</p>
 
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+                $('#my_subscriptions_list').append(tab);
+                $('#subscription_tab_' + element['id']).click(function () {
+                    $('.opened_channel_subscription_header_avatar_img').attr('src', element['channel_avatar']);
+                    $('.text_channel_info_name').text(element['name']);
+                    $('.text_channel_count_subscribers').text(element['subscribes_count'] + ' Папищиков');
+                    $('.opened_channel_subscription').css('display', 'flex');
+                    opened_channel_id = element['id'];
+                    $('.unsubscribe_channel_button').click(function () {
+                        data = {
+                            'type_message': 'unsubscribe_channel',
+                            'channel_id': opened_channel_id,
+                        };
+                        sendMessage(JSON.stringify(data));
+                        $('.opened_channel_subscription').css('display', 'none');
+                        opened_channel_id = null;
+                        $('#subscription_tab_' + element['id']).remove();
+                    });
+
+                    all_comments_is_open = {};
+                    all_photos_tab = {};
+                    viewed_posts_id = [];
+                    last_posts_comments = {};
+                    comments_loading_flags = {};
+                    function loadChannelPosts() {
+                        if (loading) return; // если данные уже загружаются, не выполнять запрос
+                        loading = true; // устанавливаем флаг загрузки
+                        $.ajax({
+                            url: '/get_channels_posts',
+                            type: 'GET',
+                            data: {
+                                page: page,
+                                limit: limit,
+                                current_channel: opened_channel_id,
+                            },
+                            success: function (data) {
+                                console.log(data);
+                                if (data.data.data.length > 0) {
+                                    // data.data.forEach(post => {
+                                    //     $('#posts-container').append(<div><h2>${post.title}</h2><p>${post.content}</p></div>);
+                                    // });
+
+                                    posts = data.data.data;
+                                    liked_post = data.liked_posts;
+                                    console.log("🚀 ~ loadChannelPosts ~ liked_post:", liked_post)
+                                    posts.forEach(post => {
+
+                                        photos = JSON.parse(post['photos']);
+                                        const url = '/storage/' + post['text'];
+                                        post_text = '';
+                                        const date = new Date(post['created_at']);
+                                        create_at = String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getFullYear()).padStart(2, '0') + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+                                        post_tab =
+                                            `<div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
+                                            <div class="user_post_rect">
+                                                <div class="post_header ">
+                                                    <img class="post_image "
+                                                        src="`+ element['channel_avatar'] + `">
+                                                    <div class="post_author ">
+                                                        `+ element['name'] + `
+                                                    </div>
+                                                    <div class="post_date " id="post_date_`+ post['id'] + `">
+                                                        `+ create_at + `
+                                                    </div>
+                                                </div>
+                                                <div class="post_data_rect">
+                                                    <div class="post_data">
+                                                        <div class="post_data_images">
+                                                            <div class="post_data_image" id="post_data_image_`+ post['id'] + `">
+
+
+                                                            </div>
+                                                        </div>
+                                                        <div class="post_text" id="post_text_`+ post['id'] + `">
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="post_footer">
+                                                    <div class="post_likes" id="post_likes_`+ post['id'] + `">
+                                                        Мне нравится
+                                                    </div>
+                                                    <div class="post_likes_counter" id="post_likes_counter_`+ post['id'] + `">
+                                                        Лайки: `+ post['likes_count'] + `
+                                                    </div>
+                                                    <div class="post_watchers" id="post_watchers_`+ post['id'] + `">
+                                                        Просмотры: `+ post['views'] + `
+                                                    </div>
+                                                </div>
+                                                <div class="open_comments open_comments_`+ post['id'] + `"  >
+                                                    Открыть комментарии
+                                                </div>
+                                                <div class="comments_plane comments_plane_`+ post['id'] + `">
+
+                                                </div>
+                                                <div class="post_comments">
+                                                    <div class="post_comments_input">
+                                                        <textarea id="input_comment_`+ post['id'] + `"  class="text_input_comment" name="text"
+                                                            oninput='this.style.height = "";this.style.height = this.scrollHeight + "px";'></textarea>
+
+                                                        <div class="div_send_comment">
+                                                            <div class="send_comment" id="send_comment_`+ post['id'] + `">
+                                                                Отправить
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+                                        </div>`;
+                                        $('.opened_channel_subscription_posts').append(post_tab);
+                                        if (liked_post[post['id']]) {
+                                            document.getElementById('post_likes_' + post['id']).classList.add('liked_post');
+                                        }
+                                        fetch(url)
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    post_text = '<p>Произошла ошибка загрузки :(</p>';
+                                                    $('#post_text_' + post['id']).append(post_text);
+                                                    throw new Error('Сеть ответила с ошибкой: ' + response.status);
+                                                }
+                                                return response.text(); // Получаем текст из ответа
+                                            })
+                                            .then(text => {
+                                                post_text = '<p>' + text + '</p>';
+                                                $('#post_text_' + post['id']).append(post_text);
+                                            })
+                                            .catch(error => {
+                                                console.error('Произошла ошибка:', error);
+                                            });
+                                        counter = 0;
+                                        photos.forEach(photo => {
+                                            img = `<img class='post_data_image_carousel post_` + post['id'] + `_data_image_carousel'
+                                                        id='post_`+ post['id'] + `_data_image_carousel_` + counter + `'
+                                                        src="/storage/`+ photo + `">`;
+                                            $('#post_data_image_' + post['id']).append(img);
+                                            counter++;
+                                        });
+                                        all_new_photos = document.querySelectorAll('.post_' + post["id"] + '_data_image_carousel');
+                                        all_photos_tab[post['id']] = { 'current_img': 0, 'last_img': 0, 'max_img': all_new_photos.length - 1 };
+                                        last_posts_comments[post['id']] = 1;
+                                        comments_loading_flags[post['id']] = false;
+                                        const elements = document.querySelectorAll('.post_' + post['id'] + '_data_image_carousel');
+                                        for (let i = 1; i < elements.length; i++) {
+                                            id = elements[i].id;
+                                            $("#" + id).css('display', 'none');
+                                        }
+                                        function swap_image(new_imgae_id, image_id, post_id) {
+                                            $('#post_' + post_id + '_data_image_carousel_' + image_id).css('display', 'none');
+                                            $('#post_' + post_id + '_data_image_carousel_' + new_imgae_id).css('display', 'block');
+                                        }
+                                        function handleLeftClick(id_elem) {
+                                            // console.log(id_elem);
+                                            if (all_photos_tab[post['id']]['current_img'] == 0) {
+                                                all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                all_photos_tab[post['id']]['current_img'] = all_photos_tab[post['id']]['max_img'];
+                                            }
+                                            else {
+                                                all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                all_photos_tab[post['id']]['current_img']--;
+                                            }
+                                            swap_image(all_photos_tab[post['id']]['current_img'], all_photos_tab[post['id']]['last_img'], post['id']);
+                                        }
+                                        function handleRightClick(id_elem) {
+                                            // console.log(id_elem);
+                                            if (all_photos_tab[post['id']]['current_img'] == all_photos_tab[post['id']]['max_img']) {
+                                                all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                all_photos_tab[post['id']]['current_img'] = 0;
+                                            }
+                                            else {
+                                                all_photos_tab[post['id']]['last_img'] = all_photos_tab[post['id']]['current_img'];
+                                                all_photos_tab[post['id']]['current_img']++;
+                                            }
+                                            swap_image(all_photos_tab[post['id']]['current_img'], all_photos_tab[post['id']]['last_img'], post['id']);
+                                        }
+                                        elements.forEach(element => {
+                                            element.addEventListener('click', (event) => {
+                                                const rect = element.getBoundingClientRect(); // Получаем размеры и позицию блока
+                                                const clickX = event.clientX - rect.left; // Координата X клика относительно блока
+                                                const halfWidth = rect.width / 2; // Половина ширины блока
+
+                                                if (clickX < halfWidth / 2) {
+                                                    handleLeftClick(element.id); // Если клик был на левой половине
+                                                }
+                                                if (clickX > (3 * halfWidth) / 2) {
+                                                    handleRightClick(element.id); // Если клик был на правой половине
+                                                }
+                                            });
+                                        });
+                                        const open_comments = document.querySelector('.open_comments_' + post['id']);
+                                        all_comments_is_open[post['id']] = false;
+
+                                        function load_post_comments(isFirst = false) {
+                                            if (load_post_comments[post['id']]) return;
+                                            load_post_comments[post['id']] = true;
+                                            $.ajax({
+                                                url: '/load_post_comments',
+                                                type: 'get',
+                                                data: {
+                                                    post_id: post['id'],
+                                                    page: last_posts_comments[post['id']],
+                                                },
+                                                success: function (comment_load_result) {
+                                                    res = comment_load_result['data']['data'];
+                                                    users = comment_load_result['users'];
+                                                    if (res.length > 0) {
+                                                        $('#not_comments_' + post['id']).remove();
+                                                        res.forEach(comment => {
+                                                            current_post_author = users[comment['author_id']];
+                                                            post_created_at = new Date(comment['created_at']);
+                                                            comment_tab =
+                                                                `<div class="comment_tab comment_tab_` + comment['id'] + `">
+                                                                    <div class="comment comment_`+ comment['id'] + `">
+                                                                        <div class="comentatr_avatar">
+                                                                            <img
+                                                                                src="`+ current_post_author['avatar'] + `">
+                                                                        </div>
+                                                                        <div class="commentor_name_comment_text">
+                                                                            <div class='about_post'>
+                                                                                <div class="commentator_name">
+                                                                                    `+ current_post_author['name'] + ` ` + current_post_author['lastname'] + `
+                                                                                </div>
+                                                                            <div class='post_time'>`+ String(post_created_at.getDate()).padStart(2, '0') + `.` + String(post_created_at.getMonth() + 1).padStart(2, '0') + `.` + post_created_at.getFullYear() + ` ` + String(post_created_at.getHours()).padStart(2, '0') + `:` + String(post_created_at.getMinutes()).padStart(2, '0') + `</div>
+                                                                            </div>
+
+                                                                            <div class="comment_text">
+                                                                                <p>
+                                                                                    `+ comment['text'] + `
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                    </div>
+                                                                </div>`;
+                                                            $('.comments_plane_' + post['id']).append(comment_tab);
+                                                        });
+                                                        last_posts_comments[post['id']] = last_posts_comments[post['id']] + 1;
+                                                    }
+                                                    else {
+                                                        if (isFirst) {
+                                                            $('.not_comments_' + post['id']).remove();
+                                                            not_comments_tab =
+                                                                ` <div class='not_comments not_comments_` + post['id'] + `' id="not_comments_` + post['id'] + `" >
+                                                                    Под этим постом ещё нет комметрариев :)
+                                                                </div>`;
+                                                            $('.comments_plane_' + post['id']).append(not_comments_tab);
+                                                        }
+                                                    }
+                                                },
+                                                error: function (xhr) {
+                                                    console.error('Error:', xhr);
+                                                    alert('Произошла ошибка: ' + xhr.responseJSON.message);
+                                                },
+                                                complete: function () {
+                                                    load_post_comments[post['id']] = false;
+                                                }
+                                            })
+                                        }
+                                        $(document.querySelector('.comments_plane_' + post['id'])).on('scroll', function () {
+                                            if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight - 20) { // добавляем небольшой отступ
+                                                load_post_comments(); // загружаем данные при достижении конца контейнера
+                                            }
+                                        });
+
+                                        // send_comment_
+                                        $('#send_comment_' + post['id']).on('click', function () {
+                                            value_text = $('#input_comment_' + post['id']).val();
+                                            datenow = new Date();
+                                            comment_guid = generateGUID();
+                                            comment_tab =
+                                                `<div class="comment_tab comment_tab_` + comment_guid + `">
+                                                        <div class="comment comment_`+ comment_guid + `">
+                                                            <div class="comentatr_avatar">
+                                                                <img
+                                                                    src="`+ this_user['avatar'] + `">
+                                                            </div>
+                                                            <div class="commentor_name_comment_text">
+                                                                <div class='about_post'>
+                                                                    <div class="commentator_name">
+                                                                        `+ this_user['name'] + ` ` + this_user['lastname'] + `
+                                                                    </div>
+                                                                <div class='post_time'>`+ String(datenow.getDate()).padStart(2, '0') + `.` + String(datenow.getMonth() + 1).padStart(2, '0') + `.` + datenow.getFullYear() + ` ` + String(datenow.getHours()).padStart(2, '0') + `:` + String(datenow.getMinutes()).padStart(2, '0') + `</div>
+                                                                </div>
+
+                                                                <div class="comment_text">
+                                                                    <p>
+                                                                        `+ value_text + `
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>`;
+                                            $('.comments_plane_' + post['id']).prepend(comment_tab);
+                                            // $(document.querySelector('.comments_plane_' + post['id']))
+                                            // post_id = post_div.id.replace('user_post_tab_', '');
+                                            data = {
+                                                'post_id': post['id'],
+                                                'comment_guid': comment_guid,
+                                                'comment_text': value_text,
+                                                'author_id': this_user_id,
+                                                'type_message': 'new_comment_post',
+                                            }
+                                            sendMessage(JSON.stringify(data));
+
+                                            $('#input_comment_' + post['id']).val('');
+                                        })
+
+
+                                        open_comments.addEventListener('click', function () {
+                                            if (all_comments_is_open[post['id']]) {
+                                                document.querySelector('.open_comments_' + post['id']).classList.remove('close_comments');
+                                                document.querySelector('.open_comments_' + post['id']).innerText = 'Показать комментарии';
+                                                $(document.querySelector('.comments_plane_' + post['id'])).css('display', 'none');
+                                                all_comments_is_open[post['id']] = false;
+                                            }
+                                            else {
+                                                document.querySelector('.open_comments_' + post['id']).classList.add('close_comments');
+                                                document.querySelector('.open_comments_' + post['id']).innerText = 'Скрыть комметарии';
+                                                $(document.querySelector('.comments_plane_' + post['id'])).css('display', 'flex');
+                                                all_comments_is_open[post['id']] = true;
+                                                load_post_comments(true)
+                                            }
+                                        });
+                                        const all_posts_div = document.querySelector('.opened_channel_subscription_posts');
+                                        const posts_divs = document.querySelectorAll('.user_post_tab');
+                                        function checkVisibility() {
+                                            posts_divs.forEach(post_div => {
+                                                const childRect = post_div.getBoundingClientRect();
+                                                const parentRect = all_posts_div.getBoundingClientRect();
+                                                const childVisibleHeight = Math.max(0, Math.min(childRect.bottom, parentRect.bottom) - Math.max(childRect.top, parentRect.top));
+                                                const halfChildHeight = post_div.offsetHeight / 2;
+                                                if (childVisibleHeight >= halfChildHeight && !viewed_posts_id.includes(post_div.id)) {
+                                                    viewed_posts_id.push(post_div.id);
+                                                    yourFunction(post_div);
+                                                }
+                                            });
+                                        }
+                                        function yourFunction(post_div) {
+
+                                            post_id = post_div.id.replace('user_post_tab_', '');
+                                            data = {
+                                                'post_id': post_id,
+                                                'type_message': 'new_post_view',
+                                            }
+                                            sendMessage(JSON.stringify(data));
+                                        }
+                                        all_posts_div.addEventListener('scroll', checkVisibility);
+                                    });
+                                    const like_buttons = document.querySelectorAll('.post_likes');
+                                    console.log("🚀 ~ loadChannelPosts ~ like_buttons:", like_buttons)
+                                    like_buttons.forEach(like_button => {
+                                        post_id = like_button.id.replace('post_likes_', '');
+                                        console.log("🚀 ~ loadChannelPosts ~ post_id:", post_id)
+                                        like_button.addEventListener('click', function () {
+                                            post_id = like_button.id.replace('post_likes_', '');
+                                            data = {
+                                                'user_id': this_user_id,
+                                                'post_id': post_id,
+                                                'type_like': 'post_like',
+                                                'type_message': 'new_post_like',
+                                            }
+                                            sendMessage(JSON.stringify(data));
+                                            like_button.innerText = 'Вы лайкнули';
+                                            likes_count_current = Number(document.getElementById('post_likes_counter_' + post_id).innerText.replace('Лайки: ', '')) + 1;
+                                            document.getElementById('post_likes_counter_' + post_id).innerText = 'Лайки: ' + likes_count_current;
+                                            like_button.classList.add('liked_post');
+                                        })
+                                    });
+                                    console.log(posts);
+                                    page++; // Увеличиваем номер страницы для следующего запроса
+                                } else {
+                                    console.log('Нема');
+                                    $('.opened_channel_subscription_posts').off('scroll');
+                                    // $('#load-more').hide(); // Скрываем кнопку, если больше нет постов
+                                }
+                            },
+                            error: function () {
+                                alert('Ошибка загрузки постов.');
+                            },
+                            complete: function () {
+                                loading = false; // сбрасываем флаг загрузки после завершения запроса
+                            }
+                        });
+                    }
+
+                    // $(document).ready(function () {
+                    loadChannelPosts(); // Загружаем первые посты
+
+                    // $('#load-more').click(function () {
+                    //     loadPosts(); // Загружаем еще посты при нажатии на кнопку
+                    // });
+                    $(document.querySelector('.opened_channel_subscription_posts')).on('scroll', function () {
+                        if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight - 20) { // добавляем небольшой отступ
+                            loadChannelPosts(); // загружаем данные при достижении конца контейнера
+                        }
+                    });
+                    // });
+                    // '/get_channels_posts'
+                    // alert(element['id']);
+                });
+            }
             // String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getFullYear()).padStart(2, '0') + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0')
-            tab =
-            `<div class="subscription_tab" id="subscription_tab_`+element['id']+`">
-                <div class="left_side_subscription_tab">
-                    <img src="`+element['channel_avatar']+`">
-                </div>
-                <div class="right_side_subscription_tab">
-                    <div class="channel_name">
-                        <p>`+element['name']+`</p>
-                    </div>
-                    <div class="last_post">
-                        <div class="last_post_text">
-                            <p>Это последний пост в этом шикарном канале</p>
-                        </div>
-                        <div class="last_post_time">
-                            <p>12.12.1212</p>
 
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-            $('.subscriptions_list').append(tab);
         });
     },
     error: function (xhr) {
@@ -211,13 +644,15 @@ $.ajax({
             })
         });
         select_channel.value = all_chanels_id[0];
-        $('.post_channel_author').text(all_chanels[all_chanels_id[0]]['name']);
-        selected_channal_for_post = all_chanels_id[0];
+        $('.post_channel_author').text(all_chanels[select_channel.value]['name']);
+        $('.create_channel_post_header_image').attr('src', all_chanels[select_channel.value]['avatar']);
         select_channel.addEventListener('change', function () {
             $('.post_channel_author').text(all_chanels[select_channel.value]['name']);
             $('.create_channel_post_header_image').attr('src', all_chanels[select_channel.value]['avatar']);
             selected_channal_for_post = select_channel.value;
         });
+
+
     },
     error: function (xhr) {
         console.error('Error:', xhr);
@@ -237,6 +672,7 @@ all_files_links = {};
 const date = new Date();
 create_at = String(date.getDate()).padStart(2, '0') + '.' + String(date.getMonth() + 1).padStart(2, '0') + '.' + String(date.getFullYear()).padStart(2, '0') + ' ' + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
 $('.post_channel_date').text(create_at);
+$('.post_channel_author').text()
 $('#upload_images').on('change', function () {
     var files = this.files;
     function del_photo_tab(event) {
@@ -271,7 +707,7 @@ $('.publish_channel_post_button').on('click', function () {
     if (Object.keys(all_files).length > 0 || $('.input_post_text').val().trim() != '') {
         data = {
             'type_message': 'new_post',
-            'post_author': selected_channal_for_post,
+            'post_author': document.getElementById('select_channel').value,
             'post_text': $('.textarea_input_channel_post_text').val(),
             'post_photo': all_files_links,
             'type_post': 'channel_post',
@@ -398,7 +834,26 @@ $('.serarch_channel_button').on('click', function () {
 
                                 </div>
                             </div>`;
-                            $('.subscriptions_list').prepend(new_subscription_tab);
+                            $('#my_subscriptions_list').prepend(new_subscription_tab);
+                            $('#subscription_tab_' + channel).click(function () {
+                                $('.opened_channel_subscription_header_avatar_img').attr('src', searched_channels[channel]['channel_avatar']);
+                                $('.text_channel_info_name').text(searched_channels[channel]['name']);
+                                $('.text_channel_count_subscribers').text((searched_channels[channel]['subscribes_count'] + 1) + ' Папищиков');
+                                $('.opened_channel_subscription').css('display', 'flex');
+                                opened_channel_id = channel;
+                                $('.unsubscribe_channel_button').click(function () {
+                                    data = {
+                                        'type_message': 'unsubscribe_channel',
+                                        'channel_id': opened_channel_id,
+                                    };
+                                    sendMessage(JSON.stringify(data));
+                                    $('.opened_channel_subscription').css('display', 'none');
+                                    opened_channel_id = null;
+                                    $('#subscription_tab_' + channel).remove();
+                                })
+                                // alert(element['id']);
+                            });
+
                         });
                     }
                     else {
@@ -459,5 +914,4 @@ $('.serarch_channel_button').on('click', function () {
             }
         });
     }
-})
-
+});

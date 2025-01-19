@@ -120,7 +120,7 @@
                                 this_user_id = null;
                                 $.ajax({
                                     url: '/get_this_user',
-                                    type: 'post',
+                                    type: 'get',
                                     async: false,
                                     data: {
                                         _token: '{{ csrf_token() }}' // Добавляем CSRF-токен для защиты

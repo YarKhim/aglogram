@@ -1977,7 +1977,8 @@ input[type="file"] {
     border: 1px solid white;
     border-radius: 20px;
     margin-top: 5%;
-    height: 20%;
+    /* height: 20%; */
+    height: 5em;
     display: flex;
     /* align-items: center; */
 }
@@ -2155,8 +2156,23 @@ input[type="file"] {
     /* font-style: oblique; */
     margin-top: 5%;
     user-select: none;
-}
 
+}
+#new_label_for_channel_avatar_upload{
+    border: 1px solid white;
+    padding: 1%;
+    border-radius: 20px;
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s;
+}
+#new_label_for_channel_avatar_upload:hover{
+    background-color: #0056b3;
+    border: 1px solid transparent;
+
+}
 .create_channel_button {
     display: flex;
     justify-content: center;
@@ -2569,7 +2585,7 @@ input[type="file"] {
 }
 .opened_channel_subscription_header{
     border: 1px solid red;
-    height: 15%;
+    height: 3.5em;
     display: flex;
     flex-direction: row;
 }
@@ -2584,4 +2600,50 @@ input[type="file"] {
 .opened_channel_subscription_header_avatar>img{
     height: 90%;
     border-radius: 50%;
+}
+.text_channel_info{
+    margin-left: 2%;
+    height: 100%;
+    display: flex;
+
+    flex-direction: column;
+    width: 30%;
+}
+.text_channel_info>div{
+    user-select: none;
+    height: 50%;
+    display: flex;
+
+}
+.text_channel_count_subscribers{
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.5);
+}
+.unsubscribe_channel_button{
+    border: 1px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* height: 60%; */
+    padding: 5%;
+    border-radius: 20px;
+    transition: 0.5s;
+    user-select: none;
+}
+.unsubscribe_channel_button:hover{
+    background-color: red;
+    border: 1px solid transparent;
+}
+.unsubscribe_channel{
+    margin-left: 5%;
+    height: 100%;
+    display: flex;
+    /* flex-direction: column; */
+    justify-content: center;
+    align-items: center;
+}
+.opened_channel_subscription_posts{
+    /* background-color: red; */
+    height: 100%;
+    overflow-y: auto;
 }
