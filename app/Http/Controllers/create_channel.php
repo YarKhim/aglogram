@@ -11,4 +11,8 @@ class create_channel extends Controller
         $channels = Channel::where('admins',Auth::user()->id)->get();
         return response()->json(['message' => 'Данные успешно получены!', 'channels' => $channels]);
     }
+    public function delete_channel(Request $request){
+        Channel::where('id',$request->input('channel_id'))->delete();
+        return response()->json(['message' => 'Данные успешно получены!', 'input' => $request->input('channel_id') ]);
+    }
 }

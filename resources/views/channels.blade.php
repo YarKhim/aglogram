@@ -89,7 +89,8 @@
                                         {{-- <div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
                                             <div class="user_post_rect">
                                                 <div class="post_header ">
-                                                    <img class="post_image " src="/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg">
+                                                    <img class="post_image "
+                                                        src="/storage/3K4xEsRsU8RGtY6iMmY0GzqDXdoR7DHWHmLXUHch.jpg">
                                                     <div class="post_author ">
                                                         aglogram
                                                     </div>
@@ -99,8 +100,7 @@
                                                 <div class="post_data_rect">
                                                     <div class="post_data">
                                                         <div class="post_data_images">
-                                                            <div class="post_data_image"
-                                                                >
+                                                            <div class="post_data_image">
 
 
                                                             </div>
@@ -114,8 +114,7 @@
                                                     <div class="post_likes">
                                                         Мне нравится
                                                     </div>
-                                                    <div class="post_likes_counter"
-                                                        >
+                                                    <div class="post_likes_counter">
                                                         Лайки: `+ post['likes_count'] + `
                                                     </div>
                                                     <div class="post_watchers">
@@ -299,10 +298,71 @@
                                     <select id="select_channel"
                                         class="select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full">
                                     </select>
+                                    <h1 class="my_channels_options_header">Выбрать тип публикации</h1>
+                                    <select id="select_type_post"
+                                        class="select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full">
+                                        <option class="select_your_channel_tab" value="video">Видео</option>
+                                        <option class="select_your_channel_tab" value="post">Пост</option>
+                                    </select>
+                                    <h1 class="my_channels_options_header" id="select_type_video_header">Параметры
+                                        публикации видео</h1>
+                                    <select id="select_type_video"
+                                        class="select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full">
+                                        <option class="select_your_channel_tab" value="horizontal">Горизонтальное без
+                                            огрничений по времени</option>
+                                        <option class="select_your_channel_tab" value="vertical">Вертикальное до 5 минут
+                                        </option>
+
+                                    </select>
                                 </div>
+                                {{-- <div class="select_channel_tab border_debug"> --}}
+
+                                    {{--
+                                </div> --}}
                                 <div class="create_channel_post">
                                     <div class="create_channel_post_tab border_debug">
-                                        <div class="create_channel_post_rect border_debug">
+                                        <div class="create_video_in_channel create_channel_post_rect">
+                                            <div class="create_channel_post_header">
+                                                <img class="create_channel_post_header_image"
+                                                    src="storage/channels_avatars/67839a292455d.png">
+                                                <div class="post_channel_author ">
+
+                                                </div>
+                                                <div class="post_channel_date ">
+                                                    12.12.2025
+                                                </div>
+                                            </div>
+                                            <div class="post_data_rect border_debug">
+                                                <div class="channel_post_data border_debug video_post_data">
+                                                    <input type="file" id="videoInput" accept="video/*">
+                                                    <video id="videoPreview" width="600" controls style="display: none;"></video>
+
+                                                </div>
+                                                <div class="div_label_for_upload_images">
+                                                    <label class="label_for_upload_images"
+                                                        id="label_for_upload_images_new_post_channel"
+                                                        for="videoInput">Загрузить видео</label>
+
+                                                </div>
+                                                <div id="delete_video" class="label_for_upload_images">
+                                                    Удалить видео
+                                                </div>
+                                                <div class="input_channel_post_text">
+                                                    <textarea placeholder="Введите описание видео здесь"
+                                                        oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"
+                                                        ;
+                                                        class="input_post_text select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900
+                                                        dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500
+                                                         dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full textarea_input_channel_post_text"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="publish_channel_post">
+                                                <div class="publish_channel_post_button">
+                                                    Опубликовать видео
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="create_post_in_channel create_channel_post_rect border_debug">
                                             <div class="create_channel_post_header">
                                                 <img class="create_channel_post_header_image"
                                                     src="storage/channels_avatars/67839a292455d.png">
@@ -345,37 +405,6 @@
                                                     Опубликовать пост
                                                 </div>
                                             </div>
-                                            <!-- <div class="post_footer">
-                                                <div class="post_likes">
-                                                    Мне нравится
-                                                </div>
-                                                <div class="post_likes_counter">
-                                                    Лайки:
-                                                </div>
-                                                <div class="post_watchers">
-                                                    Просмотры:
-                                                </div>
-                                            </div> -->
-                                            <!-- <div class="open_comments open_comments_`+ post['id'] + `">
-                                                Открыть комментарии
-                                            </div>
-                                            <div class="comments_plane comments_plane_`+ post['id'] + `">
-
-                                            </div> -->
-                                            <!-- <div class="post_comments">
-                                                <div class="post_comments_input">
-                                                    <textarea class="text_input_comment" name="text"
-                                                        oninput='this.style.height = "";this.style.height = this.scrollHeight + "px";'></textarea>
-
-                                                    <div class="div_send_comment">
-                                                        <div class="send_comment">
-                                                            Отправить
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-
-                                            </div> -->
                                         </div>
                                     </div>
                                 </div>

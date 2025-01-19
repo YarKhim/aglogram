@@ -1,3 +1,5 @@
+// const { error } = require("laravel-mix/src/Log");
+
 const fileInput = document.getElementById('channel_avatar_upload');
 const preview = document.getElementById('preview');
 const previewImg = document.getElementById('preview-img');
@@ -10,6 +12,7 @@ const select_channel = document.getElementById('select_channel');
 let page = 1; // Начальная страница
 const limit = 3; // Количество постов на страницу
 var loading = false;
+channel_id_settings = null;
 console.log("🚀 ~ select_channel:", select_channel)
 file_avatar_channel = '';
 new_file_avatar_channel = '';
@@ -46,26 +49,19 @@ $.ajax({
         alert('Произошла ошибка: ' + xhr.responseJSON.message);
     }
 });
+current_tab = 'opened_tab_0';
+$('#' + current_tab).css('display', 'flex');
+$('#select_tab_0').addClass('selected_channel_tab');
 all_tabs_channels_select.forEach(tab => {
-    console.log($(tab));
     $(tab).on('click', function () {
-        if (isFirst) {
-            id_tab = 'opened_tab_' + this.id.replace('select_tab_', '');
-            $('#' + id_tab).css('display', 'flex');
-            document.getElementById(this.id).classList.add('selected_channel_tab');
-            current_tab = id_tab;
-            isFirst = false;
-        }
-        else {
-            $('#' + current_tab).css('display', 'none');
-            last_select_tab_id = 'select_tab_' + current_tab.replace('opened_tab_', '')
-            document.getElementById(last_select_tab_id).classList.remove('selected_channel_tab');
-            document.getElementById(this.id).classList.add('selected_channel_tab');
-            id_tab = 'opened_tab_' + this.id.replace('select_tab_', '');
-            $('#' + id_tab).css('display', 'flex');
-            current_tab = id_tab;
-        }
-    })
+        $('#' + current_tab).css('display', 'none');
+        last_select_tab_id = 'select_tab_' + current_tab.replace('opened_tab_', '')
+        document.getElementById(last_select_tab_id).classList.remove('selected_channel_tab');
+        document.getElementById(this.id).classList.add('selected_channel_tab');
+        id_tab = 'opened_tab_' + this.id.replace('select_tab_', '');
+        $('#' + id_tab).css('display', 'flex');
+        current_tab = id_tab;
+    });
 });
 fileInput.addEventListener('change', function (event) {
     const file = event.target.files[0];
@@ -184,7 +180,9 @@ $.ajax({
                 $('#subscription_tab_' + element['id']).click(function () {
                     $('.opened_channel_subscription_header_avatar_img').attr('src', element['channel_avatar']);
                     $('.text_channel_info_name').text(element['name']);
+                    // $(this).css('pointer-events', 'none');
                     $('.text_channel_count_subscribers').text(element['subscribes_count'] + ' Папищиков');
+                    $('.opened_channel_subscription_posts').empty();
                     $('.opened_channel_subscription').css('display', 'flex');
                     opened_channel_id = element['id'];
                     $('.unsubscribe_channel_button').click(function () {
@@ -196,6 +194,7 @@ $.ajax({
                         $('.opened_channel_subscription').css('display', 'none');
                         opened_channel_id = null;
                         $('#subscription_tab_' + element['id']).remove();
+
                     });
 
                     all_comments_is_open = {};
@@ -248,12 +247,9 @@ $.ajax({
                                                     <div class="post_data">
                                                         <div class="post_data_images">
                                                             <div class="post_data_image" id="post_data_image_`+ post['id'] + `">
-
-
                                                             </div>
                                                         </div>
                                                         <div class="post_text" id="post_text_`+ post['id'] + `">
-
                                                         </div>
                                                     </div>
                                                 </div>
@@ -609,7 +605,7 @@ $.ajax({
             channel_select_tab = ` <option class="select_your_channel_tab " value="` + channel['id'] + `" >` + channel['name'] + `</option>`;
             $(select_channel).append(channel_select_tab);
             channel_tab =
-                `<div class="my_channel_tab">
+                `<div class="my_channel_tab" id="my_channel_tab_` + channel['id'] + `">
                 <div class="left_side_my_channel_tab">
                     <img src="`+ channel['channel_avatar'] + `">
                 </div>
@@ -637,6 +633,7 @@ $.ajax({
                     });
             });
             $('#channel_settings_' + channel['id']).on('click', function () {
+                channel_id_settings = channel['id'];
                 $('#third_plane').text('Настройки канала @' + channel['channel_name']);
                 $('.channel_settings_inputs_tab').css('display', 'block');
                 current_update_channel_id = channel['id'];
@@ -912,6 +909,58 @@ $('.serarch_channel_button').on('click', function () {
                 console.error('Error:', xhr);
                 alert('Произошла ошибка: ' + xhr.responseJSON.message);
             }
+        });
+    }
+});
+$('#select_type_post').val('post');
+$('.create_video_in_channel').css('display', 'none');
+$('#select_type_post').change(function () {
+    if ($(this).val() == 'video') {
+        $('#select_type_video').css('display', 'block');
+        $('#select_type_video_header').css('display', 'block');
+        $('.create_post_in_channel').css('display', 'none');
+        $('.create_video_in_channel').css('display', 'block');
+    }
+    else {
+        $('#select_type_video').css('display', 'none');
+        $('#select_type_video_header').css('display', 'none');
+        $('.create_post_in_channel').css('display', 'block');
+        $('.create_video_in_channel').css('display', 'none');
+    }
+})
+$('#delete_channel_button').click(function () {
+    // console.log(channel_id_settings);
+    $.ajax({
+        url: '/delete_channel',
+        type: 'get',
+        data: {
+            channel_id: current_update_channel_id,
+        },
+        success: function (response) {
+            console.log(response);
+            $('#my_channel_tab_' + current_update_channel_id).remove();
+        },
+        error: function (xhr) {
+            console.log(xhr);
+        }
+    });
+});
+const videoInput = document.getElementById('videoInput');
+const videoPreview = document.getElementById('videoPreview');
+
+$('#videoInput').on('change', function() {
+    const file = this.files[0];
+    if (file) {
+        const fileURL = URL.createObjectURL(file);
+        $('#videoPreview').attr('src', fileURL).show();
+
+        // Воспроизведение видео после загрузки метаданных
+        $('#videoPreview').get(0).load(); // Загружаем видео
+        $('#videoPreview').get(0).play(); // Автоматически воспроизводим
+
+        // Очистка URL после завершения воспроизведения
+        $('#videoPreview').on('ended', function() {
+            URL.revokeObjectURL(fileURL);
         });
     }
 });

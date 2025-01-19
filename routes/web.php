@@ -120,6 +120,7 @@ Route::post('/isLikeSent', [isLikeSent::class, 'islikesent']);
 Route::get('/load_post_comments', [load_post_comments::class, 'load_comments']);
 Route::post('/start_chat', [start_chat::class, 'start_users_chat']);
 Route::get('/get_channels', [create_channel::class, 'get_channels']);
+Route::get('/delete_channel', [create_channel::class, 'delete_channel']);
 Route::get('/search_channels', [search_channels::class, 'search']);
 Route::get('/get_all_subscriptions', [search_channels::class, 'get_all_subscriptions']);
 Route::get('/is_subscribe', [is_subscribe::class, 'check_subscribe']);

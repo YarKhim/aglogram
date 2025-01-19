@@ -1282,6 +1282,7 @@ input[type="file"] {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 }
 
 .post_data {
@@ -1967,7 +1968,7 @@ input[type="file"] {
 
 .subscriptions_list {
     overflow-y: auto;
-    height: 100%;
+    height: 90%;
     /* background-color: #0056b3; */
     display: flex;
     flex-direction: column;
@@ -2346,9 +2347,9 @@ input[type="file"] {
     margin-top: 5%;
     margin-bottom: 5%;
     width: 60%;
+    height: fit-content;
     /* height: 100%; */
-    /* height: 100%; */
-    overflow-y: auto;
+    /* overflow-y: auto; */
 }
 .input_channel_post_text{
     /* border-radius: 20px; */
@@ -2646,4 +2647,24 @@ input[type="file"] {
     /* background-color: red; */
     height: 100%;
     overflow-y: auto;
+    /* pointer-events: ; */
+}
+#select_type_video{
+    display: none;
+}
+#select_type_video_header{
+    display: none;
+}
+#videoPreview{
+    /* width: 90%; */
+    height: 55vh;
+}
+.video_post_data{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    /* flex-direction: column; */
+    justify-content: center;
+    margin-top: 5%;
+    margin-bottom: 2%;
 }
