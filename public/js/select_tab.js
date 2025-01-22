@@ -216,15 +216,249 @@ $.ajax({
                             success: function (data) {
                                 console.log(data);
                                 if (data.data.data.length > 0) {
-                                    // data.data.forEach(post => {
-                                    //     $('#posts-container').append(<div><h2>${post.title}</h2><p>${post.content}</p></div>);
-                                    // });
-
                                     posts = data.data.data;
                                     liked_post = data.liked_posts;
                                     console.log("🚀 ~ loadChannelPosts ~ liked_post:", liked_post)
                                     posts.forEach(post => {
+                                        if (post['type_media'] == 'video') {
+                                            console.log('Это видео');
+                                            const url = '/storage/' + post['text'];
+                                            post_text = '';
+                                            photos = JSON.parse(post['photos']);
+                                            console.log(photos);
+                                            post_tab =
+                                                `<div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
+                                                <div class="user_post_rect">
+                                                    <div class="post_header ">
+                                                        <img class="post_image "
+                                                            src="`+ element['channel_avatar'] + `">
+                                                        <div class="post_author ">
+                                                            `+ element['name'] + `
+                                                        </div>
+                                                        <div class="post_date " id="post_date_`+ post['id'] + `">
+                                                            `+ create_at + `
+                                                        </div>
+                                                    </div>
+                                                    <div class="post_data_rect">
+                                                        <div class="post_data">
+                                                            <div class="post_data_images">
+                                                            <video controls src="/storage/`+ photos[0] + `" id='video_` + post['id'] + `'></video>
+                                                            </div>
+                                                            <div class="post_text" id="post_text_`+ post['id'] + `">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="post_footer">
+                                                        <div class="post_likes" id="post_likes_`+ post['id'] + `">
+                                                            Мне нравится
+                                                        </div>
+                                                        <div class="post_likes_counter" id="post_likes_counter_`+ post['id'] + `">
+                                                            Лайки: `+ post['likes_count'] + `
+                                                        </div>
+                                                        <div class="post_watchers" id="post_watchers_`+ post['id'] + `">
+                                                            Просмотры: `+ post['views'] + `
+                                                        </div>
+                                                    </div>
+                                                    <div class="open_comments open_comments_`+ post['id'] + `"  >
+                                                        Открыть комментарии
+                                                    </div>
+                                                    <div class="comments_plane comments_plane_`+ post['id'] + `">
 
+                                                    </div>
+                                                    <div class="post_comments">
+                                                        <div class="post_comments_input">
+                                                            <textarea id="input_comment_`+ post['id'] + `"  class="text_input_comment" name="text"
+                                                                oninput='this.style.height = "";this.style.height = this.scrollHeight + "px";'></textarea>
+
+                                                            <div class="div_send_comment">
+                                                                <div class="send_comment" id="send_comment_`+ post['id'] + `">
+                                                                    Отправить
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                            </div>`;
+                                            $('.opened_channel_subscription_posts').append(post_tab);
+                                            fetch(url)
+                                                .then(response => {
+                                                    if (!response.ok) {
+                                                        post_text = '<p>Произошла ошибка загрузки :(</p>';
+                                                        $('#post_text_' + post['id']).append(post_text);
+                                                        throw new Error('Сеть ответила с ошибкой: ' + response.status);
+                                                    }
+                                                    return response.text(); // Получаем текст из ответа
+                                                })
+                                                .then(text => {
+                                                    post_text = '<p>' + text + '</p>';
+                                                    $('#post_text_' + post['id']).append(post_text);
+                                                })
+                                                .catch(error => {
+                                                    console.error('Произошла ошибка:', error);
+                                                });
+                                            const open_comments = document.querySelector('.open_comments_' + post['id']);
+                                            all_comments_is_open[post['id']] = false;
+
+                                            function load_post_comments(isFirst = false) {
+                                                if (load_post_comments[post['id']]) return;
+                                                load_post_comments[post['id']] = true;
+                                                $.ajax({
+                                                    url: '/load_post_comments',
+                                                    type: 'get',
+                                                    data: {
+                                                        post_id: post['id'],
+                                                        page: last_posts_comments[post['id']],
+                                                    },
+                                                    success: function (comment_load_result) {
+                                                        res = comment_load_result['data']['data'];
+                                                        users = comment_load_result['users'];
+                                                        if (res.length > 0) {
+                                                            $('#not_comments_' + post['id']).remove();
+                                                            res.forEach(comment => {
+                                                                current_post_author = users[comment['author_id']];
+                                                                post_created_at = new Date(comment['created_at']);
+                                                                comment_tab =
+                                                                    `<div class="comment_tab comment_tab_` + comment['id'] + `">
+                                                                            <div class="comment comment_`+ comment['id'] + `">
+                                                                                <div class="comentatr_avatar">
+                                                                                    <img
+                                                                                        src="`+ current_post_author['avatar'] + `">
+                                                                                </div>
+                                                                                <div class="commentor_name_comment_text">
+                                                                                    <div class='about_post'>
+                                                                                        <div class="commentator_name">
+                                                                                            `+ current_post_author['name'] + ` ` + current_post_author['lastname'] + `
+                                                                                        </div>
+                                                                                    <div class='post_time'>`+ String(post_created_at.getDate()).padStart(2, '0') + `.` + String(post_created_at.getMonth() + 1).padStart(2, '0') + `.` + post_created_at.getFullYear() + ` ` + String(post_created_at.getHours()).padStart(2, '0') + `:` + String(post_created_at.getMinutes()).padStart(2, '0') + `</div>
+                                                                                    </div>
+
+                                                                                    <div class="comment_text">
+                                                                                        <p>
+                                                                                            `+ comment['text'] + `
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </div>
+
+
+                                                                            </div>
+                                                                        </div>`;
+                                                                $('.comments_plane_' + post['id']).append(comment_tab);
+                                                            });
+                                                            last_posts_comments[post['id']] = last_posts_comments[post['id']] + 1;
+                                                        }
+                                                        else {
+                                                            if (isFirst) {
+                                                                $('.not_comments_' + post['id']).remove();
+                                                                not_comments_tab =
+                                                                    ` <div class='not_comments not_comments_` + post['id'] + `' id="not_comments_` + post['id'] + `" >
+                                                                            Под этим постом ещё нет комметрариев :)
+                                                                        </div>`;
+                                                                $('.comments_plane_' + post['id']).append(not_comments_tab);
+                                                            }
+                                                        }
+                                                    },
+                                                    error: function (xhr) {
+                                                        console.error('Error:', xhr);
+                                                        alert('Произошла ошибка: ' + xhr.responseJSON.message);
+                                                    },
+                                                    complete: function () {
+                                                        load_post_comments[post['id']] = false;
+                                                    }
+                                                })
+                                            }
+                                            $(document.querySelector('.comments_plane_' + post['id'])).on('scroll', function () {
+                                                if ($(this).scrollTop() + $(this).innerHeight() >= this.scrollHeight - 20) { // добавляем небольшой отступ
+                                                    load_post_comments(); // загружаем данные при достижении конца контейнера
+                                                }
+                                            });
+
+                                            // send_comment_
+                                            $('#send_comment_' + post['id']).on('click', function () {
+                                                value_text = $('#input_comment_' + post['id']).val();
+                                                datenow = new Date();
+                                                comment_guid = generateGUID();
+                                                comment_tab =
+                                                    `<div class="comment_tab comment_tab_` + comment_guid + `">
+                                                                <div class="comment comment_`+ comment_guid + `">
+                                                                    <div class="comentatr_avatar">
+                                                                        <img
+                                                                            src="`+ this_user['avatar'] + `">
+                                                                    </div>
+                                                                    <div class="commentor_name_comment_text">
+                                                                        <div class='about_post'>
+                                                                            <div class="commentator_name">
+                                                                                `+ this_user['name'] + ` ` + this_user['lastname'] + `
+                                                                            </div>
+                                                                        <div class='post_time'>`+ String(datenow.getDate()).padStart(2, '0') + `.` + String(datenow.getMonth() + 1).padStart(2, '0') + `.` + datenow.getFullYear() + ` ` + String(datenow.getHours()).padStart(2, '0') + `:` + String(datenow.getMinutes()).padStart(2, '0') + `</div>
+                                                                        </div>
+
+                                                                        <div class="comment_text">
+                                                                            <p>
+                                                                                `+ value_text + `
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>`;
+                                                $('.comments_plane_' + post['id']).prepend(comment_tab);
+                                                // $(document.querySelector('.comments_plane_' + post['id']))
+                                                // post_id = post_div.id.replace('user_post_tab_', '');
+                                                data = {
+                                                    'post_id': post['id'],
+                                                    'comment_guid': comment_guid,
+                                                    'comment_text': value_text,
+                                                    'author_id': this_user_id,
+                                                    'type_message': 'new_comment_post',
+                                                }
+                                                sendMessage(JSON.stringify(data));
+
+                                                $('#input_comment_' + post['id']).val('');
+                                            })
+
+
+                                            open_comments.addEventListener('click', function () {
+                                                if (all_comments_is_open[post['id']]) {
+                                                    document.querySelector('.open_comments_' + post['id']).classList.remove('close_comments');
+                                                    document.querySelector('.open_comments_' + post['id']).innerText = 'Показать комментарии';
+                                                    $(document.querySelector('.comments_plane_' + post['id'])).css('display', 'none');
+                                                    all_comments_is_open[post['id']] = false;
+                                                }
+                                                else {
+                                                    document.querySelector('.open_comments_' + post['id']).classList.add('close_comments');
+                                                    document.querySelector('.open_comments_' + post['id']).innerText = 'Скрыть комметарии';
+                                                    $(document.querySelector('.comments_plane_' + post['id'])).css('display', 'flex');
+                                                    all_comments_is_open[post['id']] = true;
+                                                    load_post_comments(true)
+                                                }
+                                            });
+                                            const all_posts_div = document.querySelector('.opened_channel_subscription_posts');
+                                            const posts_divs = document.querySelectorAll('.user_post_tab');
+                                            function checkVisibility() {
+                                                posts_divs.forEach(post_div => {
+                                                    const childRect = post_div.getBoundingClientRect();
+                                                    const parentRect = all_posts_div.getBoundingClientRect();
+                                                    const childVisibleHeight = Math.max(0, Math.min(childRect.bottom, parentRect.bottom) - Math.max(childRect.top, parentRect.top));
+                                                    const halfChildHeight = post_div.offsetHeight / 2;
+                                                    if (childVisibleHeight >= halfChildHeight && !viewed_posts_id.includes(post_div.id)) {
+                                                        viewed_posts_id.push(post_div.id);
+                                                        yourFunction(post_div);
+                                                    }
+                                                });
+                                            }
+                                            function yourFunction(post_div) {
+
+                                                post_id = post_div.id.replace('user_post_tab_', '');
+                                                data = {
+                                                    'post_id': post_id,
+                                                    'type_message': 'new_post_view',
+                                                }
+                                                sendMessage(JSON.stringify(data));
+                                            }
+                                            all_posts_div.addEventListener('scroll', checkVisibility);
+                                            return;
+                                        }
                                         photos = JSON.parse(post['photos']);
                                         const url = '/storage/' + post['text'];
                                         post_text = '';
@@ -947,20 +1181,50 @@ $('#delete_channel_button').click(function () {
 });
 const videoInput = document.getElementById('videoInput');
 const videoPreview = document.getElementById('videoPreview');
+file = null;
+current_file = null;
 
-$('#videoInput').on('change', function() {
+
+
+
+$('#videoInput').on('change', function () {
     const file = this.files[0];
+    const reader = new FileReader();
     if (file) {
         const fileURL = URL.createObjectURL(file);
         $('#videoPreview').attr('src', fileURL).show();
-
+        current_file = file;
         // Воспроизведение видео после загрузки метаданных
         $('#videoPreview').get(0).load(); // Загружаем видео
         $('#videoPreview').get(0).play(); // Автоматически воспроизводим
 
         // Очистка URL после завершения воспроизведения
-        $('#videoPreview').on('ended', function() {
+        $('#videoPreview').on('ended', function () {
             URL.revokeObjectURL(fileURL);
+            // fileURL = null;
         });
     }
+    reader.onload = function (e) {
+        // console.log(e.target.result);
+        current_file_video = e.target.result;
+    }
+
+    reader.readAsDataURL(file);
+});
+$('.publish_channel_video_button').click(function () {
+    if ($('.video_name').val().trim() != '') {
+        console.log($('#select_channel').val());
+        data = {
+            'channel_id': $('#select_channel').val(),
+            'type_message': 'new_video_channel_post',
+            'video_link': [current_file_video],
+            'video_name': $('.video_name').val().trim(),
+            'post_text': $('.input_video_description').val().trim(),
+        }
+        sendMessage(JSON.stringify(data));
+    }
+    else {
+        alert('Обязательно ввести название видео!');
+    }
+
 });

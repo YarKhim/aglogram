@@ -86,7 +86,7 @@
                                     </div>
                                     <div class="opened_channel_subscription_posts">
 
-                                        {{-- <div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
+                                        <div class="user_post_tab " id="user_post_tab_` + post['id'] + `">
                                             <div class="user_post_rect">
                                                 <div class="post_header ">
                                                     <img class="post_image "
@@ -98,12 +98,9 @@
                                                     </div>
                                                 </div>
                                                 <div class="post_data_rect">
-                                                    <div class="post_data">
-                                                        <div class="post_data_images">
-                                                            <div class="post_data_image">
-
-
-                                                            </div>
+                                                    <div class="post_data border_debug">
+                                                        <div class="post_data_video border_debug">
+                                                            <video controls src="storage/videos/679133f82d736.mp4"></video>
                                                         </div>
                                                         <div class="post_text">
 
@@ -115,10 +112,10 @@
                                                         Мне нравится
                                                     </div>
                                                     <div class="post_likes_counter">
-                                                        Лайки: `+ post['likes_count'] + `
+                                                        Лайки: 12
                                                     </div>
                                                     <div class="post_watchers">
-                                                        Просмотры: `+ post['views'] + `
+                                                        Просмотры: 12
                                                     </div>
                                                 </div>
                                                 <div class="open_comments open_comments_`+ post['id'] + `">
@@ -144,7 +141,7 @@
 
                                                 </div>
                                             </div>
-                                        </div> --}}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -334,15 +331,18 @@
                                             </div>
                                             <div class="post_data_rect border_debug">
                                                 <div class="channel_post_data border_debug video_post_data">
-                                                    <input type="file" id="videoInput" accept="video/*">
-                                                    <video id="videoPreview" width="600" controls style="display: none;"></video>
+                                                    <form id="uploadForm" enctype="multipart/form-data">
+                                                        <input type="file" id="videoInput" accept="video/*">
+                                                        {{-- <button type="submit">Загрузить изображение</button> --}}
+                                                    </form>
+                                                    <video id="videoPreview" width="600" controls
+                                                        style="display: none;"></video>
 
                                                 </div>
                                                 <div class="div_label_for_upload_images">
                                                     <label class="label_for_upload_images"
                                                         id="label_for_upload_images_new_post_channel"
                                                         for="videoInput">Загрузить видео</label>
-
                                                 </div>
                                                 <div id="delete_video" class="label_for_upload_images">
                                                     Удалить видео
@@ -351,13 +351,18 @@
                                                     <textarea placeholder="Введите описание видео здесь"
                                                         oninput="this.style.height = '';this.style.height = this.scrollHeight + 'px'"
                                                         ;
-                                                        class="input_post_text select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900
+                                                        class="input_video_description input_post_text select_your_channel border-gray-300 dark:border-gray-700 dark:bg-gray-900
                                                         dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500
                                                          dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full textarea_input_channel_post_text"></textarea>
+                                                    <input placeholder="Введите название видео здесь" type="text" class="video_name border-gray-300 dark:border-gray-700 dark:bg-gray-900
+                                                    dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500
+                                                    dark:focus:ring-indigo-600 rounded-md shadow-sm mt-1 block w-full"
+                                                        maxlength="50">
                                                 </div>
+
                                             </div>
                                             <div class="publish_channel_post">
-                                                <div class="publish_channel_post_button">
+                                                <div class="publish_channel_video_button">
                                                     Опубликовать видео
                                                 </div>
                                             </div>

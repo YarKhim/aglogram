@@ -327,16 +327,16 @@ class Chat implements MessageComponentInterface
             $path = 'posts_text/' . $fileName;
             $text_link =  $path;
             Storage::disk('public')->put($path , $text);
-            dump($msg_decode->type_post);
+            // dump($msg_decode->type_post);
             if($msg_decode->type_post == 'channel_post'){
-                echo 123;
+                // echo 123;
                 $new_channel_post = Post::create([
                     'author_id' => $author,
                     'text' => $text_link,
                     'photos' => $links,
                     'type_post' => 'channel_post',
                 ]);
-                dump($new_channel_post);
+                // dump($new_channel_post);
             }
             else {
                 Post::create([
@@ -470,7 +470,38 @@ class Chat implements MessageComponentInterface
             $channel = Channel::where('id', $msg_decode->channel_id)->decrement('subscribes_count');
 
         }
-        // new_channel
+        if($msg_decode->type_message == 'new_video_channel_post'){
+            $message = $msg_decode;
+            $text  = $msg_decode->post_text;
+            $fileName = uniqid() . '.txt';
+            $path = 'posts_text/' . $fileName;
+            $text_link =  $path;
+            Storage::disk('public')->put($path , $text);
+            $images_links = [];
+            // $text_link = '';
+            foreach ($msg_decode->video_link as $photo) {
+                list($type, $data) = explode(';', $photo);
+                list(, $data) = explode(',', $data);
+                // Декодируем данные
+                $data = base64_decode($data);
+                $fileName = uniqid() . '.mp4';
+                $path = 'videos/' . $fileName;
+                $images_links[] = $path;
+                Storage::disk('public')->put($path , $data);
+            }
+            $links = json_encode($images_links);
+            // dump($msg_decode);
+            // dump($msg_decode->channel_id);
+            Post::create([
+                'author_id' => $msg_decode->channel_id,
+                'text' => $text_link,
+                'photos' => $links,
+                'type_post' => 'channel_post',
+                'type_media' => 'video',
+                'video_name' => $msg_decode->video_name,
+            ]);
+        }
+    // new_channel
         // new_post_view
         // switch ($msg_decode->type_message) {
         //     case 'value':
